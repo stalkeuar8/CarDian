@@ -15,6 +15,7 @@ class ManualLookups(Base):
     id: Mapped[idpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
     mode: Mapped[non_empty_str] = mapped_column(index=True)
+    vin: Mapped[non_empty_str] = mapped_column(index=True)
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]
@@ -38,6 +39,7 @@ class ParsedLookups(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
     status: Mapped[non_empty_str]
     raw_data: Mapped[str]
+    vin: Mapped[non_empty_str] = mapped_column(index=True)
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]

@@ -6,6 +6,7 @@ from datetime import datetime
 
 class LookupBaseSchema(BaseModel):
     user_id: int
+    vin: str
     brand: str
     model: str
     year: int = Field(gt=1850)

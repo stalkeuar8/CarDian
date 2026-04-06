@@ -12,12 +12,14 @@ class ParsedLookupsStatus(str, Enum):
 
 class FuelType(str, Enum):
     gasoline = "gasoline"
-    hybrid = "hybrid"
+    electric_gasoline = "electric_gasoline"
+    electric_diesel = "electric_diesel"
+    electric = "electric"
     diesel = "diesel"
-    flex_fuel = "flex_fuel"
+
 
 class TransmissionType(str, Enum):
-    auto = "auto"
-    cvt = "cvt"
+    automathic = "automathic"
+    semi_automathic = "semi_automathic"
     manual = "manual"
     other = "other"
