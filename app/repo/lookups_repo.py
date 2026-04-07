@@ -9,3 +9,6 @@ from app.repo.base_repo import BaseRepo
 class ManualLookupsRepo(BaseRepo[ManualLookups]):
     model = ManualLookups
 
+
+class ParsedLookupsRepo(BaseRepo[ParsedLookups]):
+    model = ParsedLookups

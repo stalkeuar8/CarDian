@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from enum import Enum
+from datetime import datetime
 
 class UserRole(str, Enum):
     user = "user"
@@ -18,3 +19,13 @@ class UserRegisterRequestSchema(UserBaseSchema):
 
 class UserCreateSchema(UserBaseSchema):
     hashed_password: str
+
+    model_config = ConfigDict(extra='ignore')
+
+
+class UserResponseSchema(UserBaseSchema):
+    id: int
+    role: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
