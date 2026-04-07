@@ -13,10 +13,6 @@ class UserBaseSchema(BaseModel):
     email: EmailStr
 
 
-class UserRegisterRequestSchema(UserBaseSchema):
-    password: str
-
-
 class UserCreateSchema(UserBaseSchema):
     hashed_password: str
 

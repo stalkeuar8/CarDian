@@ -21,7 +21,7 @@ class BaseRepo(Generic[T]):
         new_obj = cls.model(**new_obj_dto.model_dump())
 
         session.add(new_obj)
-        await session.flush
+        await session.flush()
 
         if new_obj:
             return new_obj
@@ -29,26 +29,26 @@ class BaseRepo(Generic[T]):
         return None
 
 
-    @classmethod
-    async def bulk_create(cls, session: AsyncSession, new_objects_dtos: SequenceBaseSchema) -> Sequence[T] | None:
+    # @classmethod
+    # async def bulk_create(cls, session: AsyncSession, new_objects_dtos: SequenceBaseSchema) -> Sequence[T] | None:
 
-        new_objs = [cls.model(**new_obj_dto.model_dump()) for new_obj_dto in new_objects_dtos.items]
+    #     new_objs = [cls.model(**new_obj_dto.model_dump()) for new_obj_dto in new_objects_dtos.items]
 
-        session.add_all(new_objs)
-        await session.flush()
+    #     session.add_all(new_objs)
+    #     await session.flush()
 
-        if new_objs:
-            return new_objs
+    #     if new_objs:
+    #         return new_objs
         
-        return None
+    #     return None
     
-    
+
     @classmethod
-    async def find_by_id(cls, session: AsyncSession, id_to_find: int) -> T | None:
+    async def find_by_id(cls, session: AsyncSession, current_user_id: int, id_to_find: int) -> T | None:
 
         query = (
             select(cls.model)
-            .where(cast(Any, cls.model.id)==id_to_find, cast(Any, cls.model.deleted_at).is_(None))
+            .where(cast(Any, cls.model.id)==id_to_find, cast(Any, cls.model.deleted_at).is_(None), cast(Any, cls.model.user_id)==current_user_id)
         )
     
         result = await session.execute(query)
@@ -61,13 +61,13 @@ class BaseRepo(Generic[T]):
     
 
     @classmethod
-    async def delete_by_id(cls, session: AsyncSession, id_to_delete: int) -> T | None:
+    async def delete_by_id(cls, session: AsyncSession, current_user_id: int, id_to_delete: int) -> T | None:
 
         current_time = datetime.now(tz=timezone.utc)
         
         query = (
             update(cls.model)
-            .where(cast(Any, cls.model.id)==id_to_delete, cast(Any, cls.model.deleted_at).is_not(None))
+            .where(cast(Any, cls.model.id)==id_to_delete, cast(Any, cls.model.deleted_at).is_not(None), cast(Any, cls.model.user_id)==current_user_id)
             .values(deleted_at=current_time)
             .returning(cls.model)
         )

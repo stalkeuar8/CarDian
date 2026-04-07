@@ -31,6 +31,8 @@ class ManualLookups(Base):
         Index("manual_brand_model_idx", "brand", "model"),
     )
 
+    user: Mapped['Users'] = relationship(back_populates="manual_lookups")
+
 
 class ParsedLookups(Base):
 
@@ -55,3 +57,5 @@ class ParsedLookups(Base):
     __table_args__ = (
         Index("parsed_brand_model_idx", "brand", "model"),
     )
+
+    user: Mapped['Users'] = relationship(back_populates="parsed_lookups")
