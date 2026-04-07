@@ -15,7 +15,6 @@ class ManualLookups(Base):
     id: Mapped[idpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
     mode: Mapped[non_empty_str] = mapped_column(index=True)
-    vin: Mapped[non_empty_str] = mapped_column(index=True)
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]
@@ -25,9 +24,11 @@ class ManualLookups(Base):
     condition: Mapped[non_empty_int]
     price_listed: Mapped[non_empty_int]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
-
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
+    
+    
     __table_args__ = (
-        Index("brand_model_idx", "brand", "model"),
+        Index("manual_brand_model_idx", "brand", "model"),
     )
 
 
@@ -39,7 +40,6 @@ class ParsedLookups(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
     status: Mapped[non_empty_str]
     raw_data: Mapped[str]
-    vin: Mapped[non_empty_str] = mapped_column(index=True)
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]
@@ -49,7 +49,9 @@ class ParsedLookups(Base):
     condition: Mapped[non_empty_int]
     price_listed: Mapped[non_empty_int]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
-
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
+    
+    
     __table_args__ = (
-        Index("brand_model_idx", "brand", "model"),
+        Index("parsed_brand_model_idx", "brand", "model"),
     )

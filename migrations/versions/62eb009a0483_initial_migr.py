@@ -1,8 +1,8 @@
-"""adding tables
+"""initial migr
 
-Revision ID: 4de5ca64093a
+Revision ID: 62eb009a0483
 Revises: 
-Create Date: 2026-04-06 18:36:58.479523
+Create Date: 2026-04-07 06:50:36.588321
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4de5ca64093a'
+revision: str = '62eb009a0483'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -50,12 +50,12 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], onupdate='RESTRICT', ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('brand_model_idx', 'manual_lookups', ['brand', 'model'], unique=False)
     op.create_index(op.f('ix_manual_lookups_brand'), 'manual_lookups', ['brand'], unique=False)
     op.create_index(op.f('ix_manual_lookups_mode'), 'manual_lookups', ['mode'], unique=False)
     op.create_index(op.f('ix_manual_lookups_model'), 'manual_lookups', ['model'], unique=False)
     op.create_index(op.f('ix_manual_lookups_user_id'), 'manual_lookups', ['user_id'], unique=False)
     op.create_index(op.f('ix_manual_lookups_vin'), 'manual_lookups', ['vin'], unique=False)
+    op.create_index('manual_brand_model_idx', 'manual_lookups', ['brand', 'model'], unique=False)
     op.create_table('parsed_lookups',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -74,11 +74,11 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], onupdate='RESTRICT', ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('brand_model_idx', 'parsed_lookups', ['brand', 'model'], unique=False)
     op.create_index(op.f('ix_parsed_lookups_brand'), 'parsed_lookups', ['brand'], unique=False)
     op.create_index(op.f('ix_parsed_lookups_model'), 'parsed_lookups', ['model'], unique=False)
     op.create_index(op.f('ix_parsed_lookups_user_id'), 'parsed_lookups', ['user_id'], unique=False)
     op.create_index(op.f('ix_parsed_lookups_vin'), 'parsed_lookups', ['vin'], unique=False)
+    op.create_index('parsed_brand_model_idx', 'parsed_lookups', ['brand', 'model'], unique=False)
     op.create_table('watchlist',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -128,18 +128,18 @@ def downgrade() -> None:
     op.drop_index('users_urls', table_name='watchlist')
     op.drop_index(op.f('ix_watchlist_user_id'), table_name='watchlist')
     op.drop_table('watchlist')
+    op.drop_index('parsed_brand_model_idx', table_name='parsed_lookups')
     op.drop_index(op.f('ix_parsed_lookups_vin'), table_name='parsed_lookups')
     op.drop_index(op.f('ix_parsed_lookups_user_id'), table_name='parsed_lookups')
     op.drop_index(op.f('ix_parsed_lookups_model'), table_name='parsed_lookups')
     op.drop_index(op.f('ix_parsed_lookups_brand'), table_name='parsed_lookups')
-    op.drop_index('brand_model_idx', table_name='parsed_lookups')
     op.drop_table('parsed_lookups')
+    op.drop_index('manual_brand_model_idx', table_name='manual_lookups')
     op.drop_index(op.f('ix_manual_lookups_vin'), table_name='manual_lookups')
     op.drop_index(op.f('ix_manual_lookups_user_id'), table_name='manual_lookups')
     op.drop_index(op.f('ix_manual_lookups_model'), table_name='manual_lookups')
     op.drop_index(op.f('ix_manual_lookups_mode'), table_name='manual_lookups')
     op.drop_index(op.f('ix_manual_lookups_brand'), table_name='manual_lookups')
-    op.drop_index('brand_model_idx', table_name='manual_lookups')
     op.drop_table('manual_lookups')
     op.drop_index(op.f('ix_users_full_name'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')

@@ -20,19 +20,24 @@ editor:
 update:
 	@echo "Git Pulling..."
 	git pull origin main
-	@echo "Docker restarting..."
-	docker compose down
-	docker compose up -d --build
-	@echo "Update finished!"
+
 
 build:
-	docker compose up -d
+	docker compose -p cardian up --build
+
+up:
+	docker compose -p cardian down
+	docker compose -p cardian up postgres app redis migrations
+
 
 down:
-	docker compose down
+	docker compose -p cardian down
+
+restart: up
 
 rebuild:
-	docker compose up -d --build
+	docker compose -p cardian down
+	docker compose -p cardian up --build
 
 format:
 	@echo "Formatting code with Ruff..."
@@ -51,4 +56,4 @@ install:
 	@echo "Installing dependencies with Poetry..."
 	poetry install
 
-start: editor install check rebuild
+start: editor update install up 

@@ -1,7 +1,9 @@
+name: cardian
+
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: postgres_cardian_db
+    container_name: postgres_db
     restart: no
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -48,7 +50,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    container_name: fastapi_cardian
+    container_name: fastapi
     restart: always
     env_file:
       - .env
@@ -63,6 +65,7 @@ services:
       - cardian_network
     volumes:
       - .:/app
+      - /app/.venv
 
 
 networks:
