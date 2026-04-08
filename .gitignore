@@ -1,8 +1,0 @@
-.venv
-sec_key_gen.py
-.env
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-/migrations
