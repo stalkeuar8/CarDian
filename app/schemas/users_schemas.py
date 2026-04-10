@@ -25,3 +25,23 @@ class UserResponseSchema(UserBaseSchema):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class EmailChangeRequestSchema(BaseModel):
+    new_email: EmailStr
+
+
+class FullNameChangeRequestSchema(BaseModel):
+    new_full_name: str
+
+class PasswordChangeRequestSchema(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class DeleteUserRequestSchema(BaseModel):
+    current_password: str
+
+class DeleteUserResponseSchema(BaseModel):
+    is_deleted: bool
+    deleted_at: datetime

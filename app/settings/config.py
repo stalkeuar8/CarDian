@@ -18,15 +18,21 @@ class DatabaseSettings(Settings):
 
 class JWTSettings(Settings):
     SECRET_KEY: str
-    EXPIRING_TIME_MINS: int
-
+    ACCESS_EXPIRING_TIME_MINS: int
+    REFRESH_EXPIRING_TIME_MINS: int
+    
     @property
     def SECRETKEY(self) -> str:
         return self.SECRET_KEY
 
     @property
-    def EXP_TIME(self) -> int:
-        return self.EXPIRING_TIME_MINS
+    def ACC_EXP_TIME(self) -> int:
+        return self.ACCESS_EXPIRING_TIME_MINS
+
+    @property
+    def REF_EXP_TIME(self) -> int:
+        return self.REFRESH_EXPIRING_TIME_MINS
+
 
 
 class RedisSettings(Settings):

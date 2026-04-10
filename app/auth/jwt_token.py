@@ -12,19 +12,27 @@ from app.settings.config import jwt_settings
 from app.models.users import Users
 from app.settings.redis import get_redis
 from app.schemas.users_schemas import UserRole
-
+from app.schemas.auth_schemas import TokenType
+from app.repo.admin_repo.admin_users import AdminUsersRepo
 
 ALGORITHM = 'HS256'
 oauth2_scheme = OAuth2PasswordBearer("/v1/auth/login")
+REFRESH_EXPIRES = jwt_settings.REF_EXP_TIME
+ACCESS_EXPIRES = jwt_settings.ACC_EXP_TIME
 
-def create_access_token(user_id: int) -> str:
-    expires_at = datetime.now(tz=timezone.utc) + timedelta(minutes=jwt_settings.EXP_TIME)
+def create_token(user_id: int, token_type: TokenType) -> str:
+    
+    if token_type == TokenType.ACCESS:
+        expires_at = datetime.now(tz=timezone.utc) + timedelta(minutes=ACCESS_EXPIRES)
+    else:
+        expires_at = datetime.now(tz=timezone.utc) + timedelta(minutes=REFRESH_EXPIRES)
+
 
     jti = str(uuid.uuid4())
 
     payload = {
         "sub" : str(user_id),
-        "type" : "access",
+        "type" : token_type.value,
         "exp" : expires_at,
         "jti" : jti
     }
@@ -32,6 +40,7 @@ def create_access_token(user_id: int) -> str:
     encoded_jwt = jwt.encode(payload=payload, algorithm=ALGORITHM, key=jwt_settings.SECRETKEY)
 
     return encoded_jwt
+
 
 
 def decode_jwt(jwt_token: str) -> dict[str, Any]:
@@ -68,7 +77,7 @@ async def get_current_user(jwt_token: str = Depends(oauth2_scheme), session: Asy
     if token_in_redis:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is in blacklist (logged)")
     
-    user: Users | None = await AdminUsersRepo.find_by_id(session=session, id_to_find=int(user_id))
+    user: Users | None = await AdminUsersRepo.get_by_id(session=session, id_to_get=int(user_id), exclude_deleted=True)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="JWT AUTH Error, can not find user")
