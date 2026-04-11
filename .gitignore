@@ -8,3 +8,6 @@ __pycache__/
 /migrations
 ml/preparation.py
 *.csv
+ml/processing.ipynb
+ml/rubbish
+.idea
