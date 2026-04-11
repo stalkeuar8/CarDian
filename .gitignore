@@ -11,3 +11,6 @@ ml/preparation.py
 ml/processing.ipynb
 ml/rubbish
 .idea
+*.ipynb
+*.pkl
+*.tsv
