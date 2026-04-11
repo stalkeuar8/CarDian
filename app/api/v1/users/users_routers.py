@@ -119,6 +119,7 @@ async def deactivate_profile(body: DeleteUserRequestSchema, jwt_token: str = Dep
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User is already deleted or not found")
     
     await redis.delete(f"refresh:{current_user.id}") 
+    
     payload = decode_jwt(jwt_token=jwt_token)
     jti = payload.get("jti", None)
     exp = payload.get("exp", None)

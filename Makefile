@@ -55,5 +55,8 @@ check: format lint
 install:
 	@echo "Installing dependencies with Poetry..."
 	poetry install
+	
+env_activate: 
+	poetry env activate
 
-start: editor update install up 
+start: editor update install env_activate up 
