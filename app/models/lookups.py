@@ -2,9 +2,11 @@ from datetime import datetime, timezone
 
 from app.models.base import Base, idpk, non_empty_str, non_empty_int
 from app.schemas.users_schemas import UserRole
+from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import DateTime, ForeignKey, Index
+
 
 
 
@@ -14,15 +16,22 @@ class ManualLookups(Base):
 
     id: Mapped[idpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
-    mode: Mapped[non_empty_str] = mapped_column(index=True)
+    status: Mapped[non_empty_str] = mapped_column(default=ManualLookupsStatus.pending)
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]
-    mileage: Mapped[non_empty_int] 
-    fuel_type: Mapped[non_empty_str]
+    mileage_km: Mapped[non_empty_int] 
+    fuel_category: Mapped[non_empty_str]
     transmission: Mapped[non_empty_str]
+    power_kw: Mapped[non_empty_int]
+    body_type: Mapped[non_empty_str]
+    drive_train: Mapped[non_empty_str]
     condition: Mapped[non_empty_int]
-    price_listed: Mapped[non_empty_int]
+    had_accident: Mapped[bool]
+    has_full_service_history: Mapped[bool]
+    previous_owners_qty: Mapped[int] = mapped_column(nullable=True)
+    seller_is_dealer: Mapped[bool]
+    price_listed: Mapped[int] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     
@@ -40,16 +49,23 @@ class ParsedLookups(Base):
 
     id: Mapped[idpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
-    status: Mapped[non_empty_str]
-    raw_data: Mapped[str]
+    status: Mapped[non_empty_str] = mapped_column(default=ParsedLookupsStatus.parsed)
+    url: Mapped[non_empty_str]
     brand: Mapped[non_empty_str] = mapped_column(index=True)
     model: Mapped[non_empty_str] = mapped_column(index=True)
     year: Mapped[non_empty_int]
-    mileage: Mapped[non_empty_int] 
-    fuel_type: Mapped[non_empty_str]
+    mileage_km: Mapped[non_empty_int] 
+    fuel_category: Mapped[non_empty_str]
     transmission: Mapped[non_empty_str]
+    power_kw: Mapped[non_empty_int]
+    body_type: Mapped[non_empty_str]
+    drive_train: Mapped[non_empty_str]
     condition: Mapped[non_empty_int]
-    price_listed: Mapped[non_empty_int]
+    had_accident: Mapped[bool]
+    has_full_service_history: Mapped[bool]
+    previous_owners_qty: Mapped[int] = mapped_column(nullable=True)
+    seller_is_dealer: Mapped[bool]
+    price_listed: Mapped[int] = mapped_column(default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     
@@ -58,3 +74,12 @@ class ParsedLookups(Base):
     )
 
     user: Mapped['Users'] = relationship(back_populates="parsed_lookups")
+
+
+class ParsedLookupsRawData(Base):
+
+    __tablename__ = 'parsed_raw_data'
+
+    id: Mapped[idpk]
+    parsed_lookup_id: Mapped[int] = mapped_column(ForeignKey("parsed_lookups.id", ondelete="RESTRICT", onupdate="RESTRICT"))
+    raw_data: Mapped[str]
