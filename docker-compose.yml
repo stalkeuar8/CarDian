@@ -68,7 +68,7 @@ services:
       - /app/.venv
   celery_worker:
     build: .
-    command: celery -A app.background.celery_worker.celery_app worker --loglevel=info
+    command: celery -A app.background.celery_worker.celery_app worker --loglevel=info --pool=solo
     env_file:
       - .env
     environment:

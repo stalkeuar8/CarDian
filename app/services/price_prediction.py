@@ -14,7 +14,7 @@ class PredictService:
             2: joblib.load(f"{models_path}/xg_exp_model.pkl")
         }
 
-    async def predict(self, data_to_predict: BasePredictor) -> int | None:
+    def predict(self, data_to_predict: BasePredictor) -> int | None:
         df_input = pd.DataFrame([data_to_predict.model_dump()])
 
         segment = self.router.predict(df_input)[0]
