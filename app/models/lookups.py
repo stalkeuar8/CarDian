@@ -26,12 +26,12 @@ class ManualLookups(Base):
     power_kw: Mapped[non_empty_int]
     body_type: Mapped[non_empty_str]
     drive_train: Mapped[non_empty_str]
-    condition: Mapped[non_empty_int]
+    condition: Mapped[non_empty_str]
     had_accident: Mapped[bool]
     has_full_service_history: Mapped[bool]
     previous_owners_qty: Mapped[int] = mapped_column(nullable=True)
     seller_is_dealer: Mapped[bool]
-    price_listed: Mapped[int] = mapped_column(default=None)
+    price_listed: Mapped[int] = mapped_column(default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     
@@ -60,12 +60,12 @@ class ParsedLookups(Base):
     power_kw: Mapped[non_empty_int]
     body_type: Mapped[non_empty_str]
     drive_train: Mapped[non_empty_str]
-    condition: Mapped[non_empty_int]
+    condition: Mapped[non_empty_str]
     had_accident: Mapped[bool]
     has_full_service_history: Mapped[bool]
     previous_owners_qty: Mapped[int] = mapped_column(nullable=True)
     seller_is_dealer: Mapped[bool]
-    price_listed: Mapped[int] = mapped_column(default=None)
+    price_listed: Mapped[int] = mapped_column(default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     

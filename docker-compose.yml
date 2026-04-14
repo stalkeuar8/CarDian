@@ -66,7 +66,23 @@ services:
     volumes:
       - .:/app
       - /app/.venv
-
+  celery_worker:
+    build: .
+    command: celery -A app.background.celery_worker.celery_app worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - cardian_network
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
 networks:
   cardian_network:
@@ -77,22 +93,7 @@ volumes:
 
 
 
-  # celery_worker:
-  #   build: .
-  #   command: celery -A app.background_tasks.celery_worker.celery_app worker --loglevel=info
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - PYTHONPATH=/app
-  #   networks:
-  #     - cardian_network
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     redis:
-  #       condition: service_started
-  #     postgres:
-  #       condition: service_healthy
+
 
     # ngrok:
   #   image: ngrok/ngrok:latest

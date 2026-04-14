@@ -1,24 +1,23 @@
 import joblib
 import pandas as pd
 import numpy as np
-from app.schemas.prediction_schemas import BasePredictor
 
+from app.schemas.prediction_schemas import BasePredictor
 
 class PredictService:
 
-    def __init__(self, models_path: str = "././ml/models"):
-        self.classifier = joblib.load(f"{models_path}/classifier_model.pkl")
+    def __init__(self, models_path: str = "ml/models/v2_stable_xg_boost"):
+        self.router = joblib.load(f"{models_path}/router_model.pkl")
         self.models = {
             0: joblib.load(f"{models_path}/xg_cheap_model.pkl"),
             1: joblib.load(f"{models_path}/xg_medium_model.pkl"),
             2: joblib.load(f"{models_path}/xg_exp_model.pkl")
         }
-        
 
     async def predict(self, data_to_predict: BasePredictor) -> int | None:
         df_input = pd.DataFrame([data_to_predict.model_dump()])
 
-        segment = self.classifier.predict(df_input)[0]
+        segment = self.router.predict(df_input)[0]
 
         log_price = self.models[segment].predict(df_input)[0]
 

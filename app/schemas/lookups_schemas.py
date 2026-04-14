@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints
 
 from typing import Annotated
 
-from app.schemas.lookup_enums import Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, ManualLookupsMode, FuelCategories, TransmissionType
+from app.schemas.lookup_enums import BoolType, Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, ManualLookupsMode, FuelCategories, TransmissionType
 
 from datetime import datetime
 
@@ -26,10 +26,10 @@ class CarSchema(BaseModel):
     power_kw: int = Field(gt=0)
     body_type: BodyTypes
     drive_train: DriveTrainTypes
-    had_accident: bool
-    has_full_service_history: bool
+    had_accident: BoolType
+    has_full_service_history: BoolType
     previous_owners_qty: int = Field(ge=0)
-    seller_is_dealer: bool
+    seller_is_dealer: BoolType
 
 
 
@@ -45,6 +45,12 @@ class LookupBaseResponseSchema(LookupBaseRequestSchema):
     created_at: datetime
     deleted_at: datetime
 
+
+class ManualLookupSentResponseSchema(BaseModel):
+    lookup_id: int
+    user_id: int
+    task_id: str
+    status_code: int
 
 class ManualLookupRequestSchema(LookupBaseRequestSchema):
     pass

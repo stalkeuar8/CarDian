@@ -8,12 +8,14 @@ class ManualLookupsStatus(str, Enum):
     pending = "pending"
     completed = "completed"
     failed = "failed"
+    gemini_failed = "gemini_failed"
 
 class ParsedLookupsStatus(str, Enum):
     parsed = "parsed"
     pending = "pending"
     completed = "completed"
     failed = "failed"
+    gemini_failed = "gemini_failed"
 
 
 class FuelCategories(str, Enum):
@@ -53,3 +55,8 @@ class DriveTrainTypes(str, Enum):
     unknown = "unknown"
     front = "front wheel drive"
     rear = "rear wheel drive"
+
+
+class BoolType(int, Enum):
+    true = 1
+    false = 0

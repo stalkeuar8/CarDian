@@ -16,5 +16,6 @@ class Verdicts(Base):
     predicted_price: Mapped[non_empty_int] = mapped_column(nullable=False)
     price_deviation_percent: Mapped[int] = mapped_column(nullable=True)
     verdict: Mapped[non_empty_str] = mapped_column(nullable=False, index=True)
+    llm_feedback: Mapped[str] = mapped_column(nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)

@@ -9,6 +9,11 @@ async_engine: AsyncEngine = create_async_engine(url=database_settings.DATABASE_u
 async_session_factory = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
+celery_async_engine: AsyncEngine = create_async_engine(url=database_settings.DATABASE_url, echo=False, pool_size=5, max_overflow=10)
+
+celery_async_session_factory = async_sessionmaker(celery_async_engine, expire_on_commit=False)
+
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory.begin() as session:
         yield session
