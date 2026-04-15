@@ -34,7 +34,6 @@ class JWTSettings(Settings):
         return self.REFRESH_EXPIRING_TIME_MINS
 
 
-
 class RedisSettings(Settings):
     REDIS_PORT: int
     REDIS_HOST: str
@@ -44,6 +43,24 @@ class RedisSettings(Settings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
 
+class GeminiSettings(Settings):
+    GEMINI_API_KEY: str
+
+    @property
+    def API_KEY(self) -> str:
+        return self.GEMINI_API_KEY
+
+
+class BotSettings(Settings):
+    TG_BOT_KEY: str
+
+    @property
+    def BOT_KEY(self) -> str:
+        return self.TG_BOT_KEY
+
+
 database_settings = DatabaseSettings()
 jwt_settings = JWTSettings()
 redis_settings = RedisSettings()
+gemini_settings = GeminiSettings()
+bot_settings = BotSettings()

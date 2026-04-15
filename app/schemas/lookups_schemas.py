@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints, AnyUrl, AfterValidator
+from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints, AnyUrl, AfterValidator, ConfigDict
 
 from typing import Annotated
 
@@ -16,6 +16,8 @@ HttpsUrl = Annotated[
 
 
 class CarSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra='ignore')
+    
     brand: str
     model: str
     year: int = Field(gt=1850)
@@ -43,7 +45,6 @@ class LookupBaseResponseSchema(LookupBaseRequestSchema):
     status: str
     price_listed: int = Field(ge=0)
     created_at: datetime
-    deleted_at: datetime
 
 
 class ManualLookupSentResponseSchema(BaseModel):

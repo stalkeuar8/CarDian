@@ -73,6 +73,7 @@ services:
       - .env
     environment:
       - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
     networks:
       - cardian_network
     volumes:
