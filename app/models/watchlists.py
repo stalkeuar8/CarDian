@@ -15,7 +15,7 @@ class Watchlist(Base):
     url: Mapped[non_empty_str]
     last_price: Mapped[non_empty_int]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
-    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
     __table_args__ = (
         Index("users_urls", "user_id", "url"),

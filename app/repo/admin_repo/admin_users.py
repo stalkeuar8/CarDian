@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 
+from app.schemas.users_schemas import UserCreateSchema
 from app.schemas.users_schemas import UserResponseSchema
 from app.repo.admin_repo.base_admin_repo import BaseAdminRepo
 from app.models.users import Users
@@ -14,8 +15,8 @@ class AdminUsersRepo(BaseAdminRepo[Users]):
     @staticmethod
     async def get_by_email(session: AsyncSession, email_to_get: str, exclude_deleted: bool = False) -> Users | None:
 
-        query = select(Users).where(Users.email==email_to_get)
-
+        query = select(Users).where(Users.email==email_to_get).with_for_update()
+        
         if exclude_deleted:
             query = query.where(Users.deleted_at.is_(None))
 
@@ -98,5 +99,28 @@ class AdminUsersRepo(BaseAdminRepo[Users]):
 
         if deleted_obj:
             return deleted_obj
+        
+        return None
+    
+
+    @staticmethod
+    async def recover_account(session: AsyncSession, new_user_info: UserCreateSchema) -> Users | None:
+        query = (
+            update(Users)
+            .where(Users.email==new_user_info.email, Users.deleted_at.is_not(None))
+            .values(
+                email=new_user_info.email, 
+                full_name=new_user_info.full_name,
+                hashed_password=new_user_info.hashed_password,
+                deleted_at=None
+            )
+            .returning(Users)
+        )
+
+        result = await session.execute(query)
+        recovered_obj = result.scalar_one_or_none()
+
+        if recovered_obj:
+            return recovered_obj
         
         return None

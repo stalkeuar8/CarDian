@@ -12,7 +12,7 @@ class VerdictsRepo:
         query = (
             select(Verdicts)
             .join(ManualLookups, ManualLookups.id==manual_lookup_id)
-            .where(Verdicts.manual_lookup_id==manual_lookup_id, Verdicts.deleted_at.is_(None), ManualLookups.user_id==user_id)
+            .where(Verdicts.manual_lookup_id==manual_lookup_id, ManualLookups.user_id==user_id)
         )
 
         result = await session.execute(query)

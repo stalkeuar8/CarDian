@@ -33,7 +33,6 @@ class ManualLookups(Base):
     seller_is_dealer: Mapped[bool]
     price_listed: Mapped[int] = mapped_column(default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
-    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     
     
     __table_args__ = (
@@ -67,7 +66,6 @@ class ParsedLookups(Base):
     seller_is_dealer: Mapped[bool]
     price_listed: Mapped[int] = mapped_column(default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
-    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     
     __table_args__ = (
         Index("parsed_brand_model_idx", "brand", "model"),

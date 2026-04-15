@@ -46,9 +46,16 @@ async def get_verdict_manual(lookup_id: int, current_user: Users = Depends(get_c
     if verdict is None:
         return JSONResponse(status_code=status.HTTP_202_ACCEPTED, content="Still processing, continue polling.")
     
+    predicted_price = verdict.predicted_price
+
+    lower_bar = int(round(predicted_price - predicted_price*0.02, -2))
+    upper_bar = int(round(predicted_price + predicted_price*0.02, -2))
+
     return VerdictResponseSchema(
         id=verdict.id,
         predicted_price=verdict.predicted_price,
+        lower_bar=lower_bar,
+        upper_bar=upper_bar,
         verdict=verdict.verdict,
         llm_feedback=verdict.llm_feedback,
         manual_lookup_id=lookup_id

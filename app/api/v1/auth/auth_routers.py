@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas.users_schemas import UserCreateSchema
 from app.schemas.auth_schemas import TokenType, UserAuthResponseSchema, UserLoginRequestSchema, UserRegisterRequestSchema, UserLogoutResponseSchema, UserRefreshRequestSchema, UserRefreshResponseSchema
@@ -24,10 +25,22 @@ async def register(body: UserRegisterRequestSchema, session: AsyncSession = Depe
     hashed_password = get_password_hash(body.password)
 
     new_dto = UserCreateSchema(**body.model_dump(), hashed_password=hashed_password)
-    new_user: Users | None = await UsersRepo.create(session=session, new_obj_dto=new_dto)
+
+    user_in_db: Users | None = await AdminUsersRepo.get_by_email(session=session, email_to_get=body.email)
+
+    if user_in_db is not None and user_in_db.deleted_at is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with such email already exists")
+    
+    elif user_in_db is not None and user_in_db.deleted_at is not None:
+        new_user: Users | None = await AdminUsersRepo.recover_account(session=session, new_user_info=new_dto)
+
+    elif user_in_db is None: 
+        new_user: Users | None = await UsersRepo.create(session=session, new_obj_dto=new_dto)    
 
     if not new_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can not register you now")
+
+    await session.commit()
 
     access_token = create_token(user_id=new_user.id, token_type=TokenType.ACCESS)
     refresh_token = create_token(user_id=new_user.id, token_type=TokenType.REFRESH)

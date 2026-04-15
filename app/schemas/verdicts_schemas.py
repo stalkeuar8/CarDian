@@ -23,6 +23,8 @@ class VerdictParsedRequestSchema(VerdictBaseSchema):
 
 class VerdictResponseSchema(VerdictBaseSchema):
     id: int
+    lower_bar: int
+    upper_bar: int
     llm_feedback: str | None = None
     manual_lookup_id: int | None = None
     parsed_lookup_id: int | None = None

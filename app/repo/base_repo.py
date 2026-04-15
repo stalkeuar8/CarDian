@@ -48,7 +48,7 @@ class BaseRepo(Generic[T]):
 
         query = (
             select(cls.model)
-            .where(cast(Any, cls.model.id)==id_to_find, cast(Any, cls.model.deleted_at).is_(None), cast(Any, cls.model.user_id)==current_user_id)
+            .where(cast(Any, cls.model.id)==id_to_find, cast(Any, cls.model.user_id)==current_user_id)
         )
     
         result = await session.execute(query)
@@ -67,7 +67,7 @@ class BaseRepo(Generic[T]):
         
         query = (
             update(cls.model)
-            .where(cast(Any, cls.model.id)==id_to_delete, cast(Any, cls.model.deleted_at).is_not(None), cast(Any, cls.model.user_id)==current_user_id)
+            .where(cast(Any, cls.model.id)==id_to_delete, cast(Any, cls.model.user_id)==current_user_id)
             .values(deleted_at=current_time)
             .returning(cls.model)
         )

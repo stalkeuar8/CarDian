@@ -27,8 +27,7 @@ build:
 
 up:
 	docker compose -p cardian down
-	docker compose -p cardian up postgres app redis migrations
-
+	docker compose -p cardian up 
 
 down:
 	docker compose -p cardian down
@@ -58,5 +57,10 @@ install:
 	
 env_activate: 
 	poetry env activate
+
+migration:
+	docker compose run --rm migrations alembic revision --autogenerate -m "$(mes)"
+	docker compose run --rm migrations alembic upgrade head
+
 
 start: editor update install env_activate up 
