@@ -10,7 +10,7 @@ from app.schemas.verdicts_schemas import VerdictResponseSchema
 from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import ManualLookupRequestSchema, ManualLookupResponseSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema, ManualLookupSentResponseSchema
+from app.schemas.lookups_schemas import ManualLookupRequestSchema, ManualLookupResponseSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema, ManualLookupAcceptedResponseSchema
 from app.repo.lookups_repo import ManualLookupsRepo, ParsedLookupsRepo
 from app.models.lookups import ManualLookups, ParsedLookupsRawData, ParsedLookups
 from app.models.users import Users
@@ -25,8 +25,8 @@ from app.background.tasks import process_manual_lookup
 lookups_routers = APIRouter(prefix="/v1/lookups", tags=['Lookups'])
 
 
-@lookups_routers.post("/manual", summary="New manual lookup", response_model=ManualLookupSentResponseSchema)
-async def manual_lookup(body: ManualLookupRequestSchema, current_user: Users = Depends(get_current_user), redis: Redis = Depends(get_redis), session: AsyncSession = Depends(get_db)) -> ManualLookupSentResponseSchema:
+@lookups_routers.post("/manual", summary="New manual lookup", response_model=ManualLookupAcceptedResponseSchema)
+async def manual_lookup(body: ManualLookupRequestSchema, current_user: Users = Depends(get_current_user), redis: Redis = Depends(get_redis), session: AsyncSession = Depends(get_db)) -> ManualLookupAcceptedResponseSchema:
     #rate limiting
     
     new_lookup: ManualLookups | None = await ManualLookupsRepo.create(session=session, new_obj_dto=body)
@@ -36,7 +36,7 @@ async def manual_lookup(body: ManualLookupRequestSchema, current_user: Users = D
 
     task = process_manual_lookup.delay(lookup_id=new_lookup.id)
 
-    return ManualLookupSentResponseSchema(status_code=status.HTTP_202_ACCEPTED, task_id=task.id, user_id=current_user.id, lookup_id=new_lookup.id)
+    return ManualLookupAcceptedResponseSchema(status_code=status.HTTP_202_ACCEPTED, task_id=task.id, user_id=current_user.id, lookup_id=new_lookup.id)
 
 
 @lookups_routers.get("/manual/verdict/{lookup_id}", summary="Get manual id status (polling)", response_model=VerdictResponseSchema)
@@ -60,3 +60,7 @@ async def get_verdict_manual(lookup_id: int, current_user: Users = Depends(get_c
         llm_feedback=verdict.llm_feedback,
         manual_lookup_id=lookup_id
     )
+
+
+@lookups_routers.post("/parsed", summary="New parsed lookup")
+async def parsed_lookup()

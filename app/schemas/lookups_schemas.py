@@ -14,7 +14,6 @@ HttpsUrl = Annotated[
 ]
 
 
-
 class CarSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra='ignore')
     
@@ -34,8 +33,6 @@ class CarSchema(BaseModel):
     seller_is_dealer: BoolType
 
 
-
-
 class LookupBaseRequestSchema(CarSchema):
     user_id: int
 
@@ -47,11 +44,16 @@ class LookupBaseResponseSchema(LookupBaseRequestSchema):
     created_at: datetime
 
 
-class ManualLookupSentResponseSchema(BaseModel):
+class LookupAccepted(BaseModel):
     lookup_id: int
     user_id: int
     task_id: str
     status_code: int
+
+
+class ManualLookupAcceptedResponseSchema(LookupAccepted):
+    pass
+
 
 class ManualLookupRequestSchema(LookupBaseRequestSchema):
     pass
@@ -61,14 +63,18 @@ class ManualLookupResponseSchema(LookupBaseResponseSchema):
     pass
 
 
-class ParsedLookupsRequestSchema(LookupBaseRequestSchema):
+class ParsedLookupsRequestSchema(BaseModel):
     url: HttpsUrl
+
+
+class ParsedLookupsResponseSchema(LookupBaseResponseSchema, ParsedLookupsRequestSchema):
+    pass
+
+
+class ParsedLookupAcceptedSchema(LookupAccepted):
+    pass
 
 
 class ParsingResultSchema(BaseModel):
     raw_data: str
-    request_data: ParsedLookupsRequestSchema
-
-
-class ParsedLookupsResponseSchema(ParsedLookupsRequestSchema):
-    pass
+    parsed_lookup_id: int

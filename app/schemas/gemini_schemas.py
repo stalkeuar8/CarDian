@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.lookups_schemas import CarSchema
+from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema
 
 
 class GeminiAnalyzeResponseSchema(BaseModel):
@@ -11,3 +11,14 @@ class GeminiAnalyzeRequestSchema(CarSchema):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
     predicted_price: int
+
+
+
+class GeminiExtractorRequestSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra='ignore')
+
+    parsed_text: str
+
+    
+class GeminiExtractorResponseSchema(CarSchema):
+    response: str
