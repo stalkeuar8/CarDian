@@ -6,8 +6,9 @@ from app.services.price_prediction import predict_service
 from app.models.verdicts import Verdicts
 from app.schemas.verdicts_schemas import VerdictTypes
 from app.schemas.prediction_schemas import BasePredictor
+from app.repo.lookups_repo import ParsedLookupsRepo
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
-from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema
+from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema
 from app.schemas.gemini_schemas import GeminiAnalyzeRequestSchema, GeminiAnalyzeResponseSchema, GeminiExtractorRequestSchema, GeminiExtractorResponseSchema
 from app.settings.config import database_settings
 from app.services.gemini_service import gemini_service
@@ -112,15 +113,49 @@ async def async_process_parsed_lookup(lookup_id: int) -> None:
 
         parsed_text = ...
 
-        parsed_car_info = await gemini_service.extract_from_text(parsed_text=parsed_text)
+        parsed_car_info: GeminiExtractorResponseSchema = await gemini_service.extract_from_text(parsed_text=parsed_text)
 
-        ...
+        predicted_price: int = predict_service.predict(data_to_predict=parsed_car_info)
+
+        info_to_analyze = GeminiAnalyzeRequestSchema(**parsed_car_info.model_dump(), predicted_price=predicted_price)
+        
+        try:
+
+            gemini_result: GeminiAnalyzeResponseSchema = await gemini_service.analyze_existing(info_to_analyze)
+            
+            llm_feedback = gemini_result.response
+            is_gemini_completed = True
+            
+        except Exception as e:
+            is_gemini_completed = False
+            llm_feedback = None
+
+        verdict = Verdicts(
+            parsed_lookup_id=lookup_id, 
+            predicted_price=predicted_price,
+            verdict=VerdictTypes.no_type,
+            llm_feedback=llm_feedback
+        )
+
+        async with celery_async_session_factory.begin() as session:
+
+            session.add(verdict)
+            if is_gemini_completed:
+                status = ParsedLookupsStatus.completed
+            else:
+                status = ParsedLookupsStatus.gemini_failed
+
+            dto = ParsedLookupUpdatingSchema(
+                car_info=parsed_car_info,
+                price_listed=predicted_price,
+                status=status
+            )
+
+            updated_lookup = await ParsedLookupsRepo.update_after_analyzing(lookup_id=lookup_id, session=session, updated_info=dto)
 
 
     finally:
         await celery_async_engine.dispose()
-
-    
 
 
 @celery_app.task

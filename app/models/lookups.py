@@ -49,21 +49,21 @@ class ParsedLookups(Base):
     id: Mapped[idpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"), index=True)
     status: Mapped[non_empty_str] = mapped_column(default=ParsedLookupsStatus.parsed)
-    url: Mapped[non_empty_str]
-    brand: Mapped[non_empty_str] = mapped_column(index=True)
-    model: Mapped[non_empty_str] = mapped_column(index=True)
-    year: Mapped[non_empty_int]
-    mileage_km: Mapped[non_empty_int] 
-    fuel_category: Mapped[non_empty_str]
-    transmission: Mapped[non_empty_str]
-    power_kw: Mapped[non_empty_int]
-    body_type: Mapped[non_empty_str]
-    drive_train: Mapped[non_empty_str]
-    condition: Mapped[non_empty_str]
-    had_accident: Mapped[bool]
-    has_full_service_history: Mapped[bool]
-    previous_owners_qty: Mapped[int] = mapped_column(nullable=True)
-    seller_is_dealer: Mapped[bool]
+    url: Mapped[non_empty_str] 
+    brand: Mapped[str] = mapped_column(nullable=True, default=None, index=True)
+    model: Mapped[str] = mapped_column(index=True)
+    year: Mapped[int] = mapped_column(default=None, nullable=True)
+    mileage_km: Mapped[int] = mapped_column(default=None, nullable=True)
+    fuel_category: Mapped[str] = mapped_column(default=None, nullable=True)
+    transmission: Mapped[str] = mapped_column(default=None, nullable=True)
+    power_kw: Mapped[int] = mapped_column(default=None, nullable=True)
+    body_type: Mapped[str] = mapped_column(default=None, nullable=True)
+    drive_train: Mapped[str] = mapped_column(default=None, nullable=True)
+    condition: Mapped[str] = mapped_column(default=None, nullable=True)
+    had_accident: Mapped[bool] = mapped_column(default=None, nullable=True)
+    has_full_service_history: Mapped[bool] = mapped_column(default=None, nullable=True)
+    previous_owners_qty: Mapped[int] = mapped_column(nullable=True, default=1)
+    seller_is_dealer: Mapped[bool] = mapped_column(default=None, nullable=True)
     price_listed: Mapped[int] = mapped_column(default=None, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
     

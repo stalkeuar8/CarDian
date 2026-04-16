@@ -21,4 +21,4 @@ class GeminiExtractorRequestSchema(BaseModel):
 
     
 class GeminiExtractorResponseSchema(CarSchema):
-    response: str
+    pass

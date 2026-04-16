@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints, AnyUrl, AfterValidator, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints, AnyUrl, AfterValidator, ConfigDict, model_validator
 
-from typing import Annotated
+from typing import Annotated, Sequence, Self
 
 from app.schemas.lookup_enums import BoolType, Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, ManualLookupsMode, FuelCategories, TransmissionType
 
@@ -63,8 +63,24 @@ class ManualLookupResponseSchema(LookupBaseResponseSchema):
     pass
 
 
+class SequenceManualLookupResponseSchema(BaseModel):
+    items: Sequence[ManualLookupResponseSchema]
+    total_items_qty: int
+
+    @model_validator(mode='after')
+    def validate_qty(self) -> Self:
+        total_length = len(self.items)
+        self.total_items_qty = total_length
+
+        return self
+
+
 class ParsedLookupsRequestSchema(BaseModel):
     url: HttpsUrl
+
+
+class ParsedLookupsCreateSchema(ParsedLookupsRequestSchema):
+    user_id: int
 
 
 class ParsedLookupsResponseSchema(LookupBaseResponseSchema, ParsedLookupsRequestSchema):
@@ -78,3 +94,20 @@ class ParsedLookupAcceptedSchema(LookupAccepted):
 class ParsingResultSchema(BaseModel):
     raw_data: str
     parsed_lookup_id: int
+
+
+class ParsedLookupUpdatingSchema(BaseModel):
+    car_info: CarSchema
+    price_listed: int
+    status: ParsedLookupsStatus
+
+class SequenceParsedLookupResponseSchema(BaseModel):
+    items: Sequence[ParsedLookupsResponseSchema]
+    total_items_qty: int
+
+    @model_validator(mode='after')
+    def validate_qty(self) -> Self:
+        total_length = len(self.items)
+        self.total_items_qty = total_length
+
+        return self
