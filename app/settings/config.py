@@ -45,10 +45,15 @@ class RedisSettings(Settings):
 
 class GeminiSettings(Settings):
     GEMINI_API_KEY: str
+    GEMINI_MODEL: str
 
     @property
     def API_KEY(self) -> str:
         return self.GEMINI_API_KEY
+    
+    @property
+    def MODEL(self) -> str:
+        return self.GEMINI_MODEL
 
 
 class BotSettings(Settings):

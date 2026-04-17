@@ -16,7 +16,7 @@ class GeminiService:
         self.client = genai.Client(api_key=gemini_settings.API_KEY)
         # for model in self.client.models.list():
         #     print(model)
-        self.model_id = "gemini-3-flash-preview"
+        self.model_id = gemini_settings.GEMINI_MODEL
 
 
     async def analyze_existing(self, car_data: GeminiAnalyzeRequestSchema) -> GeminiAnalyzeResponseSchema:
