@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, UrlConstraints, AnyUrl, AfterValidator, ConfigDict, model_validator, BeforeValidator
+from pydantic import BaseModel, EmailStr, Field, PlainSerializer, UrlConstraints, AnyUrl, AfterValidator, ConfigDict, model_validator, BeforeValidator
 
 from typing import Annotated, Sequence, Self
 
@@ -10,7 +10,8 @@ from datetime import datetime
 HttpsUrl = Annotated[
     AnyUrl, 
     UrlConstraints(allowed_schemes=['https'], host_required=True),
-    AfterValidator(str), BeforeValidator(str.strip)
+    AfterValidator(str),
+    PlainSerializer(lambda x: str(x), return_type=str)
 ]
 
 

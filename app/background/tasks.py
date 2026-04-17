@@ -18,6 +18,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessi
 from sqlalchemy.pool import NullPool
 from sqlalchemy import text
 
+from pydantic import ValidationError
+
+from google.api_core.exceptions import ServiceUnavailable, ResourceExhausted, DeadlineExceeded
+
 import logging
 import sys
 
@@ -30,7 +34,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-async def async_process_manual_lookup(lookup_id: int) -> None:
+async def async_process_manual_lookup(self, lookup_id: int) -> None:
 
     celery_async_engine: AsyncEngine = create_async_engine(url=database_settings.DATABASE_url, echo=False, poolclass=NullPool)
 
@@ -84,17 +88,35 @@ async def async_process_manual_lookup(lookup_id: int) -> None:
 
             lookup.price_listed = predicted_price
 
+
+    except (ServiceUnavailable, DeadlineExceeded) as e:
+        logger.error(f"ERROR: {e}")
+        raise self.retry(exc=e, countdown=10)
+
+    except (Exception, ResourceExhausted) as e: 
+        logger.info(f"Error, manual lookup id: {lookup_id}:  {e}", exc_info=True)
+        
+        async with celery_async_session_factory.begin() as session:
+            lookup: ManualLookups = await session.get(ManualLookups, lookup_id)
+            lookup.status = ManualLookupsStatus.failed
+
     finally:
         await celery_async_engine.dispose()
 
 
-@celery_app.task
-def process_manual_lookup(lookup_id: int) -> None:
-    return asyncio.run(async_process_manual_lookup(lookup_id=lookup_id))
+@celery_app.task(
+    bind=True,
+    autoretry_for=(ServiceUnavailable, DeadlineExceeded,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries":5},
+    retry_jitter=True
+)
+def process_manual_lookup(self, lookup_id: int) -> None:
+    return asyncio.run(async_process_manual_lookup(self=self, lookup_id=lookup_id))
 
 
 
-async def async_process_parsed_lookup(lookup_id: int) -> None:
+async def async_process_parsed_lookup(self, lookup_id: int) -> None:
     celery_async_engine: AsyncEngine = create_async_engine(url=database_settings.DATABASE_url, echo=False, poolclass=NullPool)
 
     celery_async_session_factory = async_sessionmaker(celery_async_engine, expire_on_commit=False)
@@ -110,13 +132,16 @@ async def async_process_parsed_lookup(lookup_id: int) -> None:
 
             parsed_lookup = lookup
 
-        parsed_text = await parse_service.process_url(url=HttpsUrl(parsed_lookup.url))
-
-        parsed_car_info: GeminiExtractorResponseSchema = await gemini_service.extract_from_text(parsed_text=parsed_text)
+        parsed_text = await parse_service.process_url(url=parsed_lookup.url)
+        
+        parsed_car_info: GeminiExtractorResponseSchema | None = await gemini_service.extract_from_text(parsed_data=GeminiExtractorRequestSchema(parsed_text=parsed_text))
+        
+        if parsed_car_info is None:    
+            raise ValueError("Invalid data, unable to extract")
 
         predicted_price: int = predict_service.predict(data_to_predict=parsed_car_info)
 
-        info_to_analyze = GeminiAnalyzeRequestSchema(**parsed_car_info.model_dump(), predicted_price=predicted_price)
+        info_to_analyze = GeminiAnalyzeRequestSchema(**parsed_car_info.model_dump(), predicted_price=predicted_price, price_in_ad=parsed_car_info.price_in_ad)
         
         try:
 
@@ -151,12 +176,31 @@ async def async_process_parsed_lookup(lookup_id: int) -> None:
             )
 
             updated_lookup = await ParsedLookupsRepo.update_after_analyzing(lookup_id=lookup_id, session=session, updated_info=dto)
+            
+    except (ServiceUnavailable, DeadlineExceeded) as e:
+        logger.error(f"ERROR: {e}")
+        raise self.retry(exc=e, countdown=10)
 
+    except (Exception, ResourceExhausted) as e: 
+        logger.info(f"Error, parsed lookup id: {lookup_id}:  {e}", exc_info=True)
+
+        
+        async with celery_async_session_factory.begin() as session:
+            lookup: ParsedLookups = await session.get(ParsedLookups, lookup_id)
+            lookup.status = ParsedLookupsStatus.failed
 
     finally:
         await celery_async_engine.dispose()
 
 
-@celery_app.task
-def process_parsed_lookup(lookup_id: int) -> None: 
-    return asyncio.run(async_process_parsed_lookup(lookup_id=lookup_id))
+@celery_app.task(
+    bind=True,
+    autoretry_for=(ServiceUnavailable, DeadlineExceeded,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries":5},
+    retry_jitter=True
+)
+def process_parsed_lookup(self, lookup_id: int) -> None: 
+    return asyncio.run(async_process_parsed_lookup(self=self, lookup_id=lookup_id))
+
+

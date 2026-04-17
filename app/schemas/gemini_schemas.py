@@ -10,6 +10,7 @@ class GeminiAnalyzeResponseSchema(BaseModel):
 class GeminiAnalyzeRequestSchema(CarSchema):
     model_config = ConfigDict(from_attributes=True, extra="ignore")
 
+    price_in_ad: int | None = None
     predicted_price: int
 
 
@@ -21,4 +22,4 @@ class GeminiExtractorRequestSchema(BaseModel):
 
     
 class GeminiExtractorResponseSchema(CarSchema):
-    pass
+    price_in_ad: int | None = None

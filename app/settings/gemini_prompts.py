@@ -52,7 +52,13 @@ class GeminiPrompts:
             "- \"has_full_service_history\": integer (use 1 for true, 0 for false)\n"
             "- \"previous_owners_qty\": integer\n"
             "- \"seller_is_dealer\": integer (use 1 for true, 0 for false)\n\n"
-            "If a specific specification is missing from the text and cannot be reasonably deduced, use null for that key."
+            "- \"price_in_ad\": integer (bigger than 0)\n\n"
+            "If a specific specification is missing from the text and cannot be reasonably deduced, use null for that key." \
+            "If you are unsure about a specific field, return null instead of skipping the whole object" \
+            "Strictly follow this JSON structure. If data is missing for a field, use null. Do not add any conversational text, only the JSON object" \
+            "If the text says 'no accidents' or 'clean title', set had_accident to 0" \
+            "Use 0 if something is False, 1 if True" \
+            "If you did not find info for Boolean statements, use 0 as default"
         )
 
 gemini_prompts = GeminiPrompts()

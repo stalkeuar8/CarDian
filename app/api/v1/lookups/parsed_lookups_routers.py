@@ -26,7 +26,7 @@ parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Loo
 
 @parsed_lookups_router.post("/", summary="New parsed lookups", response_model=ParsedLookupAcceptedSchema)
 async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> ParsedLookupAcceptedSchema:
-    new_obj_dto = ParsedLookupsCreateSchema(url=HttpsUrl(body.url), user_id=current_user.id)
+    new_obj_dto = ParsedLookupsCreateSchema(url=body.url, user_id=current_user.id)
     
     new_lookup: ParsedLookups | None = await ParsedLookupsRepo.create(session=session, new_obj_dto=new_obj_dto)
 
@@ -35,9 +35,9 @@ async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: User
 
     await session.commit()
 
-    task = process_parsed_lookup(lookup_id=new_lookup.id)
+    task = process_parsed_lookup.delay(new_lookup.id)
 
-    return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id)
+    return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id, status_code=status.HTTP_202_ACCEPTED)
 
 
 @parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
