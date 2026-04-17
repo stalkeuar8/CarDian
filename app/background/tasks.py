@@ -8,10 +8,11 @@ from app.schemas.verdicts_schemas import VerdictTypes
 from app.schemas.prediction_schemas import BasePredictor
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
-from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema
+from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema, HttpsUrl
 from app.schemas.gemini_schemas import GeminiAnalyzeRequestSchema, GeminiAnalyzeResponseSchema, GeminiExtractorRequestSchema, GeminiExtractorResponseSchema
 from app.settings.config import database_settings
 from app.services.gemini_service import gemini_service
+from app.services.parse_service import parse_service
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
@@ -109,9 +110,7 @@ async def async_process_parsed_lookup(lookup_id: int) -> None:
 
             parsed_lookup = lookup
 
-        parsing_dto = ParsedLookupsRequestSchema(url=parsed_lookup.url)
-
-        parsed_text = ...
+        parsed_text = await parse_service.process_url(url=HttpsUrl(parsed_lookup.url))
 
         parsed_car_info: GeminiExtractorResponseSchema = await gemini_service.extract_from_text(parsed_text=parsed_text)
 

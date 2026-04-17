@@ -11,7 +11,7 @@ from app.schemas.verdicts_schemas import VerdictResponseSchema
 from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
+from app.schemas.lookups_schemas import HttpsUrl, ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.models.lookups import ParsedLookupsRawData, ParsedLookups
 from app.models.users import Users
@@ -26,7 +26,7 @@ parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Loo
 
 @parsed_lookups_router.post("/", summary="New parsed lookups", response_model=ParsedLookupAcceptedSchema)
 async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> ParsedLookupAcceptedSchema:
-    new_obj_dto = ParsedLookupsCreateSchema(url=body.url, user_id=current_user.id)
+    new_obj_dto = ParsedLookupsCreateSchema(url=HttpsUrl(body.url), user_id=current_user.id)
     
     new_lookup: ParsedLookups | None = await ParsedLookupsRepo.create(session=session, new_obj_dto=new_obj_dto)
 
@@ -41,7 +41,7 @@ async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: User
 
 
 @parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
-async def get_verdict_manual(lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
+async def get_verdict_parsed(lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_parsed_lookup_id(parsed_lookup_id=lookup_id, session=session, user_id=current_user.id)
 
     if verdict is None:

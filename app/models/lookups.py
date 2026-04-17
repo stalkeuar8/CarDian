@@ -51,7 +51,7 @@ class ParsedLookups(Base):
     status: Mapped[non_empty_str] = mapped_column(default=ParsedLookupsStatus.parsed)
     url: Mapped[non_empty_str] 
     brand: Mapped[str] = mapped_column(nullable=True, default=None, index=True)
-    model: Mapped[str] = mapped_column(index=True)
+    model: Mapped[str] = mapped_column(index=True, nullable=True, default=None)
     year: Mapped[int] = mapped_column(default=None, nullable=True)
     mileage_km: Mapped[int] = mapped_column(default=None, nullable=True)
     fuel_category: Mapped[str] = mapped_column(default=None, nullable=True)
