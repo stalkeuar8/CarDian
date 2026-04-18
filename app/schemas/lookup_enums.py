@@ -1,14 +1,11 @@
 from enum import Enum
 
-class ManualLookupsMode(str, Enum):
-    seller = "seller"
-    buyer = "buyer"
-
 class ManualLookupsStatus(str, Enum):
     pending = "pending"
     completed = "completed"
     failed = "failed"
     gemini_failed = "gemini_failed"
+    groq_failed = "groq_failed"
 
 class ParsedLookupsStatus(str, Enum):
     parsed = "parsed"
@@ -16,6 +13,7 @@ class ParsedLookupsStatus(str, Enum):
     completed = "completed"
     failed = "failed"
     gemini_failed = "gemini_failed"
+    groq_failed = "groq_failed"
 
 
 class FuelCategories(str, Enum):
@@ -34,7 +32,7 @@ class Condition(str, Enum):
     new = "new"
 
 class TransmissionType(str, Enum):
-    automathic = "automathic"
+    automatic = "automatic"
     semi_automathic = "semi_automathic"
     manual = "manual"
 

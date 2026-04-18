@@ -52,9 +52,9 @@ class ParsedLookupsRepo(BaseRepo[ParsedLookups]):
             .where(ParsedLookups.id==lookup_id)
             .returning(ParsedLookups)
             .values(
-                **updated_info.car_info,
                 price_listed=updated_info.price_listed,
-                status=updated_info.status
+                status=updated_info.status,
+                **updated_info.car_info.model_dump()
             )
         )
 

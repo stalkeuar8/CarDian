@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, Field, PlainSerializer, UrlConstraints
 
 from typing import Annotated, Sequence, Self
 
-from app.schemas.lookup_enums import BoolType, Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, ManualLookupsMode, FuelCategories, TransmissionType
+from app.schemas.lookup_enums import BoolType, Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, FuelCategories, TransmissionType
 
 from datetime import datetime
 

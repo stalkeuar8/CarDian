@@ -49,3 +49,6 @@ async def get_users_watch_by_id(watch_id: int, session: AsyncSession = Depends(g
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Watch with ID: {watch_id} of this user was not found")
     
     return WatchlistResponseSchema.model_validate(watch)
+
+
+

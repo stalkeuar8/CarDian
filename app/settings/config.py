@@ -55,6 +55,23 @@ class GeminiSettings(Settings):
     def MODEL(self) -> str:
         return self.GEMINI_MODEL
 
+class GroqSettings(Settings):
+    GROQ_API_KEY: str
+    GROQ_ANALYZING_MODEL: str
+    GROQ_EXTRACTING_MODEL: str
+
+    @property
+    def API_KEY(self) -> str:
+        return self.GROQ_API_KEY
+    
+    @property
+    def EXTRACTOR_MODEL(self) -> str:
+        return self.GROQ_EXTRACTING_MODEL
+
+    @property
+    def ANALYZING_MODEL(self) -> str:
+        return self.GROQ_ANALYZING_MODEL
+
 
 class BotSettings(Settings):
     TG_BOT_KEY: str
@@ -69,3 +86,4 @@ jwt_settings = JWTSettings()
 redis_settings = RedisSettings()
 gemini_settings = GeminiSettings()
 bot_settings = BotSettings()
+groq_settings = GroqSettings()
