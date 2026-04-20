@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Sequence
 
-from app.schemas.watchlists_schemas import WatchlistResponseSchema, WatchlistSequenceResponseSchema
+from app.schemas.watchlists_schemas import WatchlistResponseSchema, WatchlistSequenceResponseSchema, WatchlistRequestSchema, WatchlistCreateSchema
 from app.models.watchlists import PriceAlerts, Watchlist
 from app.repo.watchlists_repo import WatchlistsRepo, PriceAlertsRepo
 from app.models.users import Users
@@ -17,7 +17,19 @@ from app.settings.redis import get_redis
 from app.background.tasks import process_manual_lookup
 
 
-watchlists_router = APIRouter(prefix="/watchlists", tags=['Watchlists'])
+watchlists_router = APIRouter(prefix="/v1/watchlists", tags=['Watchlists'])
+
+
+@watchlists_router.post("/", summary="Add url to watchlist", response_model=WatchlistResponseSchema) 
+async def add_to_watchlist(body: WatchlistRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> WatchlistResponseSchema:
+    new_obj_dto = WatchlistCreateSchema(**body.model_dump(), user_id=current_user.id)
+    
+    new_watchlist: Watchlist | None = await WatchlistsRepo.create(session=session, new_obj_dto=new_obj_dto)
+
+    if not new_watchlist:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error while adding url, try later")
+
+    return WatchlistResponseSchema.model_validate(new_watchlist)
 
 
 @watchlists_router.get("/my", summary="Get user watchlist", response_model=WatchlistSequenceResponseSchema)

@@ -168,9 +168,16 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
             llm_feedback=llm_feedback
         )
 
+        parsed_raw_data = ParsedLookupsRawData(
+            parsed_lookup_id=lookup_id,
+            raw_data=parsed_text
+        )
+
         async with celery_async_session_factory.begin() as session:
-            
+
+            session.add(parsed_raw_data)    
             session.add(verdict)
+
             if is_groq_completed:
                 status = ParsedLookupsStatus.completed
             else:
@@ -186,8 +193,6 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
 
             updated_lookup = await ParsedLookupsRepo.update_after_analyzing(lookup_id=lookup_id, session=session, updated_info=dto)
             
-        logger.info("COMPLETED")
-
     except (ServiceUnavailable, DeadlineExceeded) as e:
         logger.error(f"ERROR: {e}")
         raise self.retry(exc=e, countdown=10)

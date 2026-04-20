@@ -19,7 +19,7 @@ from app.services.price_prediction import predict_service
 from app.settings.database import get_db
 from app.auth.jwt_token import get_current_user
 from app.background.tasks import process_parsed_lookup
-
+from app.utils.rate_limiter import rate_limiter
 
 parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Lookups'])
 
@@ -39,7 +39,7 @@ async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: User
 
     return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id, status_code=status.HTTP_202_ACCEPTED)
 
-
+@rate_limiter(3, 15)
 @parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
 async def get_verdict_parsed(lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_parsed_lookup_id(parsed_lookup_id=lookup_id, session=session, user_id=current_user.id)

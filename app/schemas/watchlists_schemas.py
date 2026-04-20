@@ -1,17 +1,17 @@
 from typing import Annotated, Sequence, Self
 from datetime import datetime
-from pydantic import BaseModel, UrlConstraints, AnyUrl, AfterValidator, Field, model_validator
+from pydantic import BaseModel, UrlConstraints, AnyUrl, AfterValidator, Field, model_validator, ConfigDict, PlainSerializer
 
 
 HttpsUrl = Annotated[
     AnyUrl, 
     UrlConstraints(allowed_schemes=['https'], host_required=True),
-    AfterValidator(str)
+    AfterValidator(str),
+    PlainSerializer(lambda x: str(x), return_type=str)
 ]
 
 
 class WatchlistBaseSchema(BaseModel):
-    user_id: int
     url: HttpsUrl
     last_price: int = Field(ge=0)
 
@@ -20,7 +20,13 @@ class WatchlistRequestSchema(WatchlistBaseSchema):
     pass
 
 
+class WatchlistCreateSchema(WatchlistRequestSchema):
+    user_id: int
+
+
 class WatchlistResponseSchema(WatchlistBaseSchema):
+    model_config = ConfigDict(extra='allow', from_attributes=True)
+    user_id: int
     id: int
     is_active: bool
     created_at: datetime
