@@ -33,10 +33,22 @@ class ParseService:
     async def extract_car_data(cls, parsed_html: str) -> str | None:
         soup = BeautifulSoup(parsed_html, "html.parser")
 
-        ld_json = soup.find("script", type="application/ld+json")
-        tech_data = json.loads(ld_json.string) if ld_json else None
+        ld_json_scripts = soup.find_all("script", type="application/ld+json")
+    
+        for script in ld_json_scripts:
+            try:
+                data = json.loads(script.get_text())
+            
+                if isinstance(data, list):
+                    data = data[0]
 
-        return tech_data
+                if data.get("@type") in ["Product", "Car", "Vehicle"]:
+                    return data
+                
+            except (json.JSONDecodeError, TypeError, AttributeError):
+                continue
+
+        return None
     
 
 

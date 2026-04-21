@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,10 +25,28 @@ class WatchlistsRepo(BaseRepo[Watchlist]):
         result = await session.execute(query)
         obj = result.scalars().all()
 
-        if obj:
+        if obj is not None:
             return obj
         
         return None
+    
+
+    @staticmethod
+    async def get_watch_to_check_by_time(earlier_than: datetime, session: AsyncSession) -> Watchlist | None:
+        query = (
+            select(Watchlist)
+            .where(Watchlist.last_time_checked < earlier_than, Watchlist.is_active==True)
+            .limit(1)        
+        )
+
+        result = await session.execute(query)
+        watch = result.scalar_one_or_none()
+
+        if watch is not None:
+            return watch
+        
+        return None
+
 
 class PriceAlertsRepo(BaseRepo[PriceAlerts]):
     model = PriceAlerts

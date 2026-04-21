@@ -18,7 +18,7 @@ from app.models.users import Users
 from app.services.price_prediction import predict_service
 from app.settings.database import get_db
 from app.auth.jwt_token import get_current_user
-from app.background.tasks import process_parsed_lookup
+from app.background.lookups_processing_tasks import process_parsed_lookup
 from app.utils.rate_limiter import rate_limiter
 
 parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Lookups'])

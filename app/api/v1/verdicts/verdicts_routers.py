@@ -16,7 +16,7 @@ from app.settings.database import get_db
 from app.auth.jwt_token import get_current_user, oauth2_scheme, decode_jwt
 from app.utils.password_hasher import get_password_hash
 from app.settings.redis import get_redis
-from app.background.tasks import process_manual_lookup
+from app.background.lookups_processing_tasks import process_manual_lookup
 
 
 # verdicts_router = APIRouter(prefix=)
