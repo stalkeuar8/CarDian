@@ -85,6 +85,23 @@ services:
       postgres:
         condition: service_healthy
 
+  celery_beat:
+    build: .
+    command: celery -A app.background.celery_worker.celery_app beat --loglevel=info
+    restart: no 
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    networks:
+      - cardian_network
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      redis:
+        condition: service_started
 networks:
   cardian_network:
     driver: bridge

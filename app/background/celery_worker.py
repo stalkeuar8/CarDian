@@ -7,8 +7,16 @@ celery_app = Celery(
     backend=redis_settings.REDIS_url, 
     include=[
         'app.background.lookups_processing_tasks', 
-        'app.background.watchlists_tasks'
+        'app.background.watchlists_tasks',
+        'app.background.bot_tasks'
     ]
 )
 
-celery_app.autodiscover_tasks(['app.background.tasks'], force=True)
+celery_app.autodiscover_tasks(
+    [
+        'app.background.lookups_processing_tasks',
+        'app.background.watchlists_tasks',
+        'app.background.bot_tasks'
+    ], 
+    force=True
+)

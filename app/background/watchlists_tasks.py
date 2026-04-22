@@ -1,4 +1,7 @@
 import asyncio
+import time
+import random
+from celery.schedules import crontab
 from curl_cffi.requests import AsyncSession as CurlAsyncSession
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
@@ -11,6 +14,7 @@ from app.schemas.watchlists_schemas import WatchlistResponseSchema
 from app.schemas.price_alerts_schemas import PriceAlertResponseSchema, PriceAlertRequestSchema
 from app.utils.browsers import get_browser
 from app.services.parse_service import parse_service
+from app.background.bot_tasks import send_price_alert_to_bot
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
@@ -28,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 
-async def async_watchlist_parsing_processing() -> None:
+async def async_watchlist_parsing_processing(self) -> None:
     celery_async_engine: AsyncEngine = create_async_engine(url=database_settings.DATABASE_url, echo=False, poolclass=NullPool)
 
     celery_async_session_factory = async_sessionmaker(celery_async_engine, expire_on_commit=False)
@@ -60,45 +64,63 @@ async def async_watchlist_parsing_processing() -> None:
             impersonate=get_browser(),
             timeout=20
         )
-        logger.info(f"status: {response.status_code}")
 
-        if response.status_code == 200:
-            cleaned_json = await parse_service.extract_car_data(parsed_html=response.text)
-            price = cleaned_json['offers'].get("price", None)
+    if response.status_code == 403:
+        logger.error(f"GOT 403, URL: {url}")
+        return self.retry(countdown=5000)
+    
+    elif response.status_code in (200, 404):
 
-            if price is None:
-                raise ValueError("Price was not found")
-            
-            current_price = price
-
-        if response.status_code == 403:
-            return
-        
-        if response.status_code == 404:
-            async with celery_async_session_factory.begin() as session:
-                watch: Watchlist | None = await session.get(Watchlist, watch_id)
-
-                if not watch:
-                    return
-                
-                watch.is_active = False
-                watch.last_time_checked = current_time
-
-    if current_price != last_price:
         async with celery_async_session_factory.begin() as session:
-            watch: Watchlist | None = await session.get(Watchlist, watch_id)
+            watch: Watchlist | None = await session.get(Watchlist, watch_id, with_for_update=True)
 
-            if not watch:
+            if watch is None:
                 return
                 
-            watch.last_price = current_price
+            if response.status_code == 200:
+                cleaned_json: dict | None = await parse_service.extract_car_data(parsed_html=response.text)
+                
+                if cleaned_json is None:
+                    raise ValueError("Can not extract data from page")
 
-            price_alert = PriceAlerts(
-                !!!!!!!
-            )
-    
+                current_price = cleaned_json['offers'].get("price", None)
+
+                if current_price is None:
+                    raise ValueError("Price was not found")
+                
+                if current_price != last_price:
+                    watch.last_price = current_price
+                    price_diff = current_price-last_price
+                    percents = round(((current_price - last_price) / last_price) * 100, 2)
+                
+                    price_alert = PriceAlerts(
+                        watchlist_id=watch_id,
+                        price_diff=price_diff,
+                        price_diff_percents=percents,
+                        is_sent=False
+                    )
+
+                    session.add(price_alert)
+                    await session.flush()
+
+                    send_price_alert_to_bot.delay(price_alert.id)
+
+                watch.last_time_checked = current_time        
+
+            if response.status_code == 404:
+                watch.is_active = False
+                watch.last_time_checked = current_time
+        
+    else:
+        logger.error(f"STATUS CODE {response.status_code}, url: {url}")
         
 
-@celery_app.task(name="watchlist_parsing_procesing")
-def watchlist_parsing_procesing() -> None:
-    return asyncio.run(async_watchlist_parsing_processing())
+@celery_app.task(name="watchlist_parsing_procesing", bind=True, max_retries=3)
+def watchlist_parsing_procesing(self) -> None:
+    time.sleep(random.randint(1, 15))
+    return asyncio.run(async_watchlist_parsing_processing(self=self))
+
+
+celery_app.conf.beat_schedule = {
+    "bg_watchlist" : {"task": "watchlist_parsing_procesing", "schedule" : crontab(minute="*")}
+}

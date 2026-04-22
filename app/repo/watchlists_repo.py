@@ -37,6 +37,7 @@ class WatchlistsRepo(BaseRepo[Watchlist]):
             select(Watchlist)
             .where(Watchlist.last_time_checked < earlier_than, Watchlist.is_active==True)
             .limit(1)        
+            .with_for_update()
         )
 
         result = await session.execute(query)

@@ -39,6 +39,7 @@ async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: User
 
     return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id, status_code=status.HTTP_202_ACCEPTED)
 
+
 @rate_limiter(3, 15)
 @parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
 async def get_verdict_parsed(lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
