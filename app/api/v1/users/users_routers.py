@@ -2,7 +2,9 @@ import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
 from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.requests import Request
 
 from app.schemas.users_schemas import UserResponseSchema, EmailChangeRequestSchema, FullNameChangeRequestSchema, PasswordChangeRequestSchema, DeleteUserRequestSchema, DeleteUserResponseSchema
 from app.repo.admin_repo.admin_users import AdminUsersRepo
@@ -11,16 +13,19 @@ from app.settings.database import get_db
 from app.auth.jwt_token import get_current_user, oauth2_scheme, decode_jwt
 from app.utils.password_hasher import get_password_hash
 from app.settings.redis import get_redis
+from app.utils.rate_limiter import rate_limiter
 
 users_router = APIRouter(prefix="/v1/users", tags=['Users'])
 
 @users_router.get("/profile", summary="Get current user profile", response_model=UserResponseSchema)
-async def get_my_profile(current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> Users:
+@rate_limiter.limit("5/15 seconds") 
+async def get_my_profile(request: Request, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> Users:
     return UserResponseSchema.model_validate(current_user) 
 
 
 @users_router.patch("/email", summary="Change user's email", response_model=UserResponseSchema)
-async def change_user_email(body: EmailChangeRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> UserResponseSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def change_user_email(request: Request, body: EmailChangeRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> UserResponseSchema:
     updated_user: Users | None = await AdminUsersRepo.change_email(session=session, user_id=current_user.id, new_email=body.new_email)
 
     if not updated_user:
@@ -30,7 +35,8 @@ async def change_user_email(body: EmailChangeRequestSchema, current_user: Users 
 
 
 @users_router.patch("/fullname", summary="Change user's full name", response_model=UserResponseSchema)
-async def change_user_name(body: FullNameChangeRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> UserResponseSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def change_user_name(request: Request, body: FullNameChangeRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> UserResponseSchema:
     updated_user: Users | None = await AdminUsersRepo.change_full_name(session=session, user_id=current_user.id, new_full_name=body.new_full_name)
 
     if not updated_user:
@@ -40,7 +46,8 @@ async def change_user_name(body: FullNameChangeRequestSchema, current_user: User
 
 
 @users_router.patch("/password", summary="Change user's password", response_model=UserResponseSchema)
-async def change_password(body: PasswordChangeRequestSchema, jwt_token: str = Depends(oauth2_scheme), current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserResponseSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def change_password(request: Request, body: PasswordChangeRequestSchema, jwt_token: str = Depends(oauth2_scheme), current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserResponseSchema:
 
     is_in_blacklist = await redis.get(f"pass_change_blacklist:{current_user.id}")
         
@@ -108,7 +115,8 @@ async def change_password(body: PasswordChangeRequestSchema, jwt_token: str = De
 
 
 @users_router.delete("/me", summary="Deactivate users profile", response_model=DeleteUserResponseSchema)
-async def deactivate_profile(body: DeleteUserRequestSchema, jwt_token: str = Depends(oauth2_scheme), current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> DeleteUserResponseSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def deactivate_profile(request: Request, body: DeleteUserRequestSchema, jwt_token: str = Depends(oauth2_scheme), current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> DeleteUserResponseSchema:
     
     if not bcrypt.checkpw(body.current_password.encode("utf-8"), current_user.hashed_password.encode("utf-8")):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")

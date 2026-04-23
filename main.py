@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from fastapi_limiter.depends import RateLimiter
+
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
@@ -10,6 +14,8 @@ from app.api.v1.lookups.manual_lookups_routers import manual_lookups_router
 from app.api.v1.lookups.parsed_lookups_routers import parsed_lookups_router
 from app.api.v1.watchlists.watchlists_routers import watchlists_router
 from app.api.v1.tests.tests_routers import tests_router
+from app.settings.redis import get_redis
+from app.utils.rate_limiter import rate_limiter
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, None]:
@@ -28,6 +34,9 @@ def create_app() -> FastAPI:
     app.include_router(watchlists_router)
     app.include_router(tests_router)
 
+    app.state.limiter = rate_limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    
     return app
 
 

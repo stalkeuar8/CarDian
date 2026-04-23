@@ -3,6 +3,7 @@ from redis.asyncio import Redis
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.requests import Request
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -17,11 +18,13 @@ from app.utils.password_hasher import get_password_hash
 from app.auth.jwt_token import create_token, decode_jwt, get_current_user, oauth2_scheme
 from app.settings.redis import get_redis
 from app.settings.config import jwt_settings
+from app.utils.rate_limiter import rate_limiter
 
 auth_router = APIRouter(prefix='/v1/auth', tags=['Auth'])
 
 @auth_router.post("/register", summary="Register as user", response_model=UserAuthResponseSchema)
-async def register(body: UserRegisterRequestSchema, session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserAuthResponseSchema | None:
+@rate_limiter.limit("3/15 seconds")
+async def register(request: Request, body: UserRegisterRequestSchema, session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserAuthResponseSchema | None:
     hashed_password = get_password_hash(body.password)
 
     new_dto = UserCreateSchema(**body.model_dump(), hashed_password=hashed_password)
@@ -62,7 +65,8 @@ async def register(body: UserRegisterRequestSchema, session: AsyncSession = Depe
     
 
 @auth_router.post("/login", summary="Login as registered user", response_model=UserAuthResponseSchema)
-async def login(body: UserLoginRequestSchema, session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserAuthResponseSchema:
+@rate_limiter.limit("3/15 seconds")
+async def login(request: Request, body: UserLoginRequestSchema, session: AsyncSession = Depends(get_db), redis: Redis = Depends(get_redis)) -> UserAuthResponseSchema:
     user: Users | None = await AdminUsersRepo.get_by_email(session=session, email_to_get=body.email, exclude_deleted=True)
 
     if user is None:
@@ -90,7 +94,8 @@ async def login(body: UserLoginRequestSchema, session: AsyncSession = Depends(ge
 
 
 @auth_router.post("/logout", summary="Logout", response_model=UserLogoutResponseSchema)
-async def logout(jwt_token: str = Depends(oauth2_scheme), redis: Redis = Depends(get_redis)) -> UserLogoutResponseSchema:
+@rate_limiter.limit("3/15 seconds")
+async def logout(request: Request, jwt_token: str = Depends(oauth2_scheme), redis: Redis = Depends(get_redis)) -> UserLogoutResponseSchema:
     
     payload = decode_jwt(jwt_token=jwt_token)
 
@@ -127,7 +132,8 @@ async def logout(jwt_token: str = Depends(oauth2_scheme), redis: Redis = Depends
 
 
 @auth_router.post("/refresh", summary="Refresh access token", response_model=UserRefreshResponseSchema)
-async def refresh(body: UserRefreshRequestSchema, redis: Redis = Depends(get_redis)) -> UserRefreshResponseSchema:
+@rate_limiter.limit("3/15 seconds")
+async def refresh(request: Request, body: UserRefreshRequestSchema, redis: Redis = Depends(get_redis)) -> UserRefreshResponseSchema:
 
     payload = decode_jwt(body.refresh_token)
 

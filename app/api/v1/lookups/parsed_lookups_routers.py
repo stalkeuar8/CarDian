@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from fastapi_limiter.depends import RateLimiter
 
 from app.schemas.verdicts_schemas import VerdictResponseSchema
 from app.schemas.prediction_schemas import BasePredictor
@@ -21,11 +23,13 @@ from app.auth.jwt_token import get_current_user
 from app.background.lookups_processing_tasks import process_parsed_lookup
 from app.utils.rate_limiter import rate_limiter
 
+
 parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Lookups'])
 
 
 @parsed_lookups_router.post("/", summary="New parsed lookups", response_model=ParsedLookupAcceptedSchema)
-async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> ParsedLookupAcceptedSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def new_parsed_lookup(request: Request, body: ParsedLookupsRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> ParsedLookupAcceptedSchema:
     new_obj_dto = ParsedLookupsCreateSchema(url=body.url, user_id=current_user.id)
     
     new_lookup: ParsedLookups | None = await ParsedLookupsRepo.create(session=session, new_obj_dto=new_obj_dto)
@@ -40,9 +44,9 @@ async def new_parsed_lookup(body: ParsedLookupsRequestSchema, current_user: User
     return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id, status_code=status.HTTP_202_ACCEPTED)
 
 
-@rate_limiter(3, 15)
 @parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
-async def get_verdict_parsed(lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
+@rate_limiter.limit("5/15 seconds")
+async def get_verdict_parsed(request: Request, lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_parsed_lookup_id(parsed_lookup_id=lookup_id, session=session, user_id=current_user.id)
 
     if verdict is None:
@@ -65,7 +69,8 @@ async def get_verdict_parsed(lookup_id: int, current_user: Users = Depends(get_c
 
 
 @parsed_lookups_router.get("/{lookup_id}", summary="Get parsed lookup by id", response_model=ParsedLookupsResponseSchema)
-async def get_users_parsed_lookup_by_id(lookup_id: int, session: AsyncSession = Depends(get_db), current_user: Users = Depends(get_current_user)) -> ParsedLookupsResponseSchema:
+@rate_limiter.limit("5/15 seconds") 
+async def get_users_parsed_lookup_by_id(request: Request, lookup_id: int, session: AsyncSession = Depends(get_db), current_user: Users = Depends(get_current_user)) -> ParsedLookupsResponseSchema:
     lookup: ParsedLookups | None = await ParsedLookupsRepo.find_by_id(current_user_id=current_user.id, id_to_find=lookup_id, session=session)
 
     if lookup is None:
@@ -76,7 +81,8 @@ async def get_users_parsed_lookup_by_id(lookup_id: int, session: AsyncSession = 
 
 
 @parsed_lookups_router.get("/my", summary="Get all users parsed lookups", response_model=SequenceParsedLookupResponseSchema)
-async def get_all_users_parsed_lookups(current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> SequenceParsedLookupResponseSchema:
+@rate_limiter.limit("5/15 seconds")
+async def get_all_users_parsed_lookups(request: Request, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> SequenceParsedLookupResponseSchema:
     lookups: Sequence[ParsedLookups] | None = await ParsedLookupsRepo.get_all_users_lookups(user_id=current_user.id, session=session)
 
     if lookups is None:
