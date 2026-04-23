@@ -22,7 +22,7 @@ class Watchlist(Base):
         Index("users_urls", "user_id", "url"),
     )
 
-
+    alerts: Mapped['PriceAlerts'] = relationship(back_populates="watchlist")
 
 class PriceAlerts(Base):
 
@@ -34,3 +34,5 @@ class PriceAlerts(Base):
     price_diff_percents: Mapped[non_empty_int]
     is_sent: Mapped[bool] = mapped_column(default=False)
     noticed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
+
+    watchlist: Mapped['Watchlists'] = relationship(back_populates="alerts")

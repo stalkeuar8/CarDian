@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import datetime
-
+from typing import Self, Sequence
 
 class PriceAlertsBaseSchema(BaseModel):
     watchlist_id: int = Field(gt=0)
@@ -31,3 +31,15 @@ class PriceAlertResponseSchema(PriceAlertsBaseSchema):
     is_sent: bool
     noticed_at: datetime
     
+
+class PriceAlertSequenceResponseSchema(BaseModel):
+    items: Sequence[PriceAlertResponseSchema]
+    total_items_qty: int
+
+    
+    @model_validator(mode='after')
+    def validate_qty(self) -> Self:
+        total_length = len(self.items)
+        self.total_items_qty = total_length
+
+        return self

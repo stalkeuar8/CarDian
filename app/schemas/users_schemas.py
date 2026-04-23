@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict, model_validator
 from enum import Enum
 from datetime import datetime
+from typing import Sequence, Self
 
 class UserRole(str, Enum):
     user = "user"
@@ -27,6 +28,10 @@ class UserResponseSchema(UserBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserAdminResponseSchema(UserResponseSchema):
+    deleted_at: datetime | None
+
+
 class EmailChangeRequestSchema(BaseModel):
     new_email: EmailStr
 
@@ -45,3 +50,16 @@ class DeleteUserRequestSchema(BaseModel):
 class DeleteUserResponseSchema(BaseModel):
     is_deleted: bool
     deleted_at: datetime
+
+
+class UserSequenceResponseSchema(BaseModel):
+    items: Sequence[UserResponseSchema]
+    total_items_qty: int
+
+        
+    @model_validator(mode='after')
+    def validate_qty(self) -> Self:
+        total_length = len(self.items)
+        self.total_items_qty = total_length
+
+        return self

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 
 from app.schemas.watchlists_schemas import WatchlistResponseSchema, WatchlistSequenceResponseSchema, WatchlistRequestSchema, WatchlistCreateSchema
+from app.schemas.price_alerts_schemas import PriceAlertRequestSchema, PriceAlertResponseSchema, PriceAlertSequenceResponseSchema
 from app.models.watchlists import PriceAlerts, Watchlist
 from app.repo.watchlists_repo import WatchlistsRepo, PriceAlertsRepo
 from app.models.users import Users
@@ -21,6 +22,7 @@ from app.utils.rate_limiter import rate_limiter
 
 
 watchlists_router = APIRouter(prefix="/v1/watchlists", tags=['Watchlists'])
+price_alerts_router = APIRouter(prefix="/v1/alerts", tags=['Watchlists'])
 
 
 @watchlists_router.post("/", summary="Add url to watchlist", response_model=WatchlistResponseSchema)
@@ -70,4 +72,12 @@ async def get_users_watch_by_id(request: Request, watch_id: int, session: AsyncS
     return WatchlistResponseSchema.model_validate(watch)
 
 
+@price_alerts_router.get("/", summary="Get my alerts", response_model=PriceAlertResponseSchema)
+@rate_limiter.limit("5/15 seconds")
+async def get_my_alerts(request: Request, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> PriceAlertResponseSchema:
+    alerts: Sequence[PriceAlerts] | None = await PriceAlertsRepo.get_by_users_id(session=session, current_user_id=current_user.id)
 
+    if alerts is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No alerts were found for user ID: {current_user.id}")
+    
+    return PriceAlertSequenceResponseSchema(items=[PriceAlertResponseSchema.model_validate(alert) for alert in alerts], total_items_qty=len(alerts))

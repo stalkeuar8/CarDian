@@ -12,7 +12,7 @@ from app.api.v1.users.users_routers import users_router
 from app.api.v1.auth.auth_routers import auth_router
 from app.api.v1.lookups.manual_lookups_routers import manual_lookups_router
 from app.api.v1.lookups.parsed_lookups_routers import parsed_lookups_router
-from app.api.v1.watchlists.watchlists_routers import watchlists_router
+from app.api.v1.watchlists.watchlists_routers import watchlists_router, price_alerts_router
 from app.api.v1.tests.tests_routers import tests_router
 from app.settings.redis import get_redis
 from app.utils.rate_limiter import rate_limiter
@@ -32,11 +32,12 @@ def create_app() -> FastAPI:
     app.include_router(manual_lookups_router)
     app.include_router(parsed_lookups_router)
     app.include_router(watchlists_router)
+    app.include_router(price_alerts_router)
     app.include_router(tests_router)
 
     app.state.limiter = rate_limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-    
+
     return app
 
 

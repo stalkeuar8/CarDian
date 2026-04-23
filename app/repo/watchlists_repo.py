@@ -3,6 +3,7 @@ from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
+from sqlalchemy.orm import contains_eager
 
 from app.schemas.lookups_schemas import ManualLookupRequestSchema, ParsedLookupUpdatingSchema
 from app.models.watchlists import PriceAlerts, Watchlist
@@ -51,3 +52,20 @@ class WatchlistsRepo(BaseRepo[Watchlist]):
 
 class PriceAlertsRepo(BaseRepo[PriceAlerts]):
     model = PriceAlerts
+
+    @staticmethod
+    async def get_by_users_id(session: AsyncSession, current_user_id: int) -> Sequence[PriceAlerts] | None:
+        query = (
+            select(PriceAlerts)
+            .join(PriceAlerts.watchlist)
+            .where(Watchlist.user_id==current_user_id)
+            .options(contains_eager(PriceAlerts.watchlist))
+        )
+
+        results = await session.execute(query)
+        alerts = results.scalars().all()
+
+        if alerts:
+            return alerts
+        
+        return None

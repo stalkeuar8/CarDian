@@ -42,7 +42,7 @@ async def manual_lookup(request: Request, body: ManualLookupRequestSchema, curre
     return ManualLookupAcceptedResponseSchema(status_code=status.HTTP_202_ACCEPTED, task_id=task.id, user_id=current_user.id, lookup_id=new_lookup.id)
 
 
-@manual_lookups_router.get("/verdict/{lookup_id}", summary="Get manual lookup verdict (polling)", response_model=VerdictResponseSchema)
+@manual_lookups_router.get("/{lookup_id}/verdict", summary="Get manual lookup verdict (polling)", response_model=VerdictResponseSchema)
 @rate_limiter.limit("5/15 seconds")
 async def get_verdict_manual(request: Request, lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_manual_lookup_id(manual_lookup_id=lookup_id, session=session, user_id=current_user.id)

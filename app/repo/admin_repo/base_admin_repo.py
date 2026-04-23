@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 
 from app.models.base import Base
-from app.schemas.base_schema import SequenceBaseSchema
 
 T = TypeVar("T", bound=Base)
 

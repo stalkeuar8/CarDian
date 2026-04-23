@@ -44,7 +44,7 @@ async def new_parsed_lookup(request: Request, body: ParsedLookupsRequestSchema, 
     return ParsedLookupAcceptedSchema(lookup_id=new_lookup.id, user_id=current_user.id, task_id=task.id, status_code=status.HTTP_202_ACCEPTED)
 
 
-@parsed_lookups_router.get("/verdict/{lookup_id}", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
+@parsed_lookups_router.get("/{lookup_id}/verdict", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
 @rate_limiter.limit("5/15 seconds")
 async def get_verdict_parsed(request: Request, lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_parsed_lookup_id(parsed_lookup_id=lookup_id, session=session, user_id=current_user.id)
