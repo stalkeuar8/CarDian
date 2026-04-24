@@ -1,0 +1,431 @@
+/* ═══════════════════════════════════════════════════
+   Cardian — style.css
+   Custom animations, scrollbar, and component styles
+   ═══════════════════════════════════════════════════ */
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px
+}
+
+::-webkit-scrollbar-track {
+    background: #f9fafb
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 99px
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff9900
+}
+
+/* ── Selection highlight ── */
+::selection {
+    background: #ff990033;
+    color: #111
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════ */
+.nav-link {
+    position: relative;
+    color: #4b5563;
+    transition: color .2s;
+    padding-bottom: 2px;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ff9900;
+    border-radius: 99px;
+    transition: width .25s cubic-bezier(.22, 1, .36, 1);
+}
+
+.nav-link:hover {
+    color: #ff9900
+}
+
+.nav-link:hover::after {
+    width: 100%
+}
+
+/* ══════════════════════════════════════════
+   HERO SECTION
+   ══════════════════════════════════════════ */
+
+/* Radial glow behind the headline */
+.hero-glow {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(700px, 90vw);
+    height: 400px;
+    background: radial-gradient(ellipse at center, rgba(255, 153, 0, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Orange gradient text for "CarDian AI" */
+.brand-highlight {
+    background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Feature pills */
+.feature-pill {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .9rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Subtle CTA pulse ring on the primary button */
+.cta-primary {
+    position: relative;
+}
+
+.cta-primary::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 16px;
+    background: #ff9900;
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: -1;
+    filter: blur(12px);
+}
+
+.cta-primary:hover::before {
+    opacity: 0.35
+}
+
+/* ══════════════════════════════════════════
+   ENTRANCE ANIMATIONS
+   ══════════════════════════════════════════ */
+.fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: fadeUp .7s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+.d1 {
+    animation-delay: .1s
+}
+
+.d2 {
+    animation-delay: .22s
+}
+
+.d3 {
+    animation-delay: .36s
+}
+
+.d4 {
+    animation-delay: .52s
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+/* ══════════════════════════════════════════
+   FLOATING EMOJI CARDS
+   ══════════════════════════════════════════ */
+.floating-cards {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Ensure hero content renders above the float layer */
+#hero>*:not(.floating-cards):not(.hero-glow) {
+    position: relative;
+    z-index: 1;
+}
+
+.float-card {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 153, 0, 0.15);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.65rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+    /* JS will override transform via style; CSS handles the idle float */
+    animation: floatY var(--dur, 5s) var(--delay, 0s) ease-in-out infinite;
+}
+
+/* Positions for each card — all hugging the side edges, clear of the center car photo */
+.fc1 {
+    top: 16%;
+    left: 4%;
+    --dur: 5.2s;
+    --delay: 0s
+}
+
+.fc2 {
+    top: 48%;
+    left: 3%;
+    --dur: 6.1s;
+    --delay: 0.8s
+}
+
+.fc3 {
+    top: 10%;
+    right: 4%;
+    --dur: 4.8s;
+    --delay: 0.4s
+}
+
+.fc4 {
+    top: 45%;
+    right: 3%;
+    --dur: 5.6s;
+    --delay: 1.2s
+}
+
+.fc5 {
+    top: 68%;
+    left: 5%;
+    --dur: 6.4s;
+    --delay: 0.6s
+}
+
+.fc6 {
+    top: 65%;
+    right: 5%;
+    --dur: 5.0s;
+    --delay: 1.5s
+}
+
+.fc7 {
+    top: 30%;
+    left: 2%;
+    --dur: 5.8s;
+    --delay: 0.2s
+}
+
+.fc8 {
+    top: 28%;
+    right: 2%;
+    --dur: 6.6s;
+    --delay: 1.0s
+}
+
+.fc9 {
+    top: 80%;
+    left: 3%;
+    --dur: 5.4s;
+    --delay: 0.9s
+}
+
+.fc10 {
+    top: 78%;
+    right: 3%;
+    --dur: 4.9s;
+    --delay: 0.3s
+}
+
+@keyframes floatY {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg)
+    }
+
+    33% {
+        transform: translateY(-14px) rotate(2deg)
+    }
+
+    66% {
+        transform: translateY(-8px) rotate(-1deg)
+    }
+}
+
+/* ══════════════════════════════════════════
+   HERO IMAGE
+   ══════════════════════════════════════════ */
+
+.hero-img-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Car image — soft drop-shadow, no border */
+.car-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 28px 52px rgba(0, 0, 0, 0.12));
+    position: relative;
+    z-index: 1;
+}
+
+/* ══════════════════════════════════════════
+   PRICING SECTION
+   ══════════════════════════════════════════ */
+.price-feature {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    font-size: .9rem;
+    color: #374151;
+}
+
+/* "Most Popular" orange badge — absolutely positioned above card top edge */
+.popular-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff9900;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    border-radius: 99px;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(255, 153, 0, .4);
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════ */
+.footer-link {
+    color: #9ca3af;
+    transition: color .2s;
+}
+
+.footer-link:hover {
+    color: #ff9900
+}
+
+.social-icon {
+    color: #6b7280;
+    transition: color .2s, transform .2s;
+    display: inline-flex;
+}
+
+.social-icon:hover {
+    color: #ff9900;
+    transform: translateY(-3px)
+}
+
+/* Tooltip wrapper */
+.tip-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #1f2937;
+    color: #f9fafb;
+    font-size: .7rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .18s, transform .18s;
+    z-index: 10;
+}
+
+.tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1f2937;
+}
+
+.tip-wrap:hover .tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════ */
+@media (max-width: 900px) {}
+
+@media (max-width: 640px) {
+
+    /* Hide outer float cards on small screens */
+    .fc5,
+    .fc6,
+    .fc9,
+    .fc10 {
+        display: none
+    }
+
+    .float-card {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+        border-radius: 14px
+    }
+
+    .fc1 {
+        left: 2%
+    }
+
+    .fc2 {
+        left: 2%
+    }
+
+    .fc3 {
+        right: 2%
+    }
+
+    .fc4 {
+        right: 2%
+    }
+
+    .fc7 {
+        left: 1%
+    }
+
+    .fc8 {
+        right: 1%
+    }
+}
