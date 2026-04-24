@@ -35,4 +35,4 @@ class PriceAlerts(Base):
     is_sent: Mapped[bool] = mapped_column(default=False)
     noticed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.now(tz=timezone.utc))
 
-    watchlist: Mapped['Watchlists'] = relationship(back_populates="alerts")
+    watchlist: Mapped['Watchlist'] = relationship(back_populates="alerts")

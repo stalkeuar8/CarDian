@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile — Cardian</title>
+    <meta name="description" content="View and manage your Cardian account profile." />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#ff9900' },
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <!-- Custom Styles (shared) -->
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <style>
+        /* ── Skeleton shimmer ── */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ── Profile card pop-in ── */
+        .profile-card {
+            animation: cardIn .35s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── Avatar gradient ring ── */
+        .avatar-ring {
+            background: conic-gradient(#ff9900, #ffcc66, #ff6600, #ff9900);
+            padding: 3px;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-900 antialiased overflow-x-hidden min-h-screen flex flex-col">
+
+    <!-- ══════════════════════════════════════════
+     NAVIGATION BAR
+     ══════════════════════════════════════════ -->
+    <header id="navbar"
+        class="fixed top-0 left-0 right-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-shadow duration-300">
+        <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+
+            <!-- Brand -->
+            <a href="./index.html" id="brand-logo" class="text-xl font-extrabold tracking-tight text-gray-900">
+                Cardian<span class="text-[#ff9900]">.</span>
+            </a>
+
+            <!-- Desktop Links -->
+            <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <li><a href="./index.html#hero" class="nav-link">Home</a></li>
+                <li><a href="./index.html#pricing" class="nav-link">Pricing</a></li>
+            </ul>
+
+            <!-- Auth buttons — always show My Profile + Log out on this page -->
+            <div class="hidden md:flex items-center gap-3">
+                <a href="./profile.html"
+                    class="px-4 py-2 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100 flex items-center gap-1.5">
+                    <i data-lucide="user-circle" class="w-4 h-4"></i>
+                    My Profile
+                </a>
+                <button id="btn-logout"
+                    class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 hover:bg-red-50 transition-all duration-200 flex items-center gap-1.5">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log out
+                </button>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Toggle menu" aria-expanded="false">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-6 py-4 space-y-1">
+            <a href="./index.html"
+                class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Home</a>
+            <a href="./index.html#pricing"
+                class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Pricing</a>
+            <div class="flex gap-3 pt-3 border-t border-gray-100 mt-3">
+                <button id="btn-logout-mobile"
+                    class="flex-1 text-center px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">Log
+                    out</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════
+     MAIN CONTENT
+     ══════════════════════════════════════════ -->
+    <main class="flex-1 flex items-center justify-center px-6 pt-32 pb-20">
+        <div class="w-full max-w-lg">
+
+            <!-- ── Loading skeleton (shown while fetching) ── -->
+            <div id="profile-skeleton" class="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="skeleton w-20 h-20 rounded-full"></div>
+                    <div class="skeleton w-40 h-6"></div>
+                    <div class="skeleton w-56 h-4"></div>
+                </div>
+                <div class="border-t border-gray-100 pt-6 space-y-4">
+                    <div class="skeleton w-full h-4"></div>
+                    <div class="skeleton w-4/5 h-4"></div>
+                    <div class="skeleton w-3/5 h-4"></div>
+                </div>
+            </div>
+
+            <!-- ── Profile card (shown after successful fetch) ── -->
+            <div id="profile-card" class="hidden profile-card bg-white rounded-2xl shadow-xl overflow-hidden">
+
+                <!-- Orange gradient header strip -->
+                <div class="h-24 bg-gradient-to-br from-[#ff9900] to-[#ffcc55] relative">
+                    <!-- Decorative circles -->
+                    <div class="absolute -bottom-px left-0 right-0 h-8 bg-white rounded-t-3xl"></div>
+                </div>
+
+                <div class="px-8 pb-8">
+                    <!-- Avatar -->
+                    <div class="flex justify-center -mt-12 mb-5">
+                        <div class="avatar-ring">
+                            <div class="bg-white rounded-full p-1">
+                                <div id="profile-avatar"
+                                    class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-3xl font-extrabold select-none">
+                                    ?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Name & email -->
+                    <div class="text-center mb-7">
+                        <h1 id="profile-name" class="text-2xl font-extrabold text-gray-900 mb-1">—</h1>
+                        <p id="profile-email" class="text-sm text-gray-500">—</p>
+                    </div>
+
+                    <!-- Stats row -->
+                    <div class="grid grid-cols-3 gap-3 mb-7">
+                        <div class="text-center bg-orange-50 rounded-xl py-3 px-2 border border-orange-100">
+                            <p id="profile-tokens" class="text-2xl font-extrabold text-[#ff9900]">—</p>
+                            <p class="text-xs font-medium text-gray-500 mt-0.5">Tokens</p>
+                        </div>
+                        <div class="text-center bg-gray-50 rounded-xl py-3 px-2 border border-gray-100">
+                            <p id="profile-role" class="text-sm font-bold text-gray-700 capitalize">—</p>
+                            <p class="text-xs font-medium text-gray-500 mt-0.5">Role</p>
+                        </div>
+                        <div class="text-center bg-gray-50 rounded-xl py-3 px-2 border border-gray-100">
+                            <p id="profile-joined" class="text-sm font-bold text-gray-700">—</p>
+                            <p class="text-xs font-medium text-gray-500 mt-0.5">Joined</p>
+                        </div>
+                    </div>
+
+                    <!-- Detail rows -->
+                    <ul class="space-y-3 border-t border-gray-100 pt-6">
+                        <li class="flex items-center gap-3 text-sm">
+                            <span
+                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="mail" class="w-4 h-4 text-[#ff9900]"></i>
+                            </span>
+                            <div>
+                                <p class="text-xs text-gray-400 font-medium">Email</p>
+                                <p id="profile-email-detail" class="text-gray-800 font-semibold">—</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <span
+                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-[#ff9900]"></i>
+                            </span>
+                            <div>
+                                <p class="text-xs text-gray-400 font-medium">Account role</p>
+                                <p id="profile-role-detail" class="text-gray-800 font-semibold capitalize">—</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <span
+                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="calendar" class="w-4 h-4 text-[#ff9900]"></i>
+                            </span>
+                            <div>
+                                <p class="text-xs text-gray-400 font-medium">Member since</p>
+                                <p id="profile-joined-detail" class="text-gray-800 font-semibold">—</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Log out button -->
+                    <button id="profile-logout-btn"
+                        class="mt-8 w-full py-3 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 flex items-center justify-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Log out
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Error state ── -->
+            <div id="profile-error" class="hidden text-center py-16">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 mb-4">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Failed to load profile</h2>
+                <p id="profile-error-msg" class="text-sm text-gray-500 mb-6">Something went wrong. Please try again.</p>
+                <a href="./index.html"
+                    class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#ff9900] rounded-xl hover:brightness-110 transition-all">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    Back to home
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ══════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════ -->
+    <footer class="bg-gray-900 text-gray-400 py-8 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+            <p class="text-white font-extrabold text-lg">Cardian<span class="text-[#ff9900]">.</span></p>
+            <p class="text-gray-600 text-xs">© 2026 Cardian. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ═══════════════════════════════════════════
+           profile.js — inline script
+           ═══════════════════════════════════════════ */
+
+        const API_BASE = 'http://localhost:8008';
+        const TOKEN_KEY = 'cardian_token';
+        const REFRESH_KEY = 'cardian_refresh_token';
+
+        /* ── Logout (same logic as main.js) ── */
+        async function handleLogout() {
+            const token = localStorage.getItem(TOKEN_KEY);
+            try {
+                await fetch(`${API_BASE}/v1/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+            } catch (_) { }
+            finally {
+                localStorage.removeItem(TOKEN_KEY);
+                localStorage.removeItem(REFRESH_KEY);
+                window.location.href = './index.html';
+            }
+        }
+
+        /* ── Format date ── */
+        function formatDate(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            });
+        }
+
+        /* ── Show error state ── */
+        function showError(msg) {
+            document.getElementById('profile-skeleton').classList.add('hidden');
+            document.getElementById('profile-card').classList.add('hidden');
+            document.getElementById('profile-error').classList.remove('hidden');
+            document.getElementById('profile-error-msg').textContent = msg || 'Something went wrong.';
+        }
+
+        /* ── Populate profile card ── */
+        function renderProfile(user) {
+            // Avatar initials
+            const initials = (user.full_name || '?')
+                .split(' ')
+                .map(n => n[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase();
+            document.getElementById('profile-avatar').textContent = initials;
+
+            // Header
+            document.getElementById('profile-name').textContent = user.full_name || '—';
+            document.getElementById('profile-email').textContent = user.email || '—';
+
+            // Stats
+            document.getElementById('profile-tokens').textContent = user.tokens_balance ?? user.tokens ?? '—';
+            document.getElementById('profile-role').textContent = user.role || '—';
+            document.getElementById('profile-joined').textContent = formatDate(user.created_at).split(' ')[2] || '—'; // year only for card
+
+            // Detail rows
+            document.getElementById('profile-email-detail').textContent = user.email || '—';
+            document.getElementById('profile-role-detail').textContent = user.role || '—';
+            document.getElementById('profile-joined-detail').textContent = formatDate(user.created_at);
+
+            // Show card
+            document.getElementById('profile-skeleton').classList.add('hidden');
+            document.getElementById('profile-card').classList.remove('hidden');
+        }
+
+        /* ── Fetch profile on load ── */
+        async function loadProfile() {
+            const token = localStorage.getItem(TOKEN_KEY);
+
+            if (!token) {
+                // Not logged in — send back to landing
+                window.location.href = './index.html';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/v1/users/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    // Token expired / invalid
+                    localStorage.removeItem(TOKEN_KEY);
+                    localStorage.removeItem(REFRESH_KEY);
+                    window.location.href = './index.html';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    const msg = data?.detail || 'Failed to load your profile.';
+                    showError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+                    return;
+                }
+
+                const user = await res.json();
+                renderProfile(user);
+
+            } catch (err) {
+                showError('Network error — could not reach the server.');
+            }
+        }
+
+        /* ── DOMContentLoaded ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lucide icons
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Navbar scroll shadow
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                window.addEventListener('scroll', () => {
+                    navbar.classList.toggle('shadow-md', window.scrollY > 8);
+                }, { passive: true });
+            }
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', () => {
+                    const isOpen = !mobileMenu.classList.contains('hidden');
+                    mobileMenu.classList.toggle('hidden', isOpen);
+                    const icon = menuBtn.querySelector('i');
+                    if (icon) {
+                        icon.setAttribute('data-lucide', isOpen ? 'menu' : 'x');
+                        lucide.createIcons();
+                    }
+                    menuBtn.setAttribute('aria-expanded', String(!isOpen));
+                });
+            }
+
+            // Logout buttons
+            document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
+            document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
+            document.getElementById('profile-logout-btn')?.addEventListener('click', handleLogout);
+
+            // Load user data
+            loadProfile();
+        });
+    </script>
+</body>
+
+</html>
