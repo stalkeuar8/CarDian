@@ -1,1 +1,2086 @@
-{"openapi":"3.1.0","info":{"title":"CarDian","version":"0.1.0"},"paths":{"/v1/users/profile":{"get":{"tags":["Users"],"summary":"Get current user profile","operationId":"get_my_profile_v1_users_profile_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/users/email":{"patch":{"tags":["Users"],"summary":"Change user's email","operationId":"change_user_email_v1_users_email_patch","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/EmailChangeRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/users/fullname":{"patch":{"tags":["Users"],"summary":"Change user's full name","operationId":"change_user_name_v1_users_fullname_patch","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FullNameChangeRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/users/password":{"patch":{"tags":["Users"],"summary":"Change user's password","operationId":"change_password_v1_users_password_patch","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PasswordChangeRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/users/me":{"delete":{"tags":["Users"],"summary":"Deactivate users profile","operationId":"deactivate_profile_v1_users_me_delete","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DeleteUserRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DeleteUserResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/auth/register":{"post":{"tags":["Auth"],"summary":"Register as user","operationId":"register_v1_auth_register_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRegisterRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserAuthResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/auth/login":{"post":{"tags":["Auth"],"summary":"Login as registered user","operationId":"login_v1_auth_login_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserLoginRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserAuthResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/auth/logout":{"post":{"tags":["Auth"],"summary":"Logout","operationId":"logout_v1_auth_logout_post","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserLogoutResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/auth/refresh":{"post":{"tags":["Auth"],"summary":"Refresh access token","operationId":"refresh_v1_auth_refresh_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRefreshRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRefreshResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/lookups/manual/":{"post":{"tags":["Manual Lookups"],"summary":"New manual lookup","operationId":"manual_lookup_v1_lookups_manual__post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ManualLookupRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ManualLookupAcceptedResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/lookups/manual/{lookup_id}/verdict":{"get":{"tags":["Manual Lookups"],"summary":"Get manual lookup verdict (polling)","operationId":"get_verdict_manual_v1_lookups_manual__lookup_id__verdict_get","security":[{"OAuth2PasswordBearer":[]}],"parameters":[{"name":"lookup_id","in":"path","required":true,"schema":{"type":"integer","title":"Lookup Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/VerdictResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/lookups/manual/{lookup_id}":{"get":{"tags":["Manual Lookups"],"summary":"Get lookup by id","operationId":"get_users_manual_lookup_by_id_v1_lookups_manual__lookup_id__get","security":[{"OAuth2PasswordBearer":[]}],"parameters":[{"name":"lookup_id","in":"path","required":true,"schema":{"type":"integer","title":"Lookup Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ManualLookupResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/lookups/manual/my":{"get":{"tags":["Manual Lookups"],"summary":"Get all users manual lookups","operationId":"get_all_users_manual_lookups_v1_lookups_manual_my_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SequenceManualLookupResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/lookups/parsed/":{"post":{"tags":["Parsed Lookups"],"summary":"New parsed lookups","operationId":"new_parsed_lookup_v1_lookups_parsed__post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParsedLookupsRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParsedLookupAcceptedSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/lookups/parsed/{lookup_id}/verdict":{"get":{"tags":["Parsed Lookups"],"summary":"Get parsed lookup verdict (polling)","operationId":"get_verdict_parsed_v1_lookups_parsed__lookup_id__verdict_get","security":[{"OAuth2PasswordBearer":[]}],"parameters":[{"name":"lookup_id","in":"path","required":true,"schema":{"type":"integer","title":"Lookup Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/VerdictResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/lookups/parsed/{lookup_id}":{"get":{"tags":["Parsed Lookups"],"summary":"Get parsed lookup by id","operationId":"get_users_parsed_lookup_by_id_v1_lookups_parsed__lookup_id__get","security":[{"OAuth2PasswordBearer":[]}],"parameters":[{"name":"lookup_id","in":"path","required":true,"schema":{"type":"integer","title":"Lookup Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ParsedLookupsResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/lookups/parsed/my":{"get":{"tags":["Parsed Lookups"],"summary":"Get all users parsed lookups","operationId":"get_all_users_parsed_lookups_v1_lookups_parsed_my_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SequenceParsedLookupResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/watchlists/":{"post":{"tags":["Watchlists"],"summary":"Add url to watchlist","operationId":"add_to_watchlist_v1_watchlists__post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WatchlistRequestSchema"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WatchlistResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/watchlists/my":{"get":{"tags":["Watchlists"],"summary":"Get user watchlist","operationId":"get_users_watchlist_v1_watchlists_my_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WatchlistSequenceResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/watchlists/my/all":{"get":{"tags":["Watchlists"],"summary":"Get user watchlist (including inactive)","operationId":"get_users_watchlist_v1_watchlists_my_all_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WatchlistSequenceResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/v1/watchlists/{watch_id}":{"get":{"tags":["Watchlists"],"summary":"Get user watch by id","operationId":"get_users_watch_by_id_v1_watchlists__watch_id__get","security":[{"OAuth2PasswordBearer":[]}],"parameters":[{"name":"watch_id","in":"path","required":true,"schema":{"type":"integer","title":"Watch Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WatchlistResponseSchema"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/alerts/":{"get":{"tags":["Watchlists"],"summary":"Get my alerts","operationId":"get_my_alerts_v1_alerts__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PriceAlertResponseSchema"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/test/":{"post":{"tags":["For test"],"summary":"Test Task","operationId":"test_task_test__post","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}}},"components":{"schemas":{"BodyTypes":{"type":"string","enum":["off-road/pick-up","station wagon","coupe","sedan","convertible","compact","van","other","transporter"],"title":"BodyTypes"},"BoolType":{"type":"integer","enum":[1,0],"title":"BoolType"},"Condition":{"type":"string","enum":["used","new"],"title":"Condition"},"DeleteUserRequestSchema":{"properties":{"current_password":{"type":"string","title":"Current Password"}},"type":"object","required":["current_password"],"title":"DeleteUserRequestSchema"},"DeleteUserResponseSchema":{"properties":{"is_deleted":{"type":"boolean","title":"Is Deleted"},"deleted_at":{"type":"string","format":"date-time","title":"Deleted At"}},"type":"object","required":["is_deleted","deleted_at"],"title":"DeleteUserResponseSchema"},"DriveTrainTypes":{"type":"string","enum":["4wd","unknown","front wheel drive","rear wheel drive"],"title":"DriveTrainTypes"},"EmailChangeRequestSchema":{"properties":{"new_email":{"type":"string","format":"email","title":"New Email"}},"type":"object","required":["new_email"],"title":"EmailChangeRequestSchema"},"FuelCategories":{"type":"string","enum":["gasoline","electric/gasoline","electric/diesel","electric","diesel","cng","ethanol","lpg","others"],"title":"FuelCategories"},"FullNameChangeRequestSchema":{"properties":{"new_full_name":{"type":"string","title":"New Full Name"}},"type":"object","required":["new_full_name"],"title":"FullNameChangeRequestSchema"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"ManualLookupAcceptedResponseSchema":{"properties":{"lookup_id":{"type":"integer","title":"Lookup Id"},"user_id":{"type":"integer","title":"User Id"},"task_id":{"type":"string","title":"Task Id"},"status_code":{"type":"integer","title":"Status Code"}},"type":"object","required":["lookup_id","user_id","task_id","status_code"],"title":"ManualLookupAcceptedResponseSchema"},"ManualLookupRequestSchema":{"properties":{"brand":{"type":"string","title":"Brand"},"model":{"type":"string","title":"Model"},"year":{"type":"integer","exclusiveMinimum":1850.0,"title":"Year"},"mileage_km":{"type":"integer","minimum":0.0,"title":"Mileage Km"},"fuel_category":{"$ref":"#/components/schemas/FuelCategories"},"transmission":{"$ref":"#/components/schemas/TransmissionType"},"condition":{"$ref":"#/components/schemas/Condition"},"power_kw":{"type":"integer","exclusiveMinimum":0.0,"title":"Power Kw"},"body_type":{"$ref":"#/components/schemas/BodyTypes"},"drive_train":{"$ref":"#/components/schemas/DriveTrainTypes"},"had_accident":{"$ref":"#/components/schemas/BoolType"},"has_full_service_history":{"$ref":"#/components/schemas/BoolType"},"previous_owners_qty":{"type":"integer","minimum":0.0,"title":"Previous Owners Qty"},"seller_is_dealer":{"$ref":"#/components/schemas/BoolType"},"user_id":{"type":"integer","title":"User Id"}},"type":"object","required":["brand","model","year","mileage_km","fuel_category","transmission","condition","power_kw","body_type","drive_train","had_accident","has_full_service_history","previous_owners_qty","seller_is_dealer","user_id"],"title":"ManualLookupRequestSchema"},"ManualLookupResponseSchema":{"properties":{"brand":{"type":"string","title":"Brand"},"model":{"type":"string","title":"Model"},"year":{"type":"integer","exclusiveMinimum":1850.0,"title":"Year"},"mileage_km":{"type":"integer","minimum":0.0,"title":"Mileage Km"},"fuel_category":{"$ref":"#/components/schemas/FuelCategories"},"transmission":{"$ref":"#/components/schemas/TransmissionType"},"condition":{"$ref":"#/components/schemas/Condition"},"power_kw":{"type":"integer","exclusiveMinimum":0.0,"title":"Power Kw"},"body_type":{"$ref":"#/components/schemas/BodyTypes"},"drive_train":{"$ref":"#/components/schemas/DriveTrainTypes"},"had_accident":{"$ref":"#/components/schemas/BoolType"},"has_full_service_history":{"$ref":"#/components/schemas/BoolType"},"previous_owners_qty":{"type":"integer","minimum":0.0,"title":"Previous Owners Qty"},"seller_is_dealer":{"$ref":"#/components/schemas/BoolType"},"user_id":{"type":"integer","title":"User Id"},"id":{"type":"integer","title":"Id"},"status":{"type":"string","title":"Status"},"price_listed":{"type":"integer","minimum":0.0,"title":"Price Listed"},"created_at":{"type":"string","format":"date-time","title":"Created At"}},"type":"object","required":["brand","model","year","mileage_km","fuel_category","transmission","condition","power_kw","body_type","drive_train","had_accident","has_full_service_history","previous_owners_qty","seller_is_dealer","user_id","id","status","price_listed","created_at"],"title":"ManualLookupResponseSchema"},"ParsedLookupAcceptedSchema":{"properties":{"lookup_id":{"type":"integer","title":"Lookup Id"},"user_id":{"type":"integer","title":"User Id"},"task_id":{"type":"string","title":"Task Id"},"status_code":{"type":"integer","title":"Status Code"}},"type":"object","required":["lookup_id","user_id","task_id","status_code"],"title":"ParsedLookupAcceptedSchema"},"ParsedLookupsRequestSchema":{"properties":{"url":{"type":"string","minLength":1,"format":"uri","title":"Url"}},"type":"object","required":["url"],"title":"ParsedLookupsRequestSchema"},"ParsedLookupsResponseSchema":{"properties":{"url":{"type":"string","title":"Url"},"brand":{"type":"string","title":"Brand"},"model":{"type":"string","title":"Model"},"year":{"type":"integer","exclusiveMinimum":1850.0,"title":"Year"},"mileage_km":{"type":"integer","minimum":0.0,"title":"Mileage Km"},"fuel_category":{"$ref":"#/components/schemas/FuelCategories"},"transmission":{"$ref":"#/components/schemas/TransmissionType"},"condition":{"$ref":"#/components/schemas/Condition"},"power_kw":{"type":"integer","exclusiveMinimum":0.0,"title":"Power Kw"},"body_type":{"$ref":"#/components/schemas/BodyTypes"},"drive_train":{"$ref":"#/components/schemas/DriveTrainTypes"},"had_accident":{"$ref":"#/components/schemas/BoolType"},"has_full_service_history":{"$ref":"#/components/schemas/BoolType"},"previous_owners_qty":{"type":"integer","minimum":0.0,"title":"Previous Owners Qty"},"seller_is_dealer":{"$ref":"#/components/schemas/BoolType"},"user_id":{"type":"integer","title":"User Id"},"id":{"type":"integer","title":"Id"},"status":{"type":"string","title":"Status"},"price_listed":{"type":"integer","minimum":0.0,"title":"Price Listed"},"created_at":{"type":"string","format":"date-time","title":"Created At"}},"type":"object","required":["url","brand","model","year","mileage_km","fuel_category","transmission","condition","power_kw","body_type","drive_train","had_accident","has_full_service_history","previous_owners_qty","seller_is_dealer","user_id","id","status","price_listed","created_at"],"title":"ParsedLookupsResponseSchema"},"PasswordChangeRequestSchema":{"properties":{"old_password":{"type":"string","title":"Old Password"},"new_password":{"type":"string","title":"New Password"}},"type":"object","required":["old_password","new_password"],"title":"PasswordChangeRequestSchema"},"PriceAlertResponseSchema":{"properties":{"watchlist_id":{"type":"integer","exclusiveMinimum":0.0,"title":"Watchlist Id"},"price_diff":{"type":"integer","title":"Price Diff"},"price_diff_percents":{"type":"integer","title":"Price Diff Percents"},"id":{"type":"integer","title":"Id"},"is_sent":{"type":"boolean","title":"Is Sent"},"noticed_at":{"type":"string","format":"date-time","title":"Noticed At"}},"type":"object","required":["watchlist_id","price_diff","price_diff_percents","id","is_sent","noticed_at"],"title":"PriceAlertResponseSchema"},"SequenceManualLookupResponseSchema":{"properties":{"items":{"items":{"$ref":"#/components/schemas/ManualLookupResponseSchema"},"type":"array","title":"Items"},"total_items_qty":{"type":"integer","title":"Total Items Qty"}},"type":"object","required":["items","total_items_qty"],"title":"SequenceManualLookupResponseSchema"},"SequenceParsedLookupResponseSchema":{"properties":{"items":{"items":{"$ref":"#/components/schemas/ParsedLookupsResponseSchema"},"type":"array","title":"Items"},"total_items_qty":{"type":"integer","title":"Total Items Qty"}},"type":"object","required":["items","total_items_qty"],"title":"SequenceParsedLookupResponseSchema"},"TransmissionType":{"type":"string","enum":["automatic","semi_automathic","manual"],"title":"TransmissionType"},"UserAuthResponseSchema":{"properties":{"full_name":{"type":"string","title":"Full Name"},"email":{"type":"string","format":"email","title":"Email"},"id":{"type":"integer","title":"Id"},"role":{"type":"string","title":"Role"},"created_at":{"type":"string","format":"date-time","title":"Created At"},"refresh_token":{"type":"string","title":"Refresh Token"},"access_token":{"type":"string","title":"Access Token"}},"additionalProperties":true,"type":"object","required":["full_name","email","id","role","created_at","refresh_token","access_token"],"title":"UserAuthResponseSchema"},"UserLoginRequestSchema":{"properties":{"email":{"type":"string","format":"email","title":"Email"},"password":{"type":"string","title":"Password"}},"type":"object","required":["email","password"],"title":"UserLoginRequestSchema"},"UserLogoutResponseSchema":{"properties":{"is_logged_out":{"type":"boolean","title":"Is Logged Out"},"status":{"type":"integer","title":"Status"},"message":{"type":"string","title":"Message"}},"type":"object","required":["is_logged_out","status","message"],"title":"UserLogoutResponseSchema"},"UserRefreshRequestSchema":{"properties":{"refresh_token":{"type":"string","title":"Refresh Token"}},"type":"object","required":["refresh_token"],"title":"UserRefreshRequestSchema"},"UserRefreshResponseSchema":{"properties":{"access_token":{"type":"string","title":"Access Token"},"refresh_token":{"type":"string","title":"Refresh Token"}},"type":"object","required":["access_token","refresh_token"],"title":"UserRefreshResponseSchema"},"UserRegisterRequestSchema":{"properties":{"full_name":{"type":"string","title":"Full Name"},"email":{"type":"string","format":"email","title":"Email"},"password":{"type":"string","title":"Password"}},"type":"object","required":["full_name","email","password"],"title":"UserRegisterRequestSchema"},"UserResponseSchema":{"properties":{"full_name":{"type":"string","title":"Full Name"},"email":{"type":"string","format":"email","title":"Email"},"id":{"type":"integer","title":"Id"},"role":{"type":"string","title":"Role"},"created_at":{"type":"string","format":"date-time","title":"Created At"}},"type":"object","required":["full_name","email","id","role","created_at"],"title":"UserResponseSchema"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"},"VerdictResponseSchema":{"properties":{"predicted_price":{"type":"integer","title":"Predicted Price"},"price_deviation_percent":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Price Deviation Percent"},"verdict":{"$ref":"#/components/schemas/VerdictTypes"},"id":{"type":"integer","title":"Id"},"lower_bar":{"type":"integer","title":"Lower Bar"},"upper_bar":{"type":"integer","title":"Upper Bar"},"llm_feedback":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Llm Feedback"},"manual_lookup_id":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Manual Lookup Id"},"parsed_lookup_id":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Parsed Lookup Id"}},"type":"object","required":["predicted_price","verdict","id","lower_bar","upper_bar"],"title":"VerdictResponseSchema"},"VerdictTypes":{"type":"string","enum":["clean","suspicious","dangerous","no_type"],"title":"VerdictTypes"},"WatchlistRequestSchema":{"properties":{"url":{"type":"string","minLength":1,"format":"uri","title":"Url"},"last_price":{"type":"integer","minimum":0.0,"title":"Last Price"}},"type":"object","required":["url","last_price"],"title":"WatchlistRequestSchema"},"WatchlistResponseSchema":{"properties":{"url":{"type":"string","title":"Url"},"last_price":{"type":"integer","minimum":0.0,"title":"Last Price"},"user_id":{"type":"integer","title":"User Id"},"id":{"type":"integer","title":"Id"},"is_active":{"type":"boolean","title":"Is Active"},"created_at":{"type":"string","format":"date-time","title":"Created At"}},"additionalProperties":true,"type":"object","required":["url","last_price","user_id","id","is_active","created_at"],"title":"WatchlistResponseSchema"},"WatchlistSequenceResponseSchema":{"properties":{"items":{"items":{"$ref":"#/components/schemas/WatchlistResponseSchema"},"type":"array","title":"Items"},"total_items_qty":{"type":"integer","title":"Total Items Qty"}},"type":"object","required":["items","total_items_qty"],"title":"WatchlistSequenceResponseSchema"}},"securitySchemes":{"OAuth2PasswordBearer":{"type":"oauth2","flows":{"password":{"scopes":{},"tokenUrl":"/v1/auth/login"}}}}}}
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "CarDian",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/v1/users/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user profile",
+                "operationId": "get_my_profile_v1_users_profile_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/email": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user's email",
+                "operationId": "change_user_email_v1_users_email_patch",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailChangeRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/fullname": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user's full name",
+                "operationId": "change_user_name_v1_users_fullname_patch",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FullNameChangeRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/password": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user's password",
+                "operationId": "change_password_v1_users_password_patch",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordChangeRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/me": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Deactivate users profile",
+                "operationId": "deactivate_profile_v1_users_me_delete",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteUserRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteUserResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register as user",
+                "operationId": "register_v1_auth_register_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRegisterRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserAuthResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login as registered user",
+                "operationId": "login_v1_auth_login_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserAuthResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "operationId": "logout_v1_auth_logout_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserLogoutResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "operationId": "refresh_v1_auth_refresh_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRefreshRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRefreshResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/lookups/manual/": {
+            "post": {
+                "tags": [
+                    "Manual Lookups"
+                ],
+                "summary": "New manual lookup",
+                "operationId": "manual_lookup_v1_lookups_manual__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ManualLookupRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ManualLookupAcceptedResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/lookups/manual/{lookup_id}/verdict": {
+            "get": {
+                "tags": [
+                    "Manual Lookups"
+                ],
+                "summary": "Get manual lookup verdict (polling)",
+                "operationId": "get_verdict_manual_v1_lookups_manual__lookup_id__verdict_get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "lookup_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Lookup Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerdictResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/lookups/manual/{lookup_id}": {
+            "get": {
+                "tags": [
+                    "Manual Lookups"
+                ],
+                "summary": "Get lookup by id",
+                "operationId": "get_users_manual_lookup_by_id_v1_lookups_manual__lookup_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "lookup_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Lookup Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ManualLookupResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/lookups/manual/my": {
+            "get": {
+                "tags": [
+                    "Manual Lookups"
+                ],
+                "summary": "Get all users manual lookups",
+                "operationId": "get_all_users_manual_lookups_v1_lookups_manual_my_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SequenceManualLookupResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/lookups/parsed/": {
+            "post": {
+                "tags": [
+                    "Parsed Lookups"
+                ],
+                "summary": "New parsed lookups",
+                "operationId": "new_parsed_lookup_v1_lookups_parsed__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ParsedLookupsRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ParsedLookupAcceptedSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/lookups/parsed/{lookup_id}/verdict": {
+            "get": {
+                "tags": [
+                    "Parsed Lookups"
+                ],
+                "summary": "Get parsed lookup verdict (polling)",
+                "operationId": "get_verdict_parsed_v1_lookups_parsed__lookup_id__verdict_get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "lookup_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Lookup Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerdictResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/lookups/parsed/{lookup_id}": {
+            "get": {
+                "tags": [
+                    "Parsed Lookups"
+                ],
+                "summary": "Get parsed lookup by id",
+                "operationId": "get_users_parsed_lookup_by_id_v1_lookups_parsed__lookup_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "lookup_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Lookup Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ParsedLookupsResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/lookups/parsed/my": {
+            "get": {
+                "tags": [
+                    "Parsed Lookups"
+                ],
+                "summary": "Get all users parsed lookups",
+                "operationId": "get_all_users_parsed_lookups_v1_lookups_parsed_my_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SequenceParsedLookupResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/watchlists/": {
+            "post": {
+                "tags": [
+                    "Watchlists"
+                ],
+                "summary": "Add url to watchlist",
+                "operationId": "add_to_watchlist_v1_watchlists__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WatchlistRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WatchlistResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/watchlists/my": {
+            "get": {
+                "tags": [
+                    "Watchlists"
+                ],
+                "summary": "Get user watchlist",
+                "operationId": "get_users_watchlist_v1_watchlists_my_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WatchlistSequenceResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/watchlists/my/all": {
+            "get": {
+                "tags": [
+                    "Watchlists"
+                ],
+                "summary": "Get user watchlist (including inactive)",
+                "operationId": "get_users_watchlist_v1_watchlists_my_all_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WatchlistSequenceResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/watchlists/{watch_id}": {
+            "get": {
+                "tags": [
+                    "Watchlists"
+                ],
+                "summary": "Get user watch by id",
+                "operationId": "get_users_watch_by_id_v1_watchlists__watch_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "watch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Watch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WatchlistResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/alerts/": {
+            "get": {
+                "tags": [
+                    "Watchlists"
+                ],
+                "summary": "Get my alerts",
+                "operationId": "get_my_alerts_v1_alerts__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PriceAlertResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/payments/": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user payments",
+                "operationId": "get_user_payments_v1_users_payments__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentSequenceResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Complete payment after processing (credit the tokens)",
+                "operationId": "complete_payment_v1_users_payments__patch",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequestSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/v1/users/payments/{payment_id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user payment by id",
+                "operationId": "get_payment_by_id_v1_users_payments__payment_id__get",
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "payment_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Payment Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/test/": {
+            "post": {
+                "tags": [
+                    "For test"
+                ],
+                "summary": "Test Task",
+                "operationId": "test_task_test__post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BodyTypes": {
+                "type": "string",
+                "enum": [
+                    "off-road/pick-up",
+                    "station wagon",
+                    "coupe",
+                    "sedan",
+                    "convertible",
+                    "compact",
+                    "van",
+                    "other",
+                    "transporter"
+                ],
+                "title": "BodyTypes"
+            },
+            "BoolType": {
+                "type": "integer",
+                "enum": [
+                    1,
+                    0
+                ],
+                "title": "BoolType"
+            },
+            "Condition": {
+                "type": "string",
+                "enum": [
+                    "used",
+                    "new"
+                ],
+                "title": "Condition"
+            },
+            "DeleteUserRequestSchema": {
+                "properties": {
+                    "current_password": {
+                        "type": "string",
+                        "title": "Current Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "current_password"
+                ],
+                "title": "DeleteUserRequestSchema"
+            },
+            "DeleteUserResponseSchema": {
+                "properties": {
+                    "is_deleted": {
+                        "type": "boolean",
+                        "title": "Is Deleted"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Deleted At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "is_deleted",
+                    "deleted_at"
+                ],
+                "title": "DeleteUserResponseSchema"
+            },
+            "DriveTrainTypes": {
+                "type": "string",
+                "enum": [
+                    "4wd",
+                    "unknown",
+                    "front wheel drive",
+                    "rear wheel drive"
+                ],
+                "title": "DriveTrainTypes"
+            },
+            "EmailChangeRequestSchema": {
+                "properties": {
+                    "new_email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "New Email"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_email"
+                ],
+                "title": "EmailChangeRequestSchema"
+            },
+            "FuelCategories": {
+                "type": "string",
+                "enum": [
+                    "gasoline",
+                    "electric/gasoline",
+                    "electric/diesel",
+                    "electric",
+                    "diesel",
+                    "cng",
+                    "ethanol",
+                    "lpg",
+                    "others"
+                ],
+                "title": "FuelCategories"
+            },
+            "FullNameChangeRequestSchema": {
+                "properties": {
+                    "new_full_name": {
+                        "type": "string",
+                        "title": "New Full Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "new_full_name"
+                ],
+                "title": "FullNameChangeRequestSchema"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ManualLookupAcceptedResponseSchema": {
+                "properties": {
+                    "lookup_id": {
+                        "type": "integer",
+                        "title": "Lookup Id"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "task_id": {
+                        "type": "string",
+                        "title": "Task Id"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "lookup_id",
+                    "user_id",
+                    "task_id",
+                    "status_code"
+                ],
+                "title": "ManualLookupAcceptedResponseSchema"
+            },
+            "ManualLookupRequestSchema": {
+                "properties": {
+                    "brand": {
+                        "type": "string",
+                        "title": "Brand"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "exclusiveMinimum": 1850.0,
+                        "title": "Year"
+                    },
+                    "mileage_km": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Mileage Km"
+                    },
+                    "fuel_category": {
+                        "$ref": "#/components/schemas/FuelCategories"
+                    },
+                    "transmission": {
+                        "$ref": "#/components/schemas/TransmissionType"
+                    },
+                    "condition": {
+                        "$ref": "#/components/schemas/Condition"
+                    },
+                    "power_kw": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0.0,
+                        "title": "Power Kw"
+                    },
+                    "body_type": {
+                        "$ref": "#/components/schemas/BodyTypes"
+                    },
+                    "drive_train": {
+                        "$ref": "#/components/schemas/DriveTrainTypes"
+                    },
+                    "had_accident": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "has_full_service_history": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "previous_owners_qty": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Previous Owners Qty"
+                    },
+                    "seller_is_dealer": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "brand",
+                    "model",
+                    "year",
+                    "mileage_km",
+                    "fuel_category",
+                    "transmission",
+                    "condition",
+                    "power_kw",
+                    "body_type",
+                    "drive_train",
+                    "had_accident",
+                    "has_full_service_history",
+                    "previous_owners_qty",
+                    "seller_is_dealer",
+                    "user_id"
+                ],
+                "title": "ManualLookupRequestSchema"
+            },
+            "ManualLookupResponseSchema": {
+                "properties": {
+                    "brand": {
+                        "type": "string",
+                        "title": "Brand"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "exclusiveMinimum": 1850.0,
+                        "title": "Year"
+                    },
+                    "mileage_km": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Mileage Km"
+                    },
+                    "fuel_category": {
+                        "$ref": "#/components/schemas/FuelCategories"
+                    },
+                    "transmission": {
+                        "$ref": "#/components/schemas/TransmissionType"
+                    },
+                    "condition": {
+                        "$ref": "#/components/schemas/Condition"
+                    },
+                    "power_kw": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0.0,
+                        "title": "Power Kw"
+                    },
+                    "body_type": {
+                        "$ref": "#/components/schemas/BodyTypes"
+                    },
+                    "drive_train": {
+                        "$ref": "#/components/schemas/DriveTrainTypes"
+                    },
+                    "had_accident": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "has_full_service_history": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "previous_owners_qty": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Previous Owners Qty"
+                    },
+                    "seller_is_dealer": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "price_listed": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Price Listed"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "brand",
+                    "model",
+                    "year",
+                    "mileage_km",
+                    "fuel_category",
+                    "transmission",
+                    "condition",
+                    "power_kw",
+                    "body_type",
+                    "drive_train",
+                    "had_accident",
+                    "has_full_service_history",
+                    "previous_owners_qty",
+                    "seller_is_dealer",
+                    "user_id",
+                    "id",
+                    "status",
+                    "price_listed",
+                    "created_at"
+                ],
+                "title": "ManualLookupResponseSchema"
+            },
+            "ParsedLookupAcceptedSchema": {
+                "properties": {
+                    "lookup_id": {
+                        "type": "integer",
+                        "title": "Lookup Id"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "task_id": {
+                        "type": "string",
+                        "title": "Task Id"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "lookup_id",
+                    "user_id",
+                    "task_id",
+                    "status_code"
+                ],
+                "title": "ParsedLookupAcceptedSchema"
+            },
+            "ParsedLookupsRequestSchema": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "title": "ParsedLookupsRequestSchema"
+            },
+            "ParsedLookupsResponseSchema": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "brand": {
+                        "type": "string",
+                        "title": "Brand"
+                    },
+                    "model": {
+                        "type": "string",
+                        "title": "Model"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "exclusiveMinimum": 1850.0,
+                        "title": "Year"
+                    },
+                    "mileage_km": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Mileage Km"
+                    },
+                    "fuel_category": {
+                        "$ref": "#/components/schemas/FuelCategories"
+                    },
+                    "transmission": {
+                        "$ref": "#/components/schemas/TransmissionType"
+                    },
+                    "condition": {
+                        "$ref": "#/components/schemas/Condition"
+                    },
+                    "power_kw": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0.0,
+                        "title": "Power Kw"
+                    },
+                    "body_type": {
+                        "$ref": "#/components/schemas/BodyTypes"
+                    },
+                    "drive_train": {
+                        "$ref": "#/components/schemas/DriveTrainTypes"
+                    },
+                    "had_accident": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "has_full_service_history": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "previous_owners_qty": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Previous Owners Qty"
+                    },
+                    "seller_is_dealer": {
+                        "$ref": "#/components/schemas/BoolType"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "price_listed": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Price Listed"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url",
+                    "brand",
+                    "model",
+                    "year",
+                    "mileage_km",
+                    "fuel_category",
+                    "transmission",
+                    "condition",
+                    "power_kw",
+                    "body_type",
+                    "drive_train",
+                    "had_accident",
+                    "has_full_service_history",
+                    "previous_owners_qty",
+                    "seller_is_dealer",
+                    "user_id",
+                    "id",
+                    "status",
+                    "price_listed",
+                    "created_at"
+                ],
+                "title": "ParsedLookupsResponseSchema"
+            },
+            "PasswordChangeRequestSchema": {
+                "properties": {
+                    "old_password": {
+                        "type": "string",
+                        "title": "Old Password"
+                    },
+                    "new_password": {
+                        "type": "string",
+                        "title": "New Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "old_password",
+                    "new_password"
+                ],
+                "title": "PasswordChangeRequestSchema"
+            },
+            "PaymentRequestSchema": {
+                "properties": {
+                    "rate": {
+                        "$ref": "#/components/schemas/RateTypes"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "rate",
+                    "user_id"
+                ],
+                "title": "PaymentRequestSchema"
+            },
+            "PaymentResponseSchema": {
+                "properties": {
+                    "rate": {
+                        "$ref": "#/components/schemas/RateTypes"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/PaymentStatus"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "rate",
+                    "user_id",
+                    "id",
+                    "status",
+                    "created_at"
+                ],
+                "title": "PaymentResponseSchema"
+            },
+            "PaymentSequenceResponseSchema": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/PaymentResponseSchema"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total_items_qty": {
+                        "type": "integer",
+                        "title": "Total Items Qty"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total_items_qty"
+                ],
+                "title": "PaymentSequenceResponseSchema"
+            },
+            "PaymentStatus": {
+                "type": "string",
+                "enum": [
+                    "success",
+                    "failed",
+                    "pending"
+                ],
+                "title": "PaymentStatus"
+            },
+            "PriceAlertResponseSchema": {
+                "properties": {
+                    "watchlist_id": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0.0,
+                        "title": "Watchlist Id"
+                    },
+                    "price_diff": {
+                        "type": "integer",
+                        "title": "Price Diff"
+                    },
+                    "price_diff_percents": {
+                        "type": "integer",
+                        "title": "Price Diff Percents"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "is_sent": {
+                        "type": "boolean",
+                        "title": "Is Sent"
+                    },
+                    "noticed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Noticed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "watchlist_id",
+                    "price_diff",
+                    "price_diff_percents",
+                    "id",
+                    "is_sent",
+                    "noticed_at"
+                ],
+                "title": "PriceAlertResponseSchema"
+            },
+            "RateTypes": {
+                "type": "string",
+                "enum": [
+                    "starter",
+                    "pro"
+                ],
+                "title": "RateTypes"
+            },
+            "SequenceManualLookupResponseSchema": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ManualLookupResponseSchema"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total_items_qty": {
+                        "type": "integer",
+                        "title": "Total Items Qty"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total_items_qty"
+                ],
+                "title": "SequenceManualLookupResponseSchema"
+            },
+            "SequenceParsedLookupResponseSchema": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ParsedLookupsResponseSchema"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total_items_qty": {
+                        "type": "integer",
+                        "title": "Total Items Qty"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total_items_qty"
+                ],
+                "title": "SequenceParsedLookupResponseSchema"
+            },
+            "TransmissionType": {
+                "type": "string",
+                "enum": [
+                    "automatic",
+                    "semi_automathic",
+                    "manual"
+                ],
+                "title": "TransmissionType"
+            },
+            "UserAuthResponseSchema": {
+                "properties": {
+                    "full_name": {
+                        "type": "string",
+                        "title": "Full Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "role": {
+                        "type": "string",
+                        "title": "Role"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "current_balance": {
+                        "type": "integer",
+                        "title": "Current Balance"
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "title": "Refresh Token"
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "title": "Access Token"
+                    }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "required": [
+                    "full_name",
+                    "email",
+                    "id",
+                    "role",
+                    "created_at",
+                    "current_balance",
+                    "refresh_token",
+                    "access_token"
+                ],
+                "title": "UserAuthResponseSchema"
+            },
+            "UserLoginRequestSchema": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "title": "UserLoginRequestSchema"
+            },
+            "UserLogoutResponseSchema": {
+                "properties": {
+                    "is_logged_out": {
+                        "type": "boolean",
+                        "title": "Is Logged Out"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "title": "Status"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "is_logged_out",
+                    "status",
+                    "message"
+                ],
+                "title": "UserLogoutResponseSchema"
+            },
+            "UserRefreshRequestSchema": {
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "title": "Refresh Token"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "refresh_token"
+                ],
+                "title": "UserRefreshRequestSchema"
+            },
+            "UserRefreshResponseSchema": {
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "title": "Access Token"
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "title": "Refresh Token"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "access_token",
+                    "refresh_token"
+                ],
+                "title": "UserRefreshResponseSchema"
+            },
+            "UserRegisterRequestSchema": {
+                "properties": {
+                    "full_name": {
+                        "type": "string",
+                        "title": "Full Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "full_name",
+                    "email",
+                    "password"
+                ],
+                "title": "UserRegisterRequestSchema"
+            },
+            "UserResponseSchema": {
+                "properties": {
+                    "full_name": {
+                        "type": "string",
+                        "title": "Full Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "role": {
+                        "type": "string",
+                        "title": "Role"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "current_balance": {
+                        "type": "integer",
+                        "title": "Current Balance"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "full_name",
+                    "email",
+                    "id",
+                    "role",
+                    "created_at",
+                    "current_balance"
+                ],
+                "title": "UserResponseSchema"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    },
+                    "input": {
+                        "title": "Input"
+                    },
+                    "ctx": {
+                        "type": "object",
+                        "title": "Context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "VerdictResponseSchema": {
+                "properties": {
+                    "predicted_price": {
+                        "type": "integer",
+                        "title": "Predicted Price"
+                    },
+                    "price_deviation_percent": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Price Deviation Percent"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "lower_bar": {
+                        "type": "integer",
+                        "title": "Lower Bar"
+                    },
+                    "upper_bar": {
+                        "type": "integer",
+                        "title": "Upper Bar"
+                    },
+                    "llm_feedback": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Llm Feedback"
+                    },
+                    "manual_lookup_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Manual Lookup Id"
+                    },
+                    "parsed_lookup_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Parsed Lookup Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "predicted_price",
+                    "id",
+                    "lower_bar",
+                    "upper_bar"
+                ],
+                "title": "VerdictResponseSchema"
+            },
+            "WatchlistRequestSchema": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "minLength": 1,
+                        "format": "uri",
+                        "title": "Url"
+                    },
+                    "last_price": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Last Price"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url",
+                    "last_price"
+                ],
+                "title": "WatchlistRequestSchema"
+            },
+            "WatchlistResponseSchema": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "last_price": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "title": "Last Price"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "title": "User Id"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "required": [
+                    "url",
+                    "last_price",
+                    "user_id",
+                    "id",
+                    "is_active",
+                    "created_at"
+                ],
+                "title": "WatchlistResponseSchema"
+            },
+            "WatchlistSequenceResponseSchema": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/WatchlistResponseSchema"
+                        },
+                        "type": "array",
+                        "title": "Items"
+                    },
+                    "total_items_qty": {
+                        "type": "integer",
+                        "title": "Total Items Qty"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "total_items_qty"
+                ],
+                "title": "WatchlistSequenceResponseSchema"
+            }
+        },
+        "securitySchemes": {
+            "OAuth2PasswordBearer": {
+                "type": "oauth2",
+                "flows": {
+                    "password": {
+                        "scopes": {},
+                        "tokenUrl": "/v1/auth/login"
+                    }
+                }
+            }
+        }
+    }
+}

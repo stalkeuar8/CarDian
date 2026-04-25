@@ -45,7 +45,7 @@ async def new_parsed_lookup(request: Request, body: ParsedLookupsRequestSchema, 
 
 
 @parsed_lookups_router.get("/{lookup_id}/verdict", summary="Get parsed lookup verdict (polling)", response_model=VerdictResponseSchema)
-@rate_limiter.limit("5/15 seconds")
+@rate_limiter.limit("12/15 seconds")
 async def get_verdict_parsed(request: Request, lookup_id: int, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> VerdictResponseSchema | JSONResponse:
     verdict: Verdicts | None = await VerdictsRepo.get_by_parsed_lookup_id(parsed_lookup_id=lookup_id, session=session, user_id=current_user.id)
 
@@ -62,7 +62,6 @@ async def get_verdict_parsed(request: Request, lookup_id: int, current_user: Use
         predicted_price=verdict.predicted_price,
         lower_bar=lower_bar,
         upper_bar=upper_bar,
-        verdict=verdict.verdict,
         llm_feedback=verdict.llm_feedback,
         parsed_lookup_id=lookup_id
     )

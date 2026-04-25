@@ -37,7 +37,7 @@ async def change_user_email(request: Request, body: EmailChangeRequestSchema, cu
 @users_router.patch("/fullname", summary="Change user's full name", response_model=UserResponseSchema)
 @rate_limiter.limit("5/15 seconds") 
 async def change_user_name(request: Request, body: FullNameChangeRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> UserResponseSchema:
-    updated_user: Users | None = await AdminUsersRepo.change_full_name(session=session, user_id=current_user.id, new_full_name=body.new_full_name)
+    updated_user: Users | None = await AdminUsersRepo.change_full_name(session=session, user_id=current_user.id, new_name=body.new_full_name)
 
     if not updated_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User was not found")

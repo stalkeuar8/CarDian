@@ -1,425 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Profile — Cardian</title>
-    <meta name="description" content="View and manage your Cardian account profile." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardian — Settings</title>
+  <meta name="description" content="View and manage your Cardian profile and settings." />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { brand: '#ff9900' },
-                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
-                }
-            }
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: '#ff9900' },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
         }
-    </script>
+      }
+    }
+  </script>
 
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- Custom Styles (shared) -->
-    <link rel="stylesheet" href="./css/style.css" />
-
-    <style>
-        /* ── Skeleton shimmer ── */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-            border-radius: 6px;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* ── Profile card pop-in ── */
-        .profile-card {
-            animation: cardIn .35s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(24px) scale(.97);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* ── Avatar gradient ring ── */
-        .avatar-ring {
-            background: conic-gradient(#ff9900, #ffcc66, #ff6600, #ff9900);
-            padding: 3px;
-            border-radius: 9999px;
-        }
-    </style>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 
-<body class="bg-gray-50 font-sans text-gray-900 antialiased overflow-x-hidden min-h-screen flex flex-col">
+<body class="bg-gray-50 font-sans text-gray-900 antialiased overflow-x-hidden flex flex-col min-h-screen">
 
-    <!-- ══════════════════════════════════════════
-     NAVIGATION BAR
+  <!-- ══════════════════════════════════════════
+     NAVIGATION BAR — Sticky, backdrop blur
      ══════════════════════════════════════════ -->
-    <header id="navbar"
-        class="fixed top-0 left-0 right-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-shadow duration-300">
-        <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+  <header id="navbar" class="fixed top-0 left-0 right-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-shadow duration-300">
+    <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <a href="./index.html" id="brand-logo" class="text-xl font-extrabold tracking-tight text-gray-900">
+        Cardian<span class="text-[#ff9900]">.</span>
+      </a>
 
-            <!-- Brand -->
-            <a href="./index.html" id="brand-logo" class="text-xl font-extrabold tracking-tight text-gray-900">
-                Cardian<span class="text-[#ff9900]">.</span>
+      <!-- Desktop Links -->
+      <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <li><a href="./index.html#manual" id="nav-manual" class="nav-link">Manual</a></li>
+        <li><a href="./index.html#parse" id="nav-parse" class="nav-link">Parse from URL</a></li>
+        <li><a href="./index.html#watchlist" id="nav-watchlist" class="nav-link">Watchlist</a></li>
+      </ul>
+
+      <!-- Desktop Auth Buttons -->
+      <div class="hidden md:flex items-center gap-3" id="auth-buttons-guest">
+        <a href="#" id="btn-signin" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Sign in</a>
+        <a href="#" id="btn-signup" class="px-4 py-2 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100">Sign up</a>
+      </div>
+
+      <!-- Desktop Auth — Authenticated State (hidden by default) -->
+      <div class="hidden items-center gap-2" id="auth-buttons-user">
+        <!-- Top Up Button -->
+        <button id="btn-topup" class="px-3 py-1.5 text-sm font-semibold text-[#ff9900] border border-[#ff9900] rounded-lg hover:bg-orange-50 transition-all duration-200 flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          Top Up
+        </button>
+        <!-- Token Balance -->
+        <span id="header-balance" class="text-sm font-bold text-gray-900 px-2">Tokens: —</span>
+        <!-- Bot Button -->
+        <a href="https://t.me/CarDianAI_bot" target="_blank" rel="noopener noreferrer" id="btn-bot" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-[#229ED9] hover:bg-[#1a8bbf] hover:scale-105 transition-all duration-200 flex items-center gap-1.5">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          Bot
+        </a>
+        <a href="./profile.html" id="btn-dashboard" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100 flex items-center gap-1.5">
+          <i data-lucide="user-circle" class="w-4 h-4"></i>
+          My Profile
+        </a>
+        <button id="btn-logout" class="p-2 text-gray-500 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 hover:bg-red-50 transition-all duration-200 flex items-center" aria-label="Log out">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Toggle menu" aria-expanded="false">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </nav>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-6 py-4 space-y-1">
+      <a href="./index.html#manual" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Manual</a>
+      <a href="./index.html#parse" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Parse from URL</a>
+      <a href="./index.html#watchlist" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Watchlist</a>
+      <div class="flex gap-3 pt-3 border-t border-gray-100 mt-3">
+        <a href="#" class="flex-1 text-center px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Sign in</a>
+        <a href="#" class="flex-1 text-center px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:brightness-110 transition-all">Sign up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+     MAIN CONTENT (SETTINGS LAYOUT)
+     ══════════════════════════════════════════ -->
+  <main class="flex-1 w-full pt-28 pb-16">
+    <div class="max-w-6xl mx-auto px-6">
+      
+      <!-- Header -->
+      <div class="mb-10">
+        <h1 class="text-3xl font-extrabold text-gray-900">Account Settings</h1>
+        <p class="text-sm text-gray-500 mt-2">Manage your personal information, security preferences, and tokens.</p>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+          <nav class="space-y-1 sticky top-28">
+            <a href="#personal-info" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#ff9900] bg-orange-50 rounded-xl">
+              <i data-lucide="user" class="w-4 h-4"></i>
+              Personal Info
             </a>
+            <a href="#security" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+              Security
+            </a>
+            <a href="#danger-zone" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors mt-4">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              Danger Zone
+            </a>
+          </nav>
+        </aside>
 
-            <!-- Desktop Links -->
-            <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
-                <li><a href="./index.html#hero" class="nav-link">Home</a></li>
-                <li><a href="./index.html#pricing" class="nav-link">Pricing</a></li>
-            </ul>
-
-            <!-- Auth buttons — always show My Profile + Log out on this page -->
-            <div class="hidden md:flex items-center gap-3">
-                <a href="./profile.html"
-                    class="px-4 py-2 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100 flex items-center gap-1.5">
-                    <i data-lucide="user-circle" class="w-4 h-4"></i>
-                    My Profile
-                </a>
-                <button id="btn-logout"
-                    class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 hover:bg-red-50 transition-all duration-200 flex items-center gap-1.5">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Log out
+        <!-- Content Area -->
+        <div class="flex-1 space-y-10">
+          
+          <!-- Personal Information Card -->
+          <section id="personal-info" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 class="text-lg font-bold text-gray-900">Personal Information</h2>
+            </div>
+            <div class="p-8 space-y-8">
+              <!-- Name -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500 mb-1">Full Name</p>
+                  <p id="profile-fullname" class="text-base font-semibold text-gray-900">Loading...</p>
+                </div>
+                <button onclick="openModal('modal-edit-name')" class="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:border-[#ff9900] hover:text-[#ff9900] hover:bg-orange-50 transition-colors">
+                  Edit
                 </button>
-            </div>
-
-            <!-- Mobile Hamburger -->
-            <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Toggle menu" aria-expanded="false">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
-        </nav>
-
-        <!-- Mobile Dropdown Menu -->
-        <div id="mobile-menu"
-            class="hidden md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-6 py-4 space-y-1">
-            <a href="./index.html"
-                class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Home</a>
-            <a href="./index.html#pricing"
-                class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Pricing</a>
-            <div class="flex gap-3 pt-3 border-t border-gray-100 mt-3">
-                <button id="btn-logout-mobile"
-                    class="flex-1 text-center px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">Log
-                    out</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ══════════════════════════════════════════
-     MAIN CONTENT
-     ══════════════════════════════════════════ -->
-    <main class="flex-1 flex items-center justify-center px-6 pt-32 pb-20">
-        <div class="w-full max-w-lg">
-
-            <!-- ── Loading skeleton (shown while fetching) ── -->
-            <div id="profile-skeleton" class="bg-white rounded-2xl shadow-xl p-8 space-y-6">
-                <div class="flex flex-col items-center gap-4">
-                    <div class="skeleton w-20 h-20 rounded-full"></div>
-                    <div class="skeleton w-40 h-6"></div>
-                    <div class="skeleton w-56 h-4"></div>
+              </div>
+              
+              <hr class="border-gray-100" />
+              
+              <!-- Email -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500 mb-1">Email Address</p>
+                  <p id="profile-email" class="text-base font-semibold text-gray-900">Loading...</p>
                 </div>
-                <div class="border-t border-gray-100 pt-6 space-y-4">
-                    <div class="skeleton w-full h-4"></div>
-                    <div class="skeleton w-4/5 h-4"></div>
-                    <div class="skeleton w-3/5 h-4"></div>
+                <button onclick="openModal('modal-edit-email')" class="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:border-[#ff9900] hover:text-[#ff9900] hover:bg-orange-50 transition-colors">
+                  Edit
+                </button>
+              </div>
+
+              <hr class="border-gray-100" />
+              
+              <!-- Balance -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500 mb-1">Current Balance</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <i data-lucide="coins" class="w-5 h-5 text-[#ff9900]"></i>
+                    <p class="text-base font-bold text-[#ff9900]"><span id="profile-balance-val">—</span> Tokens</p>
+                  </div>
                 </div>
+                <button onclick="openModal('modal-topup')" class="px-4 py-2 text-sm font-bold text-white bg-[#ff9900] rounded-lg hover:brightness-110 shadow-sm transition-all shadow-orange-100 hover:shadow-orange-200">
+                  Top Up
+                </button>
+              </div>
             </div>
+          </section>
 
-            <!-- ── Profile card (shown after successful fetch) ── -->
-            <div id="profile-card" class="hidden profile-card bg-white rounded-2xl shadow-xl overflow-hidden">
-
-                <!-- Orange gradient header strip -->
-                <div class="h-24 bg-gradient-to-br from-[#ff9900] to-[#ffcc55] relative">
-                    <!-- Decorative circles -->
-                    <div class="absolute -bottom-px left-0 right-0 h-8 bg-white rounded-t-3xl"></div>
-                </div>
-
-                <div class="px-8 pb-8">
-                    <!-- Avatar -->
-                    <div class="flex justify-center -mt-12 mb-5">
-                        <div class="avatar-ring">
-                            <div class="bg-white rounded-full p-1">
-                                <div id="profile-avatar"
-                                    class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-3xl font-extrabold select-none">
-                                    ?
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Name & email -->
-                    <div class="text-center mb-7">
-                        <h1 id="profile-name" class="text-2xl font-extrabold text-gray-900 mb-1">—</h1>
-                        <p id="profile-email" class="text-sm text-gray-500">—</p>
-                    </div>
-
-                    <!-- Stats row -->
-                    <div class="grid grid-cols-3 gap-3 mb-7">
-                        <div class="text-center bg-orange-50 rounded-xl py-3 px-2 border border-orange-100">
-                            <p id="profile-tokens" class="text-2xl font-extrabold text-[#ff9900]">—</p>
-                            <p class="text-xs font-medium text-gray-500 mt-0.5">Tokens</p>
-                        </div>
-                        <div class="text-center bg-gray-50 rounded-xl py-3 px-2 border border-gray-100">
-                            <p id="profile-role" class="text-sm font-bold text-gray-700 capitalize">—</p>
-                            <p class="text-xs font-medium text-gray-500 mt-0.5">Role</p>
-                        </div>
-                        <div class="text-center bg-gray-50 rounded-xl py-3 px-2 border border-gray-100">
-                            <p id="profile-joined" class="text-sm font-bold text-gray-700">—</p>
-                            <p class="text-xs font-medium text-gray-500 mt-0.5">Joined</p>
-                        </div>
-                    </div>
-
-                    <!-- Detail rows -->
-                    <ul class="space-y-3 border-t border-gray-100 pt-6">
-                        <li class="flex items-center gap-3 text-sm">
-                            <span
-                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="mail" class="w-4 h-4 text-[#ff9900]"></i>
-                            </span>
-                            <div>
-                                <p class="text-xs text-gray-400 font-medium">Email</p>
-                                <p id="profile-email-detail" class="text-gray-800 font-semibold">—</p>
-                            </div>
-                        </li>
-                        <li class="flex items-center gap-3 text-sm">
-                            <span
-                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="shield-check" class="w-4 h-4 text-[#ff9900]"></i>
-                            </span>
-                            <div>
-                                <p class="text-xs text-gray-400 font-medium">Account role</p>
-                                <p id="profile-role-detail" class="text-gray-800 font-semibold capitalize">—</p>
-                            </div>
-                        </li>
-                        <li class="flex items-center gap-3 text-sm">
-                            <span
-                                class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="calendar" class="w-4 h-4 text-[#ff9900]"></i>
-                            </span>
-                            <div>
-                                <p class="text-xs text-gray-400 font-medium">Member since</p>
-                                <p id="profile-joined-detail" class="text-gray-800 font-semibold">—</p>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <!-- Log out button -->
-                    <button id="profile-logout-btn"
-                        class="mt-8 w-full py-3 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 flex items-center justify-center gap-2">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        Log out
-                    </button>
-                </div>
+          <!-- Security Card -->
+          <section id="security" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 class="text-lg font-bold text-gray-900">Security</h2>
             </div>
-
-            <!-- ── Error state ── -->
-            <div id="profile-error" class="hidden text-center py-16">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 mb-4">
-                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+            <div class="p-8">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500 mb-1">Password</p>
+                  <p class="text-base text-gray-900">••••••••</p>
                 </div>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Failed to load profile</h2>
-                <p id="profile-error-msg" class="text-sm text-gray-500 mb-6">Something went wrong. Please try again.</p>
-                <a href="./index.html"
-                    class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#ff9900] rounded-xl hover:brightness-110 transition-all">
-                    <i data-lucide="home" class="w-4 h-4"></i>
-                    Back to home
-                </a>
+                <button onclick="openModal('modal-change-password')" class="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:border-[#ff9900] hover:text-[#ff9900] hover:bg-orange-50 transition-colors">
+                  Change Password
+                </button>
+              </div>
             </div>
+          </section>
+
+          <!-- Danger Zone Card -->
+          <section id="danger-zone" class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+            <div class="px-8 py-6 border-b border-red-100 bg-red-50/30">
+              <h2 class="text-lg font-bold text-red-600">Danger Zone</h2>
+            </div>
+            <div class="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p class="text-base font-semibold text-gray-900 mb-1">Deactivate Account</p>
+                <p class="text-sm text-gray-500">Once you deactivate your account, there is no going back. Please be certain.</p>
+              </div>
+              <button id="btn-deactivate" class="px-4 py-2.5 text-sm font-bold text-red-600 border border-red-200 bg-red-50 rounded-lg hover:bg-red-600 hover:text-white transition-colors flex-shrink-0">
+                Deactivate
+              </button>
+            </div>
+          </section>
 
         </div>
-    </main>
+      </div>
+    </div>
+  </main>
 
-    <!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      FOOTER
      ══════════════════════════════════════════ -->
-    <footer class="bg-gray-900 text-gray-400 py-8 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-            <p class="text-white font-extrabold text-lg">Cardian<span class="text-[#ff9900]">.</span></p>
-            <p class="text-gray-600 text-xs">© 2026 Cardian. All rights reserved.</p>
+  <footer class="bg-gray-900 text-gray-400 py-16 px-6 mt-auto">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+      <!-- Column 1: Brand -->
+      <div>
+        <p class="text-2xl font-extrabold text-white mb-3">
+          Cardian<span class="text-[#ff9900]">.</span>
+        </p>
+        <p class="text-sm leading-relaxed text-gray-500">
+          AI-powered used car valuation. Get accurate, instant price analysis for any vehicle in seconds.
+        </p>
+        <p class="mt-6 text-xs text-gray-600">© 2026 Cardian. All rights reserved.</p>
+      </div>
+
+      <!-- Column 2: Legal -->
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Legal</p>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="footer-link">Terms of Service</a></li>
+          <li><a href="#" class="footer-link">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Company -->
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Company</p>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="footer-link">About Us</a></li>
+          <li><a href="#" class="footer-link">Documentation</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Contact -->
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Contact</p>
+        <a href="mailto:cardian@gmail.com"
+          class="footer-link text-sm block mb-4 hover:text-[#ff9900] transition-colors">
+          cardian@gmail.com
+        </a>
+        <div class="flex items-center justify-start gap-4">
+          <div class="tip-wrap">
+            <a href="#" class="social-icon" aria-label="Instagram">
+              <i data-lucide="instagram" class="w-5 h-5"></i>
+            </a>
+          </div>
+          <div class="tip-wrap">
+            <a href="#" class="social-icon" aria-label="Telegram">
+              <i data-lucide="send" class="w-5 h-5"></i>
+            </a>
+          </div>
         </div>
-    </footer>
+      </div>
+    </div>
+  </footer>
 
-    <script>
-        /* ═══════════════════════════════════════════
-           profile.js — inline script
-           ═══════════════════════════════════════════ */
+  <!-- ══════════════════════════════════════════
+       MODALS FOR EDITING
+       ══════════════════════════════════════════ -->
 
-        const API_BASE = 'http://localhost:8008';
-        const TOKEN_KEY = 'cardian_token';
-        const REFRESH_KEY = 'cardian_refresh_token';
+  <!-- Edit Name Modal -->
+  <div id="modal-edit-name" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true">
+    <div onclick="closeModal('modal-edit-name')" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 modal-panel">
+      <button onclick="closeModal('modal-edit-name')" class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="mb-6">
+        <p class="text-2xl font-extrabold text-gray-900 mb-1">Edit Name</p>
+      </div>
+      <form id="form-edit-name" novalidate>
+        <div class="mb-4">
+          <label for="edit-fullname" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+          <input type="text" id="edit-fullname" name="new_full_name" class="w-full px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#ff9900] focus:ring-2 focus:ring-[#ff9900]/20" required />
+        </div>
+        <p id="edit-name-error" class="mb-4 text-sm text-red-600 hidden"></p>
+        <button type="submit" id="btn-submit-name" class="w-full py-3 text-sm font-bold text-white bg-[#ff9900] rounded-xl hover:brightness-110 hover:shadow-lg hover:shadow-orange-200 transition-all shadow-md shadow-orange-100 disabled:opacity-60">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
 
-        /* ── Logout (same logic as main.js) ── */
-        async function handleLogout() {
-            const token = localStorage.getItem(TOKEN_KEY);
-            try {
-                await fetch(`${API_BASE}/v1/auth/logout`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-            } catch (_) { }
-            finally {
-                localStorage.removeItem(TOKEN_KEY);
-                localStorage.removeItem(REFRESH_KEY);
-                window.location.href = './index.html';
-            }
-        }
+  <!-- Edit Email Modal -->
+  <div id="modal-edit-email" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true">
+    <div onclick="closeModal('modal-edit-email')" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 modal-panel">
+      <button onclick="closeModal('modal-edit-email')" class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="mb-6">
+        <p class="text-2xl font-extrabold text-gray-900 mb-1">Edit Email</p>
+      </div>
+      <form id="form-edit-email" novalidate>
+        <div class="mb-4">
+          <label for="edit-email" class="block text-sm font-medium text-gray-700 mb-1.5">New Email Address</label>
+          <input type="email" id="edit-email" name="new_email" class="w-full px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#ff9900] focus:ring-2 focus:ring-[#ff9900]/20" required />
+        </div>
+        <p id="edit-email-error" class="mb-4 text-sm text-red-600 hidden"></p>
+        <button type="submit" id="btn-submit-email" class="w-full py-3 text-sm font-bold text-white bg-[#ff9900] rounded-xl hover:brightness-110 hover:shadow-lg hover:shadow-orange-200 transition-all shadow-md shadow-orange-100 disabled:opacity-60">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
 
-        /* ── Format date ── */
-        function formatDate(iso) {
-            if (!iso) return '—';
-            return new Date(iso).toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'short', year: 'numeric'
-            });
-        }
+  <!-- Change Password Modal -->
+  <div id="modal-change-password" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true">
+    <div onclick="closeModal('modal-change-password')" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 modal-panel">
+      <button onclick="closeModal('modal-change-password')" class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="mb-6">
+        <p class="text-2xl font-extrabold text-gray-900 mb-1">Change Password</p>
+      </div>
+      <form id="form-change-password" novalidate>
+        <div class="space-y-4 mb-4">
+          <div>
+            <label for="edit-pwd-old" class="block text-sm font-medium text-gray-700 mb-1.5">Current Password</label>
+            <div class="relative">
+              <input type="password" id="edit-pwd-old" class="w-full px-4 py-2.5 pr-11 text-sm text-gray-900 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#ff9900] focus:ring-2 focus:ring-[#ff9900]/20" required />
+              <button type="button" class="pw-toggle absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" data-target="edit-pwd-old">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="edit-pwd-new" class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
+            <div class="relative">
+              <input type="password" id="edit-pwd-new" class="w-full px-4 py-2.5 pr-11 text-sm text-gray-900 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#ff9900] focus:ring-2 focus:ring-[#ff9900]/20" required />
+              <button type="button" class="pw-toggle absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" data-target="edit-pwd-new">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p id="edit-password-error" class="mb-4 text-sm text-red-600 hidden"></p>
+        <button type="submit" id="btn-submit-password" class="w-full py-3 text-sm font-bold text-white bg-[#ff9900] rounded-xl hover:brightness-110 hover:shadow-lg hover:shadow-orange-200 transition-all shadow-md shadow-orange-100 disabled:opacity-60">
+          Update Password
+        </button>
+      </form>
+    </div>
+  </div>
 
-        /* ── Show error state ── */
-        function showError(msg) {
-            document.getElementById('profile-skeleton').classList.add('hidden');
-            document.getElementById('profile-card').classList.add('hidden');
-            document.getElementById('profile-error').classList.remove('hidden');
-            document.getElementById('profile-error-msg').textContent = msg || 'Something went wrong.';
-        }
+  <!-- Top Up Modal -->
+  <div id="modal-topup" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="topup-title">
+    <div id="modal-topup-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 modal-panel">
+      <button id="modal-topup-close" class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Close">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="mb-7">
+        <p class="text-2xl font-extrabold text-gray-900 mb-1" id="topup-title">Top Up Balance</p>
+        <p class="text-sm text-gray-500">Choose a package to add tokens to your account</p>
+      </div>
+      <div class="space-y-3 mb-6">
+        <label class="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#ff9900] transition-all duration-200">
+          <input type="radio" name="topup-plan" id="topup-starter" value="starter" class="accent-[#ff9900]" checked />
+          <div class="flex-1">
+            <p class="font-bold text-gray-900">Starter</p>
+            <p class="text-sm text-gray-500">8 tokens &middot; &euro;4.99</p>
+          </div>
+          <span class="text-xs font-semibold text-white bg-[#ff9900] px-2.5 py-1 rounded-full">Popular</span>
+        </label>
+        <label class="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[#ff9900] transition-all duration-200">
+          <input type="radio" name="topup-plan" id="topup-pro" value="pro" class="accent-[#ff9900]" />
+          <div class="flex-1">
+            <p class="font-bold text-gray-900">Pro</p>
+            <p class="text-sm text-gray-500">100 tokens &middot; &euro;39.99</p>
+          </div>
+          <span class="text-xs font-semibold text-gray-500 border border-gray-200 px-2.5 py-1 rounded-full">Best value</span>
+        </label>
+      </div>
+      <p id="topup-error" class="mb-4 text-sm text-red-600 hidden"></p>
+      <button id="topup-submit" class="w-full py-3 text-sm font-bold text-white bg-[#ff9900] rounded-xl hover:brightness-110 hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-200 active:scale-100 transition-all duration-200 shadow-md shadow-orange-100 disabled:opacity-60 disabled:cursor-not-allowed">
+        Pay Now
+      </button>
+      <p class="mt-4 text-center text-xs text-gray-400">Tokens are credited to your account instantly after payment.</p>
+    </div>
+  </div>
 
-        /* ── Populate profile card ── */
-        function renderProfile(user) {
-            // Avatar initials
-            const initials = (user.full_name || '?')
-                .split(' ')
-                .map(n => n[0])
-                .slice(0, 2)
-                .join('')
-                .toUpperCase();
-            document.getElementById('profile-avatar').textContent = initials;
-
-            // Header
-            document.getElementById('profile-name').textContent = user.full_name || '—';
-            document.getElementById('profile-email').textContent = user.email || '—';
-
-            // Stats
-            document.getElementById('profile-tokens').textContent = user.tokens_balance ?? user.tokens ?? '—';
-            document.getElementById('profile-role').textContent = user.role || '—';
-            document.getElementById('profile-joined').textContent = formatDate(user.created_at).split(' ')[2] || '—'; // year only for card
-
-            // Detail rows
-            document.getElementById('profile-email-detail').textContent = user.email || '—';
-            document.getElementById('profile-role-detail').textContent = user.role || '—';
-            document.getElementById('profile-joined-detail').textContent = formatDate(user.created_at);
-
-            // Show card
-            document.getElementById('profile-skeleton').classList.add('hidden');
-            document.getElementById('profile-card').classList.remove('hidden');
-        }
-
-        /* ── Fetch profile on load ── */
-        async function loadProfile() {
-            const token = localStorage.getItem(TOKEN_KEY);
-
-            if (!token) {
-                // Not logged in — send back to landing
-                window.location.href = './index.html';
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE}/v1/users/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (res.status === 401 || res.status === 403) {
-                    // Token expired / invalid
-                    localStorage.removeItem(TOKEN_KEY);
-                    localStorage.removeItem(REFRESH_KEY);
-                    window.location.href = './index.html';
-                    return;
-                }
-
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    const msg = data?.detail || 'Failed to load your profile.';
-                    showError(typeof msg === 'string' ? msg : JSON.stringify(msg));
-                    return;
-                }
-
-                const user = await res.json();
-                renderProfile(user);
-
-            } catch (err) {
-                showError('Network error — could not reach the server.');
-            }
-        }
-
-        /* ── DOMContentLoaded ── */
-        document.addEventListener('DOMContentLoaded', () => {
-            // Lucide icons
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-
-            // Navbar scroll shadow
-            const navbar = document.getElementById('navbar');
-            if (navbar) {
-                window.addEventListener('scroll', () => {
-                    navbar.classList.toggle('shadow-md', window.scrollY > 8);
-                }, { passive: true });
-            }
-
-            // Mobile menu toggle
-            const menuBtn = document.getElementById('menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (menuBtn && mobileMenu) {
-                menuBtn.addEventListener('click', () => {
-                    const isOpen = !mobileMenu.classList.contains('hidden');
-                    mobileMenu.classList.toggle('hidden', isOpen);
-                    const icon = menuBtn.querySelector('i');
-                    if (icon) {
-                        icon.setAttribute('data-lucide', isOpen ? 'menu' : 'x');
-                        lucide.createIcons();
-                    }
-                    menuBtn.setAttribute('aria-expanded', String(!isOpen));
-                });
-            }
-
-            // Logout buttons
-            document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
-            document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
-            document.getElementById('profile-logout-btn')?.addEventListener('click', handleLogout);
-
-            // Load user data
-            loadProfile();
-        });
-    </script>
+  <!-- Main JS -->
+  <script src="./js/main.js"></script>
 </body>
-
 </html>

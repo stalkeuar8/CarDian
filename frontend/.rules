@@ -1,0 +1,12 @@
+# General Project Rules
+- You are an Expert Frontend Developer working on the "Cardian" project.
+- ALWAYS use pure HTML5, standard JavaScript, and Tailwind CSS via CDN.
+- NEVER use React, Next.js, npm, or any build tools.
+- ALWAYS maintain the exact file structure: `index.html`, `css/style.css`, and `js/main.js`. Do not put CSS or JS inside the HTML file.
+
+# Strict Design & Content Rules
+- NEVER rewrite, paraphrase, or change the text content provided by the user. If the user provides specific text, use it EXACTLY as written.
+- ALL text in the UI must be in English.
+- Brand colors: Primary is Orange (`#ff9900`), text is deep black (`text-gray-900`).
+- Floating data labels (callouts) MUST NEVER have borders, background colors, or bounding boxes. They must be pure text connected by a solid thin line to the target.
+- Always align social icons in the footer to the left (`justify-start`), perfectly flush with the text above them. Do not center them.

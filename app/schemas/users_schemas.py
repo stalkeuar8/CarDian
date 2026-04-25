@@ -24,7 +24,8 @@ class UserResponseSchema(UserBaseSchema):
     id: int
     role: str
     created_at: datetime
-
+    current_balance: int
+    
     model_config = ConfigDict(from_attributes=True)
 
 

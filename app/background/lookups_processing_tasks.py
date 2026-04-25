@@ -4,7 +4,6 @@ from app.background.celery_worker import celery_app
 from app.models.lookups import ManualLookups, ParsedLookups, ParsedLookupsRawData
 from app.services.price_prediction import predict_service
 from app.models.verdicts import Verdicts
-from app.schemas.verdicts_schemas import VerdictTypes
 from app.schemas.prediction_schemas import BasePredictor
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
@@ -75,7 +74,6 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
         verdict = Verdicts(
             parsed_lookup_id=lookup_id, 
             predicted_price=predicted_price,
-            verdict=VerdictTypes.no_type,
             llm_feedback=llm_feedback
         )
 
@@ -164,7 +162,6 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
         verdict = Verdicts(
             parsed_lookup_id=lookup_id, 
             predicted_price=predicted_price,
-            verdict=VerdictTypes.no_type,
             llm_feedback=llm_feedback
         )
 

@@ -1,16 +1,10 @@
 from pydantic import BaseModel
 from enum import Enum
 
-class VerdictTypes(str, Enum):
-    clean = "clean"
-    suspicious = "suspicious"
-    dangerous = "dangerous"
-    no_type = "no_type"
 
 class VerdictBaseSchema(BaseModel):
     predicted_price: int
     price_deviation_percent: int | None = None
-    verdict: VerdictTypes 
 
     
 class VerdictManualRequestSchema(VerdictBaseSchema):

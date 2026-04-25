@@ -89,7 +89,8 @@ async def login(request: Request, body: UserLoginRequestSchema, session: AsyncSe
         role=user.role,
         created_at=user.created_at,
         access_token=access_token,
-        refresh_token=refresh_token
+        refresh_token=refresh_token,
+        current_balance=user.current_balance
     )
 
 

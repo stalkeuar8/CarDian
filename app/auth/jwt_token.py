@@ -57,8 +57,6 @@ def decode_jwt(jwt_token: str) -> dict[str, Any]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
     
 
-
-
 async def get_current_user(jwt_token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_db), redis=Depends(get_redis)) -> Users:
     payload = decode_jwt(jwt_token=jwt_token)
 
