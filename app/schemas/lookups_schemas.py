@@ -5,7 +5,7 @@ from typing import Annotated, Sequence, Self
 from app.schemas.lookup_enums import BoolType, Condition, DriveTrainTypes, BodyTypes, ParsedLookupsStatus, FuelCategories, TransmissionType
 
 from datetime import datetime
-
+from enum import Enum
 
 HttpsUrl = Annotated[
     AnyUrl, 
@@ -13,7 +13,9 @@ HttpsUrl = Annotated[
     AfterValidator(str),
     PlainSerializer(lambda x: str(x), return_type=str)
 ]
-
+class LookupsPrices(int, Enum):
+    manual = 1
+    parsed = 2
 
 class CarSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra='ignore')

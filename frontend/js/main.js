@@ -11,6 +11,53 @@ const API_BASE    = 'http://localhost:8008';
 const TOKEN_KEY   = 'cardian_token';
 const REFRESH_KEY = 'cardian_refresh_token';
 
+async function getUserIdFromToken() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return null;
+  try {
+    const payloadPart = token.split('.')[1];
+    let base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const decoded = JSON.parse(atob(base64));
+    if (decoded.sub) return parseInt(decoded.sub, 10) || decoded.sub;
+    if (decoded.id) return parseInt(decoded.id, 10) || decoded.id;
+    if (decoded.user_id) return parseInt(decoded.user_id, 10) || decoded.user_id;
+  } catch (e) {
+    // Decoding failed
+  }
+  
+  if (window._cardianUserId) return window._cardianUserId;
+  
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/v1/users/profile`);
+    if (res.ok) {
+      const user = await res.json();
+      window._cardianUserId = user.id;
+      return user.id;
+    }
+  } catch (e) {}
+  
+  return null;
+}
+
+function getUserRoleFromToken() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return null;
+  try {
+    const payloadPart = token.split('.')[1];
+    let base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const decoded = JSON.parse(atob(base64));
+    return decoded.role || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Simplified RateTypes string
 // RateTypes from OpenAPI spec is now an enum: "starter" or "pro"
 
@@ -68,6 +115,9 @@ async function checkAuthState() {
   const token    = localStorage.getItem(TOKEN_KEY);
   const guestNav = document.getElementById('auth-buttons-guest');
   const userNav  = document.getElementById('auth-buttons-user');
+  
+  const heroGuest = document.getElementById('hero-cta-guest');
+  const heroUser  = document.getElementById('hero-cta-user');
 
   if (!guestNav || !userNav) return;
 
@@ -77,23 +127,66 @@ async function checkAuthState() {
     userNav.classList.remove('hidden');
     userNav.classList.add('flex');
 
-    // Fetch profile to get current_balance
+    if (heroGuest && heroUser) {
+      heroGuest.classList.add('hidden');
+      heroGuest.classList.remove('sm:flex', 'flex');
+      heroUser.classList.remove('hidden');
+      heroUser.classList.add('sm:flex', 'flex');
+    }
+
+    // Fetch profile to get current_balance and role
     try {
+      let userRole = getUserRoleFromToken();
+
       const res = await fetchWithAuth(`${API_BASE}/v1/users/profile`);
       if (res.ok) {
         const user = await res.json();
         updateHeaderBalance(user.current_balance ?? '—');
         // Cache user_id for top-up
         window._cardianUserId = user.id;
+        if (user.role) userRole = user.role;
       } else if (res.status === 401 || res.status === 403) {
         // Token invalid — force logout
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(REFRESH_KEY);
+        localStorage.removeItem('cardian_user_role');
         guestNav.classList.remove('hidden');
         guestNav.classList.add('md:flex');
         userNav.classList.remove('flex');
         userNav.classList.add('hidden');
+
+        if (heroGuest && heroUser) {
+          heroUser.classList.add('hidden');
+          heroUser.classList.remove('sm:flex', 'flex');
+          heroGuest.classList.remove('hidden');
+          heroGuest.classList.add('sm:flex', 'flex');
+        }
       }
+
+      if (userRole) {
+        localStorage.setItem('cardian_user_role', userRole);
+      }
+
+      if (userRole === 'admin') {
+        let adminBtn = document.getElementById('btn-admin-panel');
+        if (!adminBtn) {
+          const logoutBtn = document.getElementById('btn-logout');
+          if (logoutBtn) {
+            const btnHtml = `
+              <a href="./admin_panel.html" id="btn-admin-panel" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gray-900 hover:bg-black hover:scale-105 transition-all duration-200 shadow-md flex items-center gap-1.5">
+                <i data-lucide="shield" class="w-4 h-4"></i>
+                Admin panel
+              </a>
+            `;
+            logoutBtn.insertAdjacentHTML('beforebegin', btnHtml);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+          }
+        }
+      } else {
+        const adminBtn = document.getElementById('btn-admin-panel');
+        if (adminBtn) adminBtn.remove();
+      }
+
     } catch (_) { /* network error, leave balance as — */ }
 
   } else {
@@ -101,6 +194,13 @@ async function checkAuthState() {
     userNav.classList.add('hidden');
     guestNav.classList.remove('hidden');
     guestNav.classList.add('md:flex');
+
+    if (heroGuest && heroUser) {
+      heroUser.classList.add('hidden');
+      heroUser.classList.remove('sm:flex', 'flex');
+      heroGuest.classList.remove('hidden');
+      heroGuest.classList.add('sm:flex', 'flex');
+    }
   }
 
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -259,6 +359,7 @@ async function handleLogout() {
   finally {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem('cardian_user_role');
     window.location.href = './index.html';
   }
 }
@@ -489,6 +590,22 @@ function initPasswordToggles() {
    ═══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
 
+  /* ─────────────────────────────────────────
+     Watchlist Navigation Guard
+     ───────────────────────────────────────── */
+  const watchlistLinks = document.querySelectorAll('a[href="./watchlists.html"], #nav-watchlist');
+  watchlistLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        openModal('modal-signin');
+      } else {
+        window.location.href = './watchlists.html';
+      }
+    });
+  });
+
   /* 1. Initialize Lucide Icons */
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
@@ -689,6 +806,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  /* ─────────────────────────────────────────
+     Shared Polling Logic
+     ───────────────────────────────────────── */
+  function startPolling(lookupId, type, onSuccess, onFail) {
+    const loadingText = document.getElementById('parse-loading-text');
+    const texts = [
+      "Running valuation models...", 
+      "Comparing market data...", 
+      "Evaluating condition impact...", 
+      "Calculating precise estimate...", 
+      "Finalizing AI verdict..."
+    ];
+    let textIdx = 0;
+    const textInt = setInterval(() => {
+      textIdx = (textIdx + 1) % texts.length;
+      if (loadingText) loadingText.textContent = texts[textIdx];
+    }, 2000);
+
+    let attempts = 0;
+    const maxAttempts = 10; // 10 attempts * 1500ms = 15 seconds
+    const pollInterval = 1500;
+
+    const pollInt = setInterval(async () => {
+      attempts++;
+      try {
+        const url = `${API_BASE}/v1/lookups/${type}/${lookupId}/verdict`;
+        const verdictRes = await fetchWithAuth(url);
+        
+        if (verdictRes.status === 202) {
+          if (attempts >= maxAttempts) {
+            clearInterval(pollInt);
+            clearInterval(textInt);
+            showToast('Request Timeout', 'The analysis is taking too long. Please try again later.', 'error');
+            onFail();
+          }
+          return;
+        }
+        
+        clearInterval(pollInt);
+        clearInterval(textInt);
+        
+        if (!verdictRes.ok) {
+          const errData = await verdictRes.json().catch(() => ({}));
+          showToast('Prediction Failed', extractErrorMessage(errData), 'error');
+          onFail();
+          return;
+        }
+        
+        const verdictData = await verdictRes.json();
+        
+        if (type === 'parsed') {
+          const carRes = await fetchWithAuth(`${API_BASE}/v1/lookups/parsed/${lookupId}`);
+          const carData = carRes.ok ? await carRes.json() : {};
+          onSuccess(verdictData, carData);
+        } else {
+          onSuccess(verdictData, null);
+        }
+        
+      } catch (pollErr) {
+        clearInterval(pollInt);
+        clearInterval(textInt);
+        showToast('Network Error', 'Lost connection while analyzing.', 'error');
+        onFail();
+      }
+    }, pollInterval);
+  }
+
+  /* ─────────────────────────────────────────
+     UI Helpers
+     ───────────────────────────────────────── */
+  function resetSubmitButton(btnId, defaultText, iconName) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i> ${defaultText}`;
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
   /* 13. URL Parser Logic */
   const parseForm = document.getElementById('form-parse-url');
   if (parseForm) {
@@ -728,54 +924,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingEl.classList.remove('hidden');
         loadingEl.classList.add('flex');
         
-        // Fun text cycling
-        const texts = [
-          "Scanning photos...", 
-          "Extracting technical data...", 
-          "Evaluating condition...", 
-          "Calculating market price...", 
-          "Finalizing AI verdict..."
-        ];
-        let textIdx = 0;
-        const textInt = setInterval(() => {
-          textIdx = (textIdx + 1) % texts.length;
-          loadingText.textContent = texts[textIdx];
-        }, 2000);
-
-        // Polling
-        const pollInt = setInterval(async () => {
-          try {
-            const verdictRes = await fetchWithAuth(`${API_BASE}/v1/lookups/parsed/${lookupId}/verdict`);
-            if (verdictRes.status === 202) {
-              // still processing
-              return;
-            }
-            
-            clearInterval(pollInt);
-            clearInterval(textInt);
-            
-            if (!verdictRes.ok) {
-              const errData = await verdictRes.json().catch(() => ({}));
-              showToast('Prediction Failed', extractErrorMessage(errData), 'error');
-              resetParseUI();
-              return;
-            }
-            
-            const verdictData = await verdictRes.json();
-            
-            // Now fetch car details
-            const carRes = await fetchWithAuth(`${API_BASE}/v1/lookups/parsed/${lookupId}`);
-            const carData = carRes.ok ? await carRes.json() : {};
-            
+        startPolling(
+          lookupId, 
+          'parsed',
+          (verdictData, carData) => {
             renderCarResult(verdictData, carData);
-            
-          } catch (pollErr) {
-            clearInterval(pollInt);
-            clearInterval(textInt);
-            showToast('Network Error', 'Lost connection while analyzing.', 'error');
+          },
+          () => {
             resetParseUI();
           }
-        }, 1500);
+        );
 
       } catch (err) {
         showToast('Network Error', 'Failed to start parsing. Is the server running?', 'error');
@@ -796,12 +954,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       document.getElementById('parse-result').classList.add('hidden');
       
-      const btn = document.getElementById('btn-predict-price');
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="search" class="w-5 h-5"></i> Predict Price';
-      }
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      resetSubmitButton('btn-predict-price', 'Predict Price', 'search');
     }
 
     function renderCarResult(verdict, car) {
@@ -827,12 +980,213 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Refetch auth state to update token balance automatically
       checkAuthState();
+
+      // Setup Add to Watchlist Button
+      const btnWatchlist = document.getElementById('btn-add-watchlist');
+      if (btnWatchlist) {
+        // Reset button state
+        btnWatchlist.disabled = false;
+        btnWatchlist.innerHTML = `
+          <i data-lucide="bookmark-plus" class="w-5 h-5 group-hover:fill-white transition-colors"></i>
+          <span>Add to Watchlist (5 tokens)</span>
+        `;
+        btnWatchlist.className = 'w-full py-4 text-sm font-bold text-gray-900 bg-white border-2 border-gray-900 rounded-xl hover:bg-gray-900 hover:text-white transition-all duration-200 shadow-sm flex items-center justify-center gap-2 group';
+        
+        // Remove old listeners by cloning
+        const newBtn = btnWatchlist.cloneNode(true);
+        btnWatchlist.parentNode.replaceChild(newBtn, btnWatchlist);
+        
+        newBtn.addEventListener('click', async () => {
+          const url = document.getElementById('parse-url').value;
+          const lastPrice = car.price_listed || verdict.predicted_price || 0;
+          
+          if (!url) return;
+          
+          newBtn.disabled = true;
+          newBtn.innerHTML = `
+            <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
+            <span>Adding...</span>
+          `;
+          
+          try {
+            const res = await fetchWithAuth(`${API_BASE}/v1/watchlists/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                url: url,
+                last_price: Number(lastPrice)
+              })
+            });
+            
+            if (res.ok) {
+              showToast('Success', 'Car added to your watchlist!', 'success');
+              newBtn.innerHTML = `
+                <i data-lucide="check" class="w-5 h-5"></i>
+                <span>Added to Watchlist</span>
+              `;
+              newBtn.className = 'w-full py-4 text-sm font-bold text-white bg-green-600 border-2 border-green-600 rounded-xl flex items-center justify-center gap-2 opacity-90 cursor-not-allowed';
+              checkAuthState(); // update tokens if deducted
+            } else if (res.status === 402) {
+              showToast('Insufficient Tokens', 'You do not have enough tokens to add to watchlist.', 'error');
+              resetBtn();
+            } else if (res.status === 409) {
+              showToast('Already Exists', 'This car is already in your watchlist.', 'error');
+              newBtn.innerHTML = `
+                <i data-lucide="bookmark-check" class="w-5 h-5"></i>
+                <span>Already in Watchlist</span>
+              `;
+              newBtn.className = 'w-full py-4 text-sm font-bold text-gray-500 bg-gray-100 border-2 border-gray-200 rounded-xl flex items-center justify-center gap-2 opacity-90 cursor-not-allowed';
+            } else {
+              showToast('Error', 'Failed to add to watchlist.', 'error');
+              resetBtn();
+            }
+          } catch (err) {
+            showToast('Error', 'Network error. Please try again.', 'error');
+            resetBtn();
+          }
+          
+          function resetBtn() {
+            newBtn.disabled = false;
+            newBtn.innerHTML = `
+              <i data-lucide="bookmark-plus" class="w-5 h-5 group-hover:fill-white transition-colors"></i>
+              <span>Add to Watchlist (5 tokens)</span>
+            `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+          }
+          
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
     }
   }
 
   /* 14. Manual Parser Logic */
   const manualForm = document.getElementById('form-manual-lookup');
   if (manualForm) {
+    let brandModelData = {};
+    let selectedBrand = null;
+
+    async function fetchBrandModelData() {
+      try {
+        const res = await fetch('./assets/images/brands_models.txt');
+        if (!res.ok) return;
+        const text = await res.text();
+        const lines = text.split('\n');
+        let currentBrand = null;
+        for (let line of lines) {
+          line = line.replace(/\r/g, '');
+          if (!line.trim()) continue;
+          if (line.endsWith(':') && !line.startsWith(' ')) {
+            currentBrand = line.slice(0, -1).trim().toLowerCase();
+            brandModelData[currentBrand] = [];
+          } else if (line.startsWith('  - ') && currentBrand) {
+            brandModelData[currentBrand].push(line.slice(4).trim().toLowerCase());
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load brand model data', e);
+      }
+    }
+    fetchBrandModelData();
+
+    const brandInput = document.getElementById('manual-brand');
+    const modelInput = document.getElementById('manual-model');
+    const brandList = document.getElementById('brand-autocomplete-list');
+    const modelList = document.getElementById('model-autocomplete-list');
+
+    function closeAllLists(except) {
+      if (except !== brandList && brandList) brandList.classList.add('hidden');
+      if (except !== modelList && modelList) modelList.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target !== brandInput && e.target !== modelInput) {
+        closeAllLists();
+      }
+    });
+
+    if (brandInput) {
+      brandInput.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        brandList.innerHTML = '';
+        if (!val) {
+          brandList.classList.add('hidden');
+          selectedBrand = null;
+          modelInput.disabled = true;
+          modelInput.value = '';
+          return;
+        }
+        const matches = Object.keys(brandModelData).filter(b => b.includes(val));
+        if (matches.length > 0) {
+          matches.forEach(match => {
+            const li = document.createElement('li');
+            li.className = 'px-4 py-2 cursor-pointer text-sm text-gray-700 hover:bg-[#ff9900]/10 hover:text-[#ff9900] transition-colors';
+            // Capitalize for display
+            li.textContent = match.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            li.addEventListener('click', () => {
+              brandInput.value = li.textContent;
+              selectedBrand = match;
+              brandList.classList.add('hidden');
+              modelInput.disabled = false;
+              modelInput.value = '';
+              modelInput.focus();
+            });
+            brandList.appendChild(li);
+          });
+          brandList.classList.remove('hidden');
+        } else {
+          brandList.classList.add('hidden');
+        }
+        
+        if (brandModelData[val]) {
+           selectedBrand = val;
+           modelInput.disabled = false;
+        } else {
+           selectedBrand = null;
+           modelInput.disabled = true;
+           modelInput.value = '';
+        }
+      });
+
+      brandInput.addEventListener('focus', function() {
+        if (this.value) this.dispatchEvent(new Event('input'));
+      });
+    }
+
+    if (modelInput) {
+      modelInput.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        modelList.innerHTML = '';
+        if (!selectedBrand) {
+          modelList.classList.add('hidden');
+          return;
+        }
+        const models = brandModelData[selectedBrand] || [];
+        const matches = val ? models.filter(m => m.includes(val)) : models;
+        if (matches.length > 0) {
+          matches.forEach(match => {
+            const li = document.createElement('li');
+            li.className = 'px-4 py-2 cursor-pointer text-sm text-gray-700 hover:bg-[#ff9900]/10 hover:text-[#ff9900] transition-colors';
+            li.textContent = match.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            li.addEventListener('click', () => {
+              modelInput.value = li.textContent;
+              modelList.classList.add('hidden');
+            });
+            modelList.appendChild(li);
+          });
+          modelList.classList.remove('hidden');
+        } else {
+          modelList.classList.add('hidden');
+        }
+      });
+
+      modelInput.addEventListener('focus', function() {
+        this.dispatchEvent(new Event('input'));
+      });
+    }
+
     // Segmented button toggles
     document.querySelectorAll('.segment-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -855,21 +1209,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     manualForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const yearInput = document.getElementById('manual-year');
+      const mileageInput = document.getElementById('manual-mileage');
+      const powerInput = document.getElementById('manual-power');
+      const ownersInput = document.getElementById('manual-owners');
+      const brandInputEl = document.getElementById('manual-brand');
+      const modelInputEl = document.getElementById('manual-model');
+
+      let isValid = true;
+      const highlightError = (el) => {
+        el.classList.add('border-red-500', 'ring-red-500/20');
+        el.classList.remove('border-gray-200', 'focus:border-[#ff9900]', 'focus:ring-[#ff9900]/10');
+        isValid = false;
+      };
+      const resetError = (el) => {
+        el.classList.remove('border-red-500', 'ring-red-500/20');
+        el.classList.add('border-gray-200', 'focus:border-[#ff9900]', 'focus:ring-[#ff9900]/10');
+      };
+
+      [brandInputEl, modelInputEl, yearInput, mileageInput, powerInput, ownersInput].forEach(resetError);
+
+      if (!selectedBrand || brandInputEl.value.trim() === '') { highlightError(brandInputEl); }
+      if (modelInputEl.value.trim() === '') { highlightError(modelInputEl); }
+
+      const yearStr = yearInput.value.trim();
+      const yearVal = parseInt(yearStr, 10);
+      if (yearStr === '' || isNaN(yearVal) || yearVal < 1851) { highlightError(yearInput); }
+
+      const mileageStr = mileageInput.value.trim();
+      const mileageVal = parseInt(mileageStr, 10);
+      if (mileageStr === '' || isNaN(mileageVal) || mileageVal < 0) { highlightError(mileageInput); }
+
+      const powerStr = powerInput.value.trim();
+      const powerVal = parseInt(powerStr, 10);
+      if (powerStr === '' || isNaN(powerVal) || powerVal <= 0) { highlightError(powerInput); }
+
+      const ownersStr = ownersInput.value.trim();
+      const ownersVal = parseInt(ownersStr, 10);
+      if (ownersStr === '' || isNaN(ownersVal) || ownersVal < 0) { highlightError(ownersInput); }
+
+      if (!isValid) {
+        showToast('Validation Error', 'Please correct the highlighted fields.', 'error');
+        return;
+      }
+
+      const userId = await getUserIdFromToken();
+      if (!userId) {
+        showToast('Auth Error', 'Could not determine user ID. Please sign in again.', 'error');
+        return;
+      }
+
       const payload = {
-        brand: document.getElementById('manual-brand').value.trim(),
-        model: document.getElementById('manual-model').value.trim(),
-        year: parseInt(document.getElementById('manual-year').value, 10),
-        mileage_km: parseInt(document.getElementById('manual-mileage').value, 10),
-        power_kw: parseInt(document.getElementById('manual-power').value, 10),
-        previous_owners_qty: parseInt(document.getElementById('manual-owners').value, 10),
-        fuel_category: document.getElementById('manual-fuel').value,
-        condition: document.getElementById('manual-condition').value,
-        transmission: document.getElementById('manual-transmission').value,
-        body_type: document.getElementById('manual-body').value,
-        drive_train: document.getElementById('manual-drivetrain').value,
-        had_accident: parseInt(document.getElementById('manual-had-accident').value, 10),
-        has_full_service_history: parseInt(document.getElementById('manual-service-history').value, 10),
-        seller_is_dealer: parseInt(document.getElementById('manual-seller-dealer').value, 10)
+        brand: brandInputEl.value.trim().toLowerCase(),
+        model: modelInputEl.value.trim().toLowerCase(),
+        year: yearVal,
+        mileage_km: mileageVal,
+        power_kw: powerVal,
+        previous_owners_qty: ownersVal,
+        fuel_category: document.getElementById('manual-fuel').value.toLowerCase().trim(),
+        condition: document.getElementById('manual-condition').value.toLowerCase().trim(),
+        transmission: document.getElementById('manual-transmission').value.toLowerCase().trim(),
+        body_type: document.getElementById('manual-body').value.toLowerCase().trim(),
+        drive_train: document.getElementById('manual-drivetrain').value.toLowerCase().trim(),
+        had_accident: parseInt(document.getElementById('manual-had-accident').value, 10) === 1 ? 1 : 0,
+        has_full_service_history: parseInt(document.getElementById('manual-service-history').value, 10) === 1 ? 1 : 0,
+        seller_is_dealer: parseInt(document.getElementById('manual-seller-dealer').value, 10) === 1 ? 1 : 0,
+        user_id: parseInt(userId, 10)
       };
 
       const btn = document.getElementById('btn-manual-predict');
@@ -887,10 +1292,23 @@ document.addEventListener('DOMContentLoaded', async () => {
           body: JSON.stringify(payload)
         });
         
+        if (initRes.status === 422) {
+          const errData = await initRes.json().catch(() => ({}));
+          let errMsg = 'Validation failed.';
+          if (errData.detail && Array.isArray(errData.detail) && errData.detail.length > 0) {
+            const firstErr = errData.detail[0];
+            const field = firstErr.loc ? firstErr.loc[firstErr.loc.length - 1] : 'Field';
+            errMsg = `Validation error on '${field}': ${firstErr.msg}`;
+          }
+          showToast('Validation Error', errMsg, 'error');
+          resetManualUI();
+          return;
+        }
+
         const initData = await initRes.json().catch(() => ({}));
         
         if (!initRes.ok) {
-          showToast('Validation Error', extractErrorMessage(initData), 'error');
+          showToast('Error', extractErrorMessage(initData), 'error');
           resetManualUI();
           return;
         }
@@ -901,47 +1319,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingEl.classList.remove('hidden');
         loadingEl.classList.add('flex');
         
-        const texts = [
-          "Running valuation models...", 
-          "Comparing market data...", 
-          "Evaluating condition impact...", 
-          "Calculating precise estimate...", 
-          "Finalizing AI verdict..."
-        ];
-        let textIdx = 0;
-        const textInt = setInterval(() => {
-          textIdx = (textIdx + 1) % texts.length;
-          loadingText.textContent = texts[textIdx];
-        }, 2000);
-
-        const pollInt = setInterval(async () => {
-          try {
-            const verdictRes = await fetchWithAuth(`${API_BASE}/v1/lookups/manual/${lookupId}/verdict`);
-            if (verdictRes.status === 202) {
-              return;
-            }
-            
-            clearInterval(pollInt);
-            clearInterval(textInt);
-            
-            if (!verdictRes.ok) {
-              const errData = await verdictRes.json().catch(() => ({}));
-              showToast('Prediction Failed', extractErrorMessage(errData), 'error');
-              resetManualUI();
-              return;
-            }
-            
-            const verdictData = await verdictRes.json();
-            
+        startPolling(
+          lookupId, 
+          'manual',
+          (verdictData) => {
             renderCarResultManual(verdictData, payload);
-            
-          } catch (pollErr) {
-            clearInterval(pollInt);
-            clearInterval(textInt);
-            showToast('Network Error', 'Lost connection while analyzing.', 'error');
+          },
+          () => {
             resetManualUI();
           }
-        }, 1500);
+        );
 
       } catch (err) {
         showToast('Network Error', 'Failed to start parsing. Is the server running?', 'error');
@@ -949,11 +1336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    document.getElementById('btn-parse-another')?.addEventListener('click', () => {
-      document.getElementById('parse-result').classList.add('hidden');
-      document.getElementById('form-manual-lookup').classList.remove('hidden');
-      // Intentionally not clearing all inputs to allow easy tweaking
-    });
+    document.getElementById('btn-parse-another')?.addEventListener('click', resetManualUI);
 
     function resetManualUI() {
       document.getElementById('form-manual-lookup').classList.remove('hidden');
@@ -964,12 +1347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       document.getElementById('parse-result').classList.add('hidden');
       
-      const btn = document.getElementById('btn-manual-predict');
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="zap" class="w-5 h-5"></i> Predict Price';
-      }
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      resetSubmitButton('btn-manual-predict', 'Predict Price', 'zap');
     }
     
     function renderCarResultManual(verdict, car) {
@@ -997,6 +1375,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* 15. Profile Page Logic */
   if (window.location.pathname.includes('profile.html')) {
     await loadProfile();
+  }
+
+  /* 16. Watchlists Page Logic */
+  if (window.location.pathname.includes('watchlists.html')) {
+    initWatchlistsPage();
   }
 
 });
@@ -1051,3 +1434,281 @@ async function loadProfile() {
     if (emailEl) emailEl.textContent = 'Network Error';
   }
 }
+
+/* ─────────────────────────────────────────
+   Watchlists Page Logic
+   ───────────────────────────────────────── */
+function initWatchlistsPage() {
+  const tabWl = document.getElementById('tab-watchlists');
+  const tabAl = document.getElementById('tab-alerts');
+  const contentWl = document.getElementById('content-watchlists');
+  const contentAl = document.getElementById('content-alerts');
+
+  // Watchlists State
+  let wlData = [];
+  let wlOffset = 0;
+  const wlLimit = 10;
+  
+  // Alerts State
+  let alData = [];
+  let alOffset = 0;
+  const alLimit = 10;
+
+  function switchTab(tab) {
+    if (tab === 'watchlists') {
+      tabWl.classList.replace('text-gray-500', 'text-[#ff9900]');
+      tabWl.classList.replace('border-transparent', 'border-[#ff9900]');
+      tabAl.classList.replace('text-[#ff9900]', 'text-gray-500');
+      tabAl.classList.replace('border-[#ff9900]', 'border-transparent');
+      
+      contentWl.classList.remove('hidden');
+      contentAl.classList.add('hidden');
+    } else {
+      tabAl.classList.replace('text-gray-500', 'text-[#ff9900]');
+      tabAl.classList.replace('border-transparent', 'border-[#ff9900]');
+      tabWl.classList.replace('text-[#ff9900]', 'text-gray-500');
+      tabWl.classList.replace('border-[#ff9900]', 'border-transparent');
+      
+      contentAl.classList.remove('hidden');
+      contentWl.classList.add('hidden');
+      
+      if (alData.length === 0 && alOffset === 0) fetchAlerts();
+    }
+  }
+
+  tabWl?.addEventListener('click', () => switchTab('watchlists'));
+  tabAl?.addEventListener('click', () => switchTab('alerts'));
+
+  // Load initial watchlists
+  fetchWatchlists();
+
+  // Load More Listeners
+  document.getElementById('btn-more-watchlists')?.addEventListener('click', () => renderWatchlists(false));
+  document.getElementById('btn-more-alerts')?.addEventListener('click', () => renderAlerts(false));
+  
+  // --- Watchlists Fetch & Render ---
+  async function fetchWatchlists() {
+    const loader = document.getElementById('loader-watchlists');
+    const empty = document.getElementById('empty-watchlists');
+    const container = document.getElementById('container-watchlists');
+    const btnMore = document.getElementById('btn-more-watchlists');
+    
+    loader?.classList.remove('hidden');
+    empty?.classList.add('hidden');
+    btnMore?.classList.add('hidden');
+
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/v1/watchlists/my`);
+      if (res.ok) {
+        const data = await res.json();
+        wlData = data.items || [];
+        wlOffset = 0;
+        container.innerHTML = '';
+        if (wlData.length === 0) {
+          empty?.classList.remove('hidden');
+        } else {
+          renderWatchlists(true);
+        }
+      } else {
+        showToast('Error', 'Failed to load watchlists', 'error');
+      }
+    } catch (err) {
+      showToast('Error', 'Network error while loading watchlists', 'error');
+    } finally {
+      loader?.classList.add('hidden');
+    }
+  }
+
+  function renderWatchlists(isInitial = false) {
+    const container = document.getElementById('container-watchlists');
+    const btnMore = document.getElementById('btn-more-watchlists');
+    
+    const slice = wlData.slice(wlOffset, wlOffset + wlLimit);
+    
+    slice.forEach(wl => {
+      const card = document.createElement('div');
+      card.className = 'bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between';
+      card.innerHTML = `
+        <div>
+          <div class="flex justify-between items-start mb-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md ${wl.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">${wl.is_active ? 'Active' : 'Inactive'}</span>
+            <span class="text-xs text-gray-400 font-medium">${new Date(wl.created_at).toLocaleDateString()}</span>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 group-hover:text-[#ff9900] transition-colors truncate">Watchlist #${wl.id}</h3>
+          <p class="text-sm text-gray-500 mt-1 truncate" title="${wl.url}">URL: ${wl.url}</p>
+        </div>
+        <div class="mt-5 pt-4 border-t border-gray-100">
+          <p class="text-xs font-medium text-gray-500 mb-0.5">Target Price</p>
+          <p class="text-xl font-black text-gray-900">€${(wl.last_price || 0).toLocaleString()}</p>
+        </div>
+      `;
+      card.addEventListener('click', () => openWatchlistModal(wl));
+      container.appendChild(card);
+    });
+
+    wlOffset += wlLimit;
+    
+    if (wlOffset < wlData.length) {
+      btnMore?.classList.remove('hidden');
+    } else {
+      btnMore?.classList.add('hidden');
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  // --- Alerts Fetch & Render ---
+  async function fetchAlerts() {
+    const loader = document.getElementById('loader-alerts');
+    const empty = document.getElementById('empty-alerts');
+    const container = document.getElementById('container-alerts');
+    const btnMore = document.getElementById('btn-more-alerts');
+    
+    loader?.classList.remove('hidden');
+    empty?.classList.add('hidden');
+    btnMore?.classList.add('hidden');
+
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/v1/alerts/`);
+      if (res.ok) {
+        const data = await res.json();
+        alData = Array.isArray(data) ? data : (data.items || (data.id ? [data] : []));
+        alOffset = 0;
+        container.innerHTML = '';
+        if (alData.length === 0) {
+          empty?.classList.remove('hidden');
+        } else {
+          renderAlerts(true);
+        }
+      } else if (res.status === 404) {
+        alData = [];
+        alOffset = 0;
+        container.innerHTML = '';
+        empty?.classList.remove('hidden');
+      } else {
+        showToast('Error', 'Failed to load alerts', 'error');
+      }
+    } catch (err) {
+      showToast('Error', 'Network error while loading alerts', 'error');
+    } finally {
+      loader?.classList.add('hidden');
+    }
+  }
+
+  function renderAlerts(isInitial = false) {
+    const container = document.getElementById('container-alerts');
+    const btnMore = document.getElementById('btn-more-alerts');
+    
+    const slice = alData.slice(alOffset, alOffset + alLimit);
+    
+    slice.forEach(al => {
+      const card = document.createElement('div');
+      card.className = 'bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex items-center justify-between gap-4';
+      
+      const isDrop = (al.price_diff || 0) < 0;
+      const color = isDrop ? 'text-green-600' : 'text-red-600';
+      const icon = isDrop ? 'trending-down' : 'trending-up';
+      const diffSign = isDrop ? '' : '+';
+      
+      card.innerHTML = `
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="w-10 h-10 rounded-full ${isDrop ? 'bg-green-50' : 'bg-red-50'} flex items-center justify-center flex-shrink-0">
+            <i data-lucide="${icon}" class="w-5 h-5 ${color}"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-900 truncate">Watchlist #${al.watchlist_id}</p>
+            <p class="text-xs text-gray-500 mt-0.5">${new Date(al.noticed_at).toLocaleString()}</p>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-base font-black ${color}">${diffSign}€${Math.abs(al.price_diff || 0).toLocaleString()}</p>
+          <p class="text-xs font-semibold text-gray-500">${diffSign}${(al.price_diff_percents || 0)}%</p>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    alOffset += alLimit;
+    
+    if (alOffset < alData.length) {
+      btnMore?.classList.remove('hidden');
+    } else {
+      btnMore?.classList.add('hidden');
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+// Watchlist Detail Modal
+async function openWatchlistModal(wl) {
+  openModal('modal-watchlist-detail');
+  
+  document.getElementById('wl-detail-badge').textContent = wl.is_active ? 'Active' : 'Inactive';
+  document.getElementById('wl-detail-badge').className = `inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md mb-3 ${wl.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`;
+  
+  document.getElementById('wl-detail-title').textContent = `Watchlist #${wl.id}`;
+  
+  const urlEl = document.getElementById('wl-detail-url');
+  urlEl.innerHTML = `<a href="${wl.url}" target="_blank" rel="noopener noreferrer">${wl.url} <i data-lucide="external-link" class="inline w-3 h-3 ml-0.5"></i></a>`;
+  
+  document.getElementById('wl-detail-price').textContent = `€${(wl.last_price || 0).toLocaleString()}`;
+  document.getElementById('wl-detail-date').textContent = new Date(wl.created_at).toLocaleDateString();
+  
+  // Fetch recent alerts for this watchlist
+  const loader = document.getElementById('loader-wl-alerts');
+  const container = document.getElementById('container-wl-alerts');
+  const empty = document.getElementById('empty-wl-alerts');
+  
+  loader?.classList.remove('hidden');
+  container.innerHTML = '';
+  empty?.classList.add('hidden');
+  
+  try {
+    const res = await fetchWithAuth(`${API_BASE}/v1/alerts/`);
+    if (res.ok) {
+      const data = await res.json();
+      const allAlerts = Array.isArray(data) ? data : (data.items || (data.id ? [data] : []));
+      const specificAlerts = allAlerts.filter(a => a.watchlist_id === wl.id).slice(0, 10);
+      
+      if (specificAlerts.length === 0) {
+        empty?.classList.remove('hidden');
+      } else {
+        specificAlerts.forEach(al => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between p-3 rounded-lg bg-white border border-gray-100 shadow-sm';
+          
+          const isDrop = (al.price_diff || 0) < 0;
+          const color = isDrop ? 'text-green-600' : 'text-red-600';
+          const icon = isDrop ? 'trending-down' : 'trending-up';
+          const diffSign = isDrop ? '' : '+';
+          
+          row.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-full ${isDrop ? 'bg-green-50' : 'bg-red-50'} flex items-center justify-center flex-shrink-0">
+                <i data-lucide="${icon}" class="w-4 h-4 ${color}"></i>
+              </div>
+              <div class="min-w-0 truncate">
+                <p class="text-xs text-gray-500">${new Date(al.noticed_at).toLocaleString()}</p>
+              </div>
+            </div>
+            <div class="text-right flex-shrink-0 ml-4">
+              <p class="text-sm font-bold ${color}">${diffSign}€${Math.abs(al.price_diff || 0).toLocaleString()}</p>
+            </div>
+          `;
+          container.appendChild(row);
+        });
+      }
+    } else if (res.status === 404) {
+      empty?.classList.remove('hidden');
+    } else {
+      empty?.classList.remove('hidden');
+    }
+  } catch (err) {
+    empty?.classList.remove('hidden');
+  } finally {
+    loader?.classList.add('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+document.getElementById('modal-wl-backdrop')?.addEventListener('click', () => closeModal('modal-watchlist-detail'));
+document.getElementById('modal-wl-close')?.addEventListener('click', () => closeModal('modal-watchlist-detail'));

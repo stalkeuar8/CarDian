@@ -4,10 +4,11 @@ from app.background.celery_worker import celery_app
 from app.models.lookups import ManualLookups, ParsedLookups, ParsedLookupsRawData
 from app.services.price_prediction import predict_service
 from app.models.verdicts import Verdicts
+from app.models.users import Users
 from app.schemas.prediction_schemas import BasePredictor
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
-from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema, HttpsUrl
+from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema, HttpsUrl, LookupsPrices
 from app.schemas.gemini_schemas import GeminiAnalyzeRequestSchema, GeminiAnalyzeResponseSchema, GeminiExtractorRequestSchema, GeminiExtractorResponseSchema
 from app.schemas.groq_schemas import GroqAnalyzeRequestSchema, GroqAnalyzeResponseSchema, GroqExtractorRequestSchema, GroqExtractorResponseSchema
 from app.settings.config import database_settings
@@ -72,13 +73,15 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
             llm_feedback = None
 
         verdict = Verdicts(
-            parsed_lookup_id=lookup_id, 
+            manual_lookup_id=lookup_id, 
             predicted_price=predicted_price,
             llm_feedback=llm_feedback
         )
 
         async with celery_async_session_factory.begin() as session:
+            logger.info("session started")
             session.add(verdict)
+            logger.info("verdict added")
             
             lookup: ManualLookups | None = await session.get(ManualLookups, lookup_id)
 
@@ -89,6 +92,15 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
 
             lookup.price_listed = predicted_price
 
+            logger.info("lookup updated")
+            user: Users | None = await session.get(Users, lookup.user_id)
+
+            if user is None:
+                logger.error("user was not found")
+                raise ValueError(f"User with ID: {lookup.user_id} was not found")
+
+            user.current_balance = user.current_balance-LookupsPrices.manual
+            logger.info("session ended")
 
     except (ServiceUnavailable, DeadlineExceeded) as e:
         logger.error(f"ERROR: {e}")
@@ -190,6 +202,13 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
 
             updated_lookup = await ParsedLookupsRepo.update_after_analyzing(lookup_id=lookup_id, session=session, updated_info=dto)
             
+            user: Users | None = await session.get(Users, lookup.user_id)
+
+            if user is None:
+                raise ValueError(f"User with ID: {lookup.user_id} was not found")
+
+            user.current_balance = user.current_balance-LookupsPrices.parsed
+
     except (ServiceUnavailable, DeadlineExceeded) as e:
         logger.error(f"ERROR: {e}")
         raise self.retry(exc=e, countdown=10)

@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from datetime import datetime
 from typing import Self, Sequence
 
 class PriceAlertsBaseSchema(BaseModel):
+
     watchlist_id: int = Field(gt=0)
     price_diff: int 
     price_diff_percents: int 
@@ -27,6 +28,8 @@ class PriceAlertRequestSchema(PriceAlertsBaseSchema):
 
 
 class PriceAlertResponseSchema(PriceAlertsBaseSchema):
+    model_config = ConfigDict(from_attributes=True, extra='ignore')
+
     id: int
     is_sent: bool
     noticed_at: datetime

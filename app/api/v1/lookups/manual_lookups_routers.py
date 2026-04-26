@@ -12,7 +12,7 @@ from app.schemas.verdicts_schemas import VerdictResponseSchema
 from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import SequenceManualLookupResponseSchema, ManualLookupRequestSchema, ManualLookupResponseSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema, ManualLookupAcceptedResponseSchema
+from app.schemas.lookups_schemas import LookupsPrices, SequenceManualLookupResponseSchema, ManualLookupRequestSchema, ManualLookupResponseSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema, ManualLookupAcceptedResponseSchema
 from app.repo.lookups_repo import ManualLookupsRepo, ParsedLookupsRepo
 from app.models.lookups import ManualLookups, ParsedLookupsRawData, ParsedLookups
 from app.models.users import Users
@@ -30,7 +30,9 @@ manual_lookups_router = APIRouter(prefix="/v1/lookups/manual", tags=['Manual Loo
 @manual_lookups_router.post("/", summary="New manual lookup", response_model=ManualLookupAcceptedResponseSchema)
 @rate_limiter.limit("5/15 seconds")
 async def manual_lookup(request: Request, body: ManualLookupRequestSchema, current_user: Users = Depends(get_current_user), redis: Redis = Depends(get_redis), session: AsyncSession = Depends(get_db)) -> ManualLookupAcceptedResponseSchema:
-    #rate limiting
+  
+    if current_user.current_balance < LookupsPrices.manual:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=f"Not enough tokens for this lookups")
     
     new_lookup: ManualLookups | None = await ManualLookupsRepo.create(session=session, new_obj_dto=body)
 

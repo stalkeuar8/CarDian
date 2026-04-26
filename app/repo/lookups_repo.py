@@ -26,6 +26,7 @@ class ManualLookupsRepo(BaseRepo[ManualLookups]):
         
         return None
 
+
 class ParsedLookupsRepo(BaseRepo[ParsedLookups]):
     model = ParsedLookups
 

@@ -69,3 +69,21 @@ class PriceAlertsRepo(BaseRepo[PriceAlerts]):
             return alerts
         
         return None
+    
+
+    @staticmethod
+    async def get_by_watch_id(session: AsyncSession, current_user_id: int, watchlist_id: int) -> Sequence[PriceAlerts] | None:
+        query = (
+            select(PriceAlerts)
+            .join(PriceAlerts.watchlist)
+            .where(Watchlist.user_id==current_user_id, PriceAlerts.watchlist_id==watchlist_id)
+            .options(contains_eager(PriceAlerts.watchlist))
+        )
+
+        results = await session.execute(query)
+        alerts = results.scalars().all()
+
+        if alerts:
+            return alerts
+        
+        return None

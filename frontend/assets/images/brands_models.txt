@@ -1,0 +1,662 @@
+suzuki:
+  - swift
+  - s-cross
+  - celerio
+  - grand vitara
+  - jimny
+  - vitara
+  - splash
+  - alto
+  - sx4 s-cross
+  - across
+  - wagon r+
+  - ignis
+  - baleno
+  - xl-7
+  - swace
+  - sx4
+  - liana
+  - kizashi
+  - samurai
+
+honda:
+  - civic
+  - hr-v
+  - jazz
+  - cr-v
+  - accord
+  - insight
+  - cr-z
+  - fr-v
+  - stream
+  - legend
+
+porsche:
+  - cayenne
+  - boxster
+  - panamera
+  - macan
+  - cayman
+  - 996
+  - 911
+  - 997
+  - 356
+  - taycan
+  - 718
+  - 991
+  - 718 spyder
+  - targa
+  - 992
+  - 944
+  - carrera gt
+  - 928
+  - 993
+  - 930
+  - 918
+
+bmw:
+  - 235
+  - 118
+  - 550
+  - 318
+  - 523
+  - x1
+  - 530
+  - 218
+  - 325
+  - 320
+  - x6
+  - 316
+  - 116
+  - x3
+  - x4
+  - z4
+  - 120
+  - 520
+  - x2
+  - 525
+  - x5
+  - i3
+  - 535
+  - 220
+  - 330
+  - 216
+  - 420
+  - 620
+  - 740
+  - 135
+  - 640
+  - 428
+  - 528
+  - 125
+  - 114
+  - z3
+  - x6 m
+  - x5 m
+  - 540
+  - 745
+  - 225
+  - 630
+  - 430
+  - x2 m
+  - 418
+  - 730
+  - 518
+  - 335
+  - 435
+  - active hybrid 3
+  - 425
+  - 228
+  - 650
+  - ix3
+  - 750
+  - m2
+  - 328
+  - 645
+  - 340
+  - 140
+  - active hybrid 5
+  - 128
+  - x4 m
+  - x3 m
+  - 728
+  - 725
+  - m550
+  - 323
+  - 735
+  - 130
+  - 545
+  - m5
+  - 440
+  - 230
+  - m6
+  - m1
+  - 760
+  - 240
+  - m3
+  - 223
+  - 123
+  - 1er m coupé
+  - 635
+  - ix1
+  - 214
+  - m4
+  - z3 m
+  - i5
+  - ix
+  - 840
+  - z4 m
+  - m8
+  - m850
+  - x7
+  - x7 m
+  - ix2
+  - i4
+  - i8
+  - i7
+  - 850
+  - xm
+  - active hybrid 7
+  - z8
+
+audi:
+  - q2
+  - a6
+  - q3
+  - a3
+  - a4
+  - a1
+  - e-tron
+  - a5
+  - a2
+  - sq5
+  - q5
+  - tt
+  - a4 allroad
+  - a6 allroad
+  - 100
+  - tts
+  - q4 e-tron
+  - s3
+  - s4
+  - a7
+  - a8
+  - rs q3
+  - q7 e-tron
+  - cabriolet
+  - tt rs
+  - s5
+  - q7
+  - s6
+  - rs7
+  - q8
+  - a6 e-tron
+  - rs3
+  - sq6 e-tron
+  - rs6
+  - sq8
+  - rs4
+  - s7
+  - q6 e-tron
+  - sq7
+  - e-tron gt
+  - rs5
+  - s8
+  - sq2
+  - rs q8
+  - s6 e-tron
+  - rs
+  - q8 e-tron
+  - 50
+  - quattro
+  - s2
+  - sq8 e-tron
+  - rs e-tron gt
+  - r8
+  - s1
+
+alfa romeo:
+  - junior
+  - stelvio
+  - 159
+  - tonale
+  - giulietta
+  - gt
+  - 147
+  - mito
+  - giulia
+  - 156
+  - spider
+  - sportwagon
+  - 166
+  - brera
+  - crosswagon
+  - quadrifoglio
+  - gtv
+  - 146
+  - sprint
+  - 145
+  - 4c
+  - 155
+  - 8c
+
+volvo:
+  - xc60
+  - xc40
+  - xc90
+  - s40
+  - v60
+  - v50
+  - v40
+  - v70
+  - xc70
+  - s60
+  - v60 cross country
+  - v40 cross country
+  - s80
+  - c30
+  - s60 cross country
+  - v90
+  - s90
+  - v90 cross country
+  - c70
+  - 440
+  - s70
+  - ex30
+  - ex40
+
+ssangyong:
+  - tivoli
+  - rexton
+  - musso
+  - kyron
+  - torres
+  - korando
+  - xlv
+  - rodius
+  - actyon
+
+opel:
+  - frontera
+  - antara
+  - corsa
+  - tigra
+  - crossland x
+  - karl
+  - astra
+  - zafira
+  - meriva
+  - mokka x
+  - mokka
+  - crossland
+  - zafira tourer
+  - grandland x
+  - insignia
+  - rocks-e
+  - zafira life
+  - vivaro
+
+ford:
+  - focus
+  - edge
+  - puma
+  - kuga
+  - fiesta
+  - tourneo courier
+  - ecosport
+  - s-max
+  - ka/ka+
+  - c-max
+  - mondeo
+  - transit
+  - tourneo connect
+  - transit courier
+  - galaxy
+  - grand c-max
+  - mustang
+  - transit custom
+  - tourneo custom
+  - transit connect
+  - b-max
+  - ranger
+  - grand tourneo
+  - fusion
+  - focus c-max
+  - mustang mach-e
+  - explorer
+  - f 150
+
+smart:
+  - forfour
+  - fortwo
+  - #1
+  - roadster
+  - brabus
+  - city-coupé/city-cabrio
+  - #3
+  - #5
+
+volkswagen:
+  - polo
+  - golf
+  - t-roc
+  - tiguan
+  - tiguan allspace
+  - passat
+  - golf gti
+  - t5 caravelle
+  - caddy
+  - touareg
+  - scirocco
+  - up!
+  - taigo
+  - passat variant
+  - id.3
+  - t6 multivan
+  - eos
+  - golf r
+  - touran
+  - golf plus
+  - golf gte
+  - sharan
+  - passat cc
+  - arteon
+  - cc
+  - golf variant
+  - t-cross
+  - t6 transporter
+  - t5 transporter
+  - new beetle
+  - lupo
+  - jetta
+  - maggiolino
+  - golf cabriolet
+  - e-golf
+  - fox
+  - t5 multivan
+  - golf sportsvan
+  - phaeton
+  - t6 kombi
+
+hyundai:
+  - ix20
+  - i20
+  - i10
+  - i30
+  - santa fe
+  - ix35
+  - grand santa fe
+  - i40
+  - tucson
+  - veloster
+  - genesis
+  - h-1
+  - bayon
+  - ioniq 9
+  - ioniq
+  - ioniq 5
+
+rolls-royce:
+  - t
+  - silver spirit
+  - silver spur
+  - silver shadow
+  - corniche
+  - ghost
+  - phantom
+  - cloud
+  - silver seraph
+  - wraith
+  - phantom drophead
+  - dawn
+  - cullinan
+
+mercedes-benz:
+  - a 180
+  - sl 350
+  - citan
+  - a 250
+  - b 180
+  - cla 180
+  - a 200
+  - cla 200
+  - 180
+  - gla 180
+  - glk 350
+  - e 270
+  - eqt
+  - slk 200
+  - cla 220
+  - t-class
+  - gl 400
+  - e 220
+  - vito
+  - a 45 amg
+  - c 200
+  - b 200
+  - clk 280
+  - glk 220
+  - glb 180
+  - glb 200
+  - e 300
+  - glc 220
+  - eqe suv
+  - e 53 amg
+  - gla 200
+  - glc 300
+  - gla 220
+  - sprinter
+  - c 220
+  - eqa 250
+  - c 63 amg
+  - c 180
+  - gle 450
+  - cla 250
+  - gle 350
+  - b 250
+  - eqe 53
+  - s 450
+  - cle 200
+  - glc 200
+  - eqa 350
+  - b 220
+  - glc 250
+  - v 300
+  - c 300
+  - gla 250
+  - e 200
+  - glc 450
+  - glb 220
+  - c 43 amg
+  - eqb 350
+  - gle 400
+  - gls 350
+  - marco polo
+  - gle 300
+  - gle 53 amg
+  - eqb 250
+  - cle 53 amg
+  - v 220
+  - gls 400
+  - v 250
+  - gle 580
+  - glc 43 amg
+  - glc 400
+  - gls 450
+  - e 450
+  - cla 45 amg
+  - glb 250
+  - eqe 350
+  - amg gt
+  - eqe 300
+  - eqv 300
+  - cle 220
+  - a 220
+  - a 35 amg
+  - 300
+  - eqe 43
+  - eqs
+  - eqs suv
+  - cle 180
+  - gle 63 amg
+  - eqb 300
+  - cle 300
+  - eqa
+  - cla 35 amg
+  - c 160
+  - v
+  - cl 220
+  - 320
+  - sl 43 amg
+  - eqe 500
+  - glc 63 amg
+  - s 350
+  - s 500
+  - cle 450
+  - cla 350
+  - c 400
+  - s 580
+  - glb 35 amg
+  - gla 35 amg
+  - gla 45 amg
+  - eqa 300
+  - cl
+  - gl 450
+  - e 280
+  - 190
+  - e 400
+  - c 230
+  - cls 350
+  - cls 300
+  - cls 250
+  - c 30 amg
+  - cls 450
+  - cl 200
+  - g 63 amg
+  - g 450
+  - sl 63 amg
+  - g 580
+  - s 63 amg
+  - g 500
+  - g 400
+  - e 63 amg
+  - g
+  - gls 63 amg
+  - sl 55 amg
+  - 450
+  - gls 600
+  - gls 580
+  - s 600
+  - slc 43 amg
+  - sl 680
+  - s 680
+  - sl roadster amg
+  - maybach s-klasse
+  - s 400
+  - sl 400
+  - sls
+
+renault:
+  - captur
+  - twingo
+  - clio
+  - megane
+  - grand scenic
+  - koleos
+  - master
+  - kangoo
+  - scenic
+  - kadjar
+  - talisman
+  - austral
+  - wind
+  - arkana
+  - espace
+  - trafic
+  - rafale
+
+dongfeng:
+  - box
+
+mitsubishi:
+  - outlander
+  - space star
+  - pajero pinin
+  - lancer evo
+  - 3000 gt
+  - asx
+  - eclipse cross
+  - colt
+  - starion
+  - pajero
+  - l200
+  - lancer
+  - carisma
+
+maserati:
+  - quattroporte
+  - levante
+  - 4200
+  - ghibli
+  - coupe
+  - spyder
+  - 3200
+  - biturbo
+  - grecale
+  - granturismo
+  - indy
+  - grancabrio
+  - merak
+  - gransport
+  - mc20
+
+byd:
+  - atto 3
+  - dolphin
+  - dolphin surf
+  - etp3
+  - atto 2
+  - seal u
+  - sealion 7
+  - seal
+  - tang
+  - han
+
+tesla:
+  - model x
+  - model 3
+  - model s
+  - model y
+
+kia:
+  - stonic
+  - niro
+  - stinger
+  - sportage
+  - ceed / cee'd
+  - ev6
+  - e-niro
+  - carens
+  - ceed sw / cee'd sw
+
+aston martin:
+  - db9
+  - db7
+  - cygnet
+  - rapide
+  - vantage
+  - v8
+  - dbs
+  - vanquish
+  - lagonda
+  - db11
+  - dbx
+  - virage
+  - db12
+  - db
+  - volante
+
+maybach:
+  - 62
+  - 57
+

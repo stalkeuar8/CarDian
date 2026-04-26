@@ -13,7 +13,7 @@ from app.schemas.verdicts_schemas import VerdictResponseSchema
 from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import HttpsUrl, ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
+from app.schemas.lookups_schemas import HttpsUrl, LookupsPrices, ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.models.lookups import ParsedLookupsRawData, ParsedLookups
 from app.models.users import Users
@@ -30,6 +30,10 @@ parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Loo
 @parsed_lookups_router.post("/", summary="New parsed lookups", response_model=ParsedLookupAcceptedSchema)
 @rate_limiter.limit("5/15 seconds") 
 async def new_parsed_lookup(request: Request, body: ParsedLookupsRequestSchema, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> ParsedLookupAcceptedSchema:
+    
+    if current_user.current_balance < LookupsPrices.parsed:
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=f"Not enough tokens for this lookups")
+    
     new_obj_dto = ParsedLookupsCreateSchema(url=body.url, user_id=current_user.id)
     
     new_lookup: ParsedLookups | None = await ParsedLookupsRepo.create(session=session, new_obj_dto=new_obj_dto)
