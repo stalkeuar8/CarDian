@@ -64,6 +64,18 @@ function getUserRoleFromToken() {
 /* ─────────────────────────────────────────
    Auth — fetchWithAuth Wrapper
    ───────────────────────────────────────── */
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+const subscribeTokenRefresh = (cb) => {
+  refreshSubscribers.push(cb);
+};
+
+const onTokenRefreshed = (token) => {
+  refreshSubscribers.forEach(cb => cb(token));
+  refreshSubscribers = [];
+};
+
 async function fetchWithAuth(url, options = {}) {
   let token = localStorage.getItem(TOKEN_KEY);
   
@@ -81,6 +93,17 @@ async function fetchWithAuth(url, options = {}) {
       return response;
     }
 
+    if (isRefreshing) {
+      return new Promise(resolve => {
+        subscribeTokenRefresh(async (newToken) => {
+          options.headers['Authorization'] = `Bearer ${newToken}`;
+          resolve(await fetch(url, options));
+        });
+      });
+    }
+
+    isRefreshing = true;
+
     try {
       const refreshRes = await fetch(`${API_BASE}/v1/auth/refresh`, {
         method: 'POST',
@@ -93,13 +116,22 @@ async function fetchWithAuth(url, options = {}) {
         localStorage.setItem(TOKEN_KEY, data.access_token);
         localStorage.setItem(REFRESH_KEY, data.refresh_token);
         
+        onTokenRefreshed(data.access_token);
+        isRefreshing = false;
+        
         options.headers['Authorization'] = `Bearer ${data.access_token}`;
         response = await fetch(url, options);
       } else {
+        isRefreshing = false;
+        refreshSubscribers = [];
         await handleLogout();
+        throw new Error('Refresh failed');
       }
     } catch (err) {
+      isRefreshing = false;
+      refreshSubscribers = [];
       await handleLogout();
+      throw err;
     }
   }
 
