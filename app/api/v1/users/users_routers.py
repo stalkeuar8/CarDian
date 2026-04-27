@@ -18,7 +18,6 @@ from app.utils.rate_limiter import rate_limiter
 users_router = APIRouter(prefix="/v1/users", tags=['Users'])
 
 @users_router.get("/profile", summary="Get current user profile", response_model=UserResponseSchema)
-@rate_limiter.limit("5/15 seconds") 
 async def get_my_profile(request: Request, current_user: Users = Depends(get_current_user), session: AsyncSession = Depends(get_db)) -> Users:
     return UserResponseSchema.model_validate(current_user) 
 

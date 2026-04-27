@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardian — Documentation</title>
+  <meta name="description" content="Cardian user guide for manual lookup, URL parsing, watchlists, alerts, and tokens." />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: '#ff9900' },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+
+<body class="bg-white font-sans text-gray-900 antialiased overflow-x-hidden">
+  
+  <header id="navbar" class="fixed top-0 left-0 right-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-shadow duration-300">
+    <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="./index.html" id="brand-logo" class="text-xl font-extrabold tracking-tight text-gray-900">
+        Cardian<span class="text-[#ff9900]">.</span>
+      </a>
+      <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <li><a href="./manual_lookups.html" id="nav-manual" class="nav-link">Manual</a></li>
+        <li><a href="./parsed_lookups.html" id="nav-parse" class="nav-link">Parse from URL</a></li>
+        <li><a href="./watchlists.html" id="nav-watchlist" class="nav-link">Watchlist</a></li>
+      </ul>
+      <div class="hidden md:flex items-center gap-3" id="auth-buttons-guest">
+        <a href="https://t.me/CarDianAI_bot" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-[#229ED9] hover:bg-[#1a8bbf] hover:scale-105 transition-all duration-200 flex items-center gap-1.5">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          Bot
+        </a>
+        <a href="#" id="btn-signin" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Sign in</a>
+        <a href="#" id="btn-signup" class="px-4 py-2 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100">Sign up</a>
+      </div>
+      <div class="hidden items-center gap-2" id="auth-buttons-user">
+        <button id="btn-topup" class="px-3 py-1.5 text-sm font-semibold text-[#ff9900] border border-[#ff9900] rounded-lg hover:bg-orange-50 transition-all duration-200 flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          Top Up
+        </button>
+        <span id="header-balance" class="text-sm font-bold text-gray-900 px-2">Tokens: —</span>
+        <a href="https://t.me/CarDianAI_bot" target="_blank" rel="noopener noreferrer" id="btn-bot" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-[#229ED9] hover:bg-[#1a8bbf] hover:scale-105 transition-all duration-200 flex items-center gap-1.5">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          Bot
+        </a>
+        <a href="./profile.html" id="btn-dashboard" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-[#ff9900] hover:scale-105 hover:shadow-lg hover:shadow-orange-200 transition-all duration-200 shadow-md shadow-orange-100 flex items-center gap-1.5">
+          <i data-lucide="user-circle" class="w-4 h-4"></i>
+          My Profile
+        </a>
+        <button id="btn-logout" class="p-2 text-gray-500 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 hover:bg-red-50 transition-all duration-200 flex items-center" aria-label="Log out">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <button id="menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Toggle menu" aria-expanded="false">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-6 py-4 space-y-1">
+      <a href="./manual_lookups.html" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Manual</a>
+      <a href="./parsed_lookups.html" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Parse from URL</a>
+      <a href="./watchlists.html" class="block text-sm font-medium text-gray-700 hover:text-[#ff9900] py-2.5 transition-colors">Watchlist</a>
+    </div>
+  </header>
+
+  <main class="pt-24 pb-16 max-w-4xl mx-auto px-6 text-gray-800">
+    <h1 class="text-3xl font-bold mb-6">Documentation</h1>
+    <p class="text-gray-600 mb-4">This quick guide explains how to use Cardian's core features for AI-powered car valuation and monitoring.</p>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Manual Lookup</h2>
+    <div class="space-y-4">
+      <p class="text-gray-600 mb-4">Use Manual Lookup when you already know a car's parameters. Enter details such as brand, model, year, mileage, drivetrain, condition, and other fields. Submit the form to generate a model-based valuation range with AI feedback.</p>
+    </div>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Parsed Lookup</h2>
+    <div class="space-y-4">
+      <p class="text-gray-600 mb-4">Use Parsed Lookup to evaluate a listing from a URL. Paste a supported listing link, and Cardian will extract available vehicle information automatically, run a valuation pipeline, and return predicted pricing output with contextual interpretation.</p>
+    </div>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Watchlists & Price Alerts</h2>
+    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+      <li>Save vehicles to a watchlist directly from lookup results.</li>
+      <li>Track listing changes over time from your Watchlists page.</li>
+      <li>Receive price alerts when Cardian detects movement in tracked listings.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Token System</h2>
+    <div class="space-y-4">
+      <p class="text-gray-600 mb-4">Cardian uses tokens to power premium actions. Each valuation or advanced workflow consumes tokens based on feature cost. You can top up your balance from the header button or profile area and choose a Starter or Pro package at checkout.</p>
+    </div>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Best Practices</h2>
+    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+      <li>Provide complete and accurate car details for better predictions.</li>
+      <li>Compare valuation range with local market conditions before decisions.</li>
+      <li>Use watchlists for vehicles you are actively considering or selling.</li>
+    </ul>
+  </main>
+
+  <footer class="bg-gray-900 text-gray-400 py-16 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div>
+        <p class="text-2xl font-extrabold text-white mb-3">Cardian<span class="text-[#ff9900]">.</span></p>
+        <p class="text-sm leading-relaxed text-gray-500">AI-powered used car valuation. Get accurate, instant price analysis for any vehicle in seconds.</p>
+        <p class="mt-6 text-xs text-gray-600">© 2026 Cardian. All rights reserved.</p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Legal</p>
+        <ul class="space-y-3 text-sm">
+          <li><a href="./terms.html" class="footer-link">Terms of Service</a></li>
+          <li><a href="./privacy.html" class="footer-link">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Company</p>
+        <ul class="space-y-3 text-sm">
+          <li><a href="./about.html" class="footer-link">About Us</a></li>
+          <li><a href="./docs.html" class="footer-link">Documentation</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Contact</p>
+        <a href="mailto:cardian@gmail.com" class="footer-link text-sm block mb-4 hover:text-[#ff9900] transition-colors">cardian@gmail.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/main.js"></script>
+</body>
+</html>

@@ -11,34 +11,24 @@ const API_BASE    = 'http://localhost:8008';
 const TOKEN_KEY   = 'cardian_token';
 const REFRESH_KEY = 'cardian_refresh_token';
 
-async function getUserIdFromToken() {
+function getUserIdFromToken() {
   const token = localStorage.getItem(TOKEN_KEY);
   if (!token) return null;
   try {
     const payloadPart = token.split('.')[1];
+    if (!payloadPart) return null;
     let base64 = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
     while (base64.length % 4) {
       base64 += '=';
     }
     const decoded = JSON.parse(atob(base64));
-    if (decoded.sub) return parseInt(decoded.sub, 10) || decoded.sub;
-    if (decoded.id) return parseInt(decoded.id, 10) || decoded.id;
-    if (decoded.user_id) return parseInt(decoded.user_id, 10) || decoded.user_id;
+    if (decoded.user_id) return String(decoded.user_id);
+    if (decoded.sub) return String(decoded.sub);
+    if (decoded.id) return String(decoded.id);
   } catch (e) {
-    // Decoding failed
+    return null;
   }
-  
-  if (window._cardianUserId) return window._cardianUserId;
-  
-  try {
-    const res = await fetchWithAuth(`${API_BASE}/v1/users/profile`);
-    if (res.ok) {
-      const user = await res.json();
-      window._cardianUserId = user.id;
-      return user.id;
-    }
-  } catch (e) {}
-  
+
   return null;
 }
 
@@ -397,56 +387,32 @@ async function handleLogout() {
 }
 
 /* ─────────────────────────────────────────
-   Top Up — PATCH /v1/users/payments/
-   Body: { rate: { price, tokens }, user_id }
+   Checkout — LemonSqueezy redirect
    ───────────────────────────────────────── */
-async function handleTopUp() {
-  const btn = document.getElementById('topup-submit');
-  const errorEl   = document.getElementById('topup-error');
+const CHECKOUT_LINKS = {
+  starter: 'https://cardian.lemonsqueezy.com/checkout/buy/e0e2e8b4-41f7-4a3e-a3b6-6c0db1061287',
+  pro: 'https://cardian.lemonsqueezy.com/checkout/buy/b84e1fa4-7107-4391-a0c3-64146b3fd02b'
+};
 
-  // Hide previous messages
-  errorEl.classList.add('hidden');
-
-   const isPro     = document.getElementById('topup-pro')?.checked;
-   const rate      = isPro ? 'pro' : 'starter';
-   const tokensAdded = isPro ? 100 : 8;
-   const token     = localStorage.getItem(TOKEN_KEY);
-   const userId    = window._cardianUserId;
-
-  if (!token) { openModal('modal-signin'); closeModal('modal-topup'); return; }
-  if (!userId) { errorEl.textContent = 'Could not determine user ID. Please refresh.'; errorEl.classList.remove('hidden'); return; }
-
-  btn.disabled    = true;
-  btn.textContent = 'Processing…';
-
-  try {
-    const res = await fetchWithAuth(`${API_BASE}/v1/users/payments/`, {
-      method:  'PATCH',
-      headers: { 'Content-Type':  'application/json' },
-      body: JSON.stringify({ rate, user_id: userId }),
-    });
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      errorEl.textContent = extractErrorMessage(data);
-      errorEl.classList.remove('hidden');
-      return;
-    }
-
-    // Refresh balance in header
-    await checkAuthState();
-    closeModal('modal-topup');
-    
-    const pkgName = rate === 'pro' ? 'Pro' : 'Starter';
-    showToast('Payment Successful', `Successfully activated the ${pkgName} package!`);
-  } catch (err) {
-    errorEl.textContent = 'Network error — is the server running?';
-    errorEl.classList.remove('hidden');
-  } finally {
-    btn.disabled    = false;
-    btn.textContent = 'Pay Now';
+function initiateLemonSqueezyCheckout(plan, btnElement) {
+  const user_id = getUserIdFromToken();
+  if (!user_id) {
+    showToast('Please sign in to purchase.', 'error');
+    return;
   }
+
+  const baseLink = CHECKOUT_LINKS[plan];
+  if (!baseLink) return;
+
+  const finalUrl = `${baseLink}?checkout[custom][user_id]=${user_id}`;
+
+  if (btnElement) {
+    btnElement.style.pointerEvents = 'none';
+    btnElement.style.opacity = '0.7';
+    btnElement.textContent = 'Redirecting...';
+  }
+
+  window.location.href = finalUrl;
 }
 
 /* ─────────────────────────────────────────
@@ -455,6 +421,11 @@ async function handleTopUp() {
 
 // Global Dynamic Toast System
 function showToast(title, message, type = 'success') {
+  if ((message === 'success' || message === 'error') && type === 'success') {
+    type = message;
+    message = '';
+  }
+
   const toastId = 'toast-' + Date.now();
   const icon = type === 'success' ? 'check-circle' : 'x-circle';
   const color = type === 'success' ? 'border-green-500 text-green-600' : 'border-red-500 text-red-600';
@@ -464,7 +435,7 @@ function showToast(title, message, type = 'success') {
       <i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
       <div>
         <p class="text-sm font-bold text-gray-900">${title}</p>
-        <p class="text-sm text-gray-500 mt-0.5">${message}</p>
+        <p class="text-sm text-gray-500 mt-0.5">${message || ''}</p>
       </div>
     </div>
   `;
@@ -622,6 +593,9 @@ function initPasswordToggles() {
    ═══════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
 
+  /* 0. Ensure auth state is reflected immediately on load */
+  await checkAuthState();
+
   /* ─────────────────────────────────────────
      Watchlist Navigation Guard
      ───────────────────────────────────────── */
@@ -764,41 +738,45 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Log out
   document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
 
-  // Pricing buttons
-  document.getElementById('pricing-starter-cta')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (localStorage.getItem(TOKEN_KEY)) {
-      const topupStarter = document.getElementById('topup-starter');
-      if (topupStarter) topupStarter.checked = true;
+  /* Global checkout click delegation for index/profile modal contexts */
+  document.addEventListener('click', (e) => {
+    const topupBtn = e.target.closest('#btn-topup');
+    if (topupBtn) {
+      e.preventDefault();
+      document.getElementById('topup-error')?.classList.add('hidden');
+      document.getElementById('topup-success')?.classList.add('hidden');
       openModal('modal-topup');
-    } else {
-      clearError('signin-error');
-      openModal('modal-signin');
+      return;
+    }
+
+    const closeTopupBtn = e.target.closest('#modal-topup-close') || e.target.closest('#modal-topup-backdrop');
+    if (closeTopupBtn) {
+      closeModal('modal-topup');
+      return;
+    }
+
+    const starterPricingBtn = e.target.closest('#pricing-starter-cta');
+    if (starterPricingBtn) {
+      e.preventDefault();
+      initiateLemonSqueezyCheckout('starter', starterPricingBtn);
+      return;
+    }
+
+    const proPricingBtn = e.target.closest('#pricing-pro-cta');
+    if (proPricingBtn) {
+      e.preventDefault();
+      initiateLemonSqueezyCheckout('pro', proPricingBtn);
+      return;
+    }
+
+    const topupSubmitBtn = e.target.closest('#btn-topup-submit, #topup-submit');
+    if (topupSubmitBtn) {
+      e.preventDefault();
+      const selectedPackage = document.querySelector('input[name="package"]:checked');
+      if (!selectedPackage?.value) return;
+      initiateLemonSqueezyCheckout(selectedPackage.value, topupSubmitBtn);
     }
   });
-
-  document.getElementById('pricing-pro-cta')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (localStorage.getItem(TOKEN_KEY)) {
-      const topupPro = document.getElementById('topup-pro');
-      if (topupPro) topupPro.checked = true;
-      openModal('modal-topup');
-    } else {
-      clearError('signin-error');
-      openModal('modal-signin');
-    }
-  });
-
-  /* 8. Top Up Modal */
-  document.getElementById('btn-topup')?.addEventListener('click', () => {
-    // Reset state
-    document.getElementById('topup-error')?.classList.add('hidden');
-    document.getElementById('topup-success')?.classList.add('hidden');
-    openModal('modal-topup');
-  });
-  document.getElementById('modal-topup-close')?.addEventListener('click', () => closeModal('modal-topup'));
-  document.getElementById('modal-topup-backdrop')?.addEventListener('click', () => closeModal('modal-topup'));
-  document.getElementById('topup-submit')?.addEventListener('click', handleTopUp);
 
   /* 9. Auth & Profile Form submission */
   document.getElementById('form-signin')?.addEventListener('submit', handleSignIn);
@@ -810,10 +788,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* 10. Password visibility toggles */
   initPasswordToggles();
 
-  /* 11. Initial auth state check */
-  await checkAuthState();
-
-  /* 12. Navigation Logic (Auth Guards) */
+  /* 11. Navigation Logic (Auth Guards) */
   document.querySelectorAll('#nav-parse, .nav-parse-mobile').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();

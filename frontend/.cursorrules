@@ -10,3 +10,8 @@
 - Brand colors: Primary is Orange (`#ff9900`), text is deep black (`text-gray-900`).
 - Floating data labels (callouts) MUST NEVER have borders, background colors, or bounding boxes. They must be pure text connected by a solid thin line to the target.
 - Always align social icons in the footer to the left (`justify-start`), perfectly flush with the text above them. Do not center them.
+
+# Git & Terminal Restrictions (CRITICAL)
+- NEVER execute, suggest, or write any Git commands (`git add`, `git commit`, `git push`, etc.).
+- NEVER interact with version control. The user handles Git operations manually.
+- Do NOT run terminal commands unless explicitly asked to do so (e.g., starting a server).
