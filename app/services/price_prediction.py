@@ -6,7 +6,7 @@ from app.schemas.prediction_schemas import BasePredictor
 
 class PredictService:
 
-    def __init__(self, models_path: str = "ml/models/v2_stable_xg_boost"):
+    def __init__(self, models_path: str = "ml/ml_models/v2_stable_xg_boost"):
         self.router = joblib.load(f"{models_path}/router_model.pkl")
         self.models = {
             0: joblib.load(f"{models_path}/xg_cheap_model.pkl"),
