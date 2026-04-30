@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: postgres_db
-    restart: no
+    restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -23,24 +23,24 @@ services:
 
   redis:
     image: redis:alpine
+    container_name: redis_cache
+    restart: always
     ports:
       - "6379:6379"
     networks:
       - cardian_network
 
-
   migrations:
     build: .
+    container_name: db_migrations
     command: alembic upgrade head
-    volumes:
-      - .:/app
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - cardian_network
-    environment:
-      - DB_HOST=postgres
 
   app:
     build:
@@ -50,6 +50,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,31 +63,51 @@ services:
     volumes:
       - .:/app
       - /app/.venv
-        - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
 
-  celery_beat:
+  celery_worker:
     build: .
-    command: celery -A app.background.celery_worker beat -l info --schedule=/tmp/celerybeat-schedule
-    restart: no
+    container_name: celery_worker
+    command: celery -A app.background.celery_worker worker -l info
+    restart: always
     env_file:
       - .env
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - cardian_network
     volumes:
       - .:/app
       - /app/.venv
+
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A app.background.celery_worker beat -l info --schedule=/tmp/celerybeat-schedule
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
     depends_on:
       redis:
         condition: service_started
-
+    networks:
+      - cardian_network
+    volumes:
+      - .:/app
+      - /app/.venv
 
   nginx:
     image: nginx:stable-alpine
     container_name: nginx_proxy
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -95,7 +118,6 @@ services:
       - app
     networks:
       - cardian_network
-    restart: always
 
 networks:
   cardian_network:
@@ -103,8 +125,6 @@ networks:
 
 volumes:
   postgres_data:
-
-
 
 
 
