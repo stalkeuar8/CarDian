@@ -1,15 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, func
+from sqlalchemy import select, func
 
-from app.schemas.users_schemas import UserCreateSchema
-from app.schemas.users_schemas import UserResponseSchema
-from app.repo.admin_repo.base_admin_repo import BaseAdminRepo
 from app.models.users import Users
 from app.models.lookups import ParsedLookups, ManualLookups
 from app.models.watchlists import PriceAlerts, Watchlist
 from app.schemas.stats_schema import StatsResponseSchema
-
-from datetime import datetime, timezone
 
 
 class AdminStatsRepo:

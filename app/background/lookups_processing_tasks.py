@@ -5,11 +5,9 @@ from app.models.lookups import ManualLookups, ParsedLookups, ParsedLookupsRawDat
 from app.services.price_prediction import predict_service
 from app.models.verdicts import Verdicts
 from app.models.users import Users
-from app.schemas.prediction_schemas import BasePredictor
 from app.repo.lookups_repo import ParsedLookupsRepo
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
-from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema, ParsedLookupUpdatingSchema, HttpsUrl, LookupsPrices
-from app.schemas.gemini_schemas import GeminiAnalyzeRequestSchema, GeminiAnalyzeResponseSchema, GeminiExtractorRequestSchema, GeminiExtractorResponseSchema
+from app.schemas.lookups_schemas import CarSchema, ParsedLookupUpdatingSchema, LookupsPrices
 from app.schemas.groq_schemas import GroqAnalyzeRequestSchema, GroqAnalyzeResponseSchema, GroqExtractorRequestSchema, GroqExtractorResponseSchema
 from app.settings.config import database_settings
 from app.services.gemini_service import gemini_service
@@ -18,9 +16,6 @@ from app.services.parse_service import parse_service
 
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
-from sqlalchemy import text
-
-from pydantic import ValidationError
 
 from google.api_core.exceptions import ServiceUnavailable, ResourceExhausted, DeadlineExceeded
 

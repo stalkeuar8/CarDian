@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.lookups_schemas import CarSchema, ParsedLookupsRequestSchema
+from app.schemas.lookups_schemas import CarSchema
 
 
 class GeminiAnalyzeResponseSchema(BaseModel):

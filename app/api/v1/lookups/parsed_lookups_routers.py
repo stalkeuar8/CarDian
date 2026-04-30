@@ -1,21 +1,16 @@
-import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
-from redis.asyncio import Redis
 from typing import Sequence
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
-from fastapi_limiter.depends import RateLimiter
 
 from app.schemas.verdicts_schemas import VerdictResponseSchema
-from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import HttpsUrl, LookupsPrices, ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
+from app.schemas.lookups_schemas import LookupsPrices, ParsedLookupsCreateSchema, SequenceParsedLookupResponseSchema, ParsedLookupAcceptedSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema
 from app.repo.lookups_repo import ParsedLookupsRepo
-from app.models.lookups import ParsedLookupsRawData, ParsedLookups
+from app.models.lookups import ParsedLookups
 from app.models.users import Users
 from app.services.price_prediction import predict_service
 from app.settings.database import get_db

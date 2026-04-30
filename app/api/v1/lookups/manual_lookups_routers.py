@@ -1,25 +1,21 @@
-import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis.asyncio import Redis
 from typing import Sequence
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 
 from app.schemas.verdicts_schemas import VerdictResponseSchema
-from app.schemas.prediction_schemas import BasePredictor
 from app.models.verdicts import Verdicts
 from app.repo.verdicts_repo import VerdictsRepo
-from app.schemas.lookups_schemas import LookupsPrices, SequenceManualLookupResponseSchema, ManualLookupRequestSchema, ManualLookupResponseSchema, ParsedLookupsRequestSchema, ParsedLookupsResponseSchema, ManualLookupAcceptedResponseSchema
-from app.repo.lookups_repo import ManualLookupsRepo, ParsedLookupsRepo
-from app.models.lookups import ManualLookups, ParsedLookupsRawData, ParsedLookups
+from app.schemas.lookups_schemas import LookupsPrices, SequenceManualLookupResponseSchema, ManualLookupRequestSchema, ManualLookupResponseSchema, ManualLookupAcceptedResponseSchema
+from app.repo.lookups_repo import ManualLookupsRepo
+from app.models.lookups import ManualLookups
 from app.models.users import Users
 from app.services.price_prediction import predict_service
 from app.settings.database import get_db
-from app.auth.jwt_token import get_current_user, oauth2_scheme, decode_jwt
-from app.utils.password_hasher import get_password_hash
+from app.auth.jwt_token import get_current_user, oauth2_scheme
 from app.settings.redis import get_redis
 from app.background.lookups_processing_tasks import process_manual_lookup
 from app.utils.rate_limiter import rate_limiter

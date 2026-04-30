@@ -1,6 +1,4 @@
-from datetime import timezone, datetime
 from sqlalchemy.orm import DeclarativeBase, mapped_column
-from sqlalchemy import DateTime
 from typing import Annotated
 
 idpk = Annotated[int, mapped_column(primary_key=True)]

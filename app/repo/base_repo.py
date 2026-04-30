@@ -1,4 +1,4 @@
-from typing import Any, Generic, Type, TypeVar, cast, Sequence
+from typing import Any, Generic, Type, TypeVar, cast
 from pydantic import BaseModel
 from datetime import datetime, timezone
 

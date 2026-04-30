@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import update
 
 from app.schemas.users_schemas import UserCreateSchema
-from app.repo.base_repo import BaseRepo
 from app.models.users import Users
 
 class UsersRepo:

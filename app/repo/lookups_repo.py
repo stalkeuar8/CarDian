@@ -3,7 +3,7 @@ from typing import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 
-from app.schemas.lookups_schemas import ManualLookupRequestSchema, ParsedLookupUpdatingSchema
+from app.schemas.lookups_schemas import ParsedLookupUpdatingSchema
 from app.models.lookups import ManualLookups, ParsedLookups
 from app.repo.base_repo import BaseRepo
 

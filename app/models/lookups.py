@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 from app.models.base import Base, idpk, non_empty_str, non_empty_int
-from app.schemas.users_schemas import UserRole
 from app.schemas.lookup_enums import ManualLookupsStatus, ParsedLookupsStatus
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship

@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 
-from app.models.base import Base, idpk, non_empty_str, non_empty_int
+from app.models.base import Base, idpk, non_empty_int
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, ForeignKey, Index
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey
 
 
 class Verdicts(Base):

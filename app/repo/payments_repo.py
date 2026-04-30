@@ -3,7 +3,6 @@ from sqlalchemy import select
 
 from typing import Sequence
 
-from app.schemas.users_schemas import UserCreateSchema
 from app.repo.base_repo import BaseRepo
 from app.models.users import Payments
 

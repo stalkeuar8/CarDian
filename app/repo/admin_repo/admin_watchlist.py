@@ -1,14 +1,10 @@
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import update
 
-from app.schemas.users_schemas import UserCreateSchema
-from app.schemas.users_schemas import UserResponseSchema
 from app.repo.admin_repo.base_admin_repo import BaseAdminRepo
 from app.models.watchlists import Watchlist, PriceAlerts
-
-from datetime import datetime, timezone
 
 class AdminWatchlistsRepo(BaseAdminRepo[Watchlist]):
 

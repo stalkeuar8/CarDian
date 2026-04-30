@@ -1,23 +1,16 @@
-import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
-from redis.asyncio import Redis
-from datetime import datetime, timezone
 from typing import Sequence
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 
 from app.schemas.watchlists_schemas import WatchlistResponseSchema, WatchlistSequenceResponseSchema, WatchlistRequestSchema, WatchlistCreateSchema
-from app.schemas.price_alerts_schemas import PriceAlertRequestSchema, PriceAlertResponseSchema, PriceAlertSequenceResponseSchema
+from app.schemas.price_alerts_schemas import PriceAlertResponseSchema, PriceAlertSequenceResponseSchema
 from app.models.watchlists import PriceAlerts, Watchlist
 from app.repo.watchlists_repo import WatchlistsRepo, PriceAlertsRepo
 from app.models.users import Users
-from app.services.price_prediction import predict_service
 from app.settings.database import get_db
-from app.auth.jwt_token import get_current_user, oauth2_scheme, decode_jwt
-from app.utils.password_hasher import get_password_hash
-from app.settings.redis import get_redis
-from app.background.lookups_processing_tasks import process_manual_lookup
+from app.auth.jwt_token import get_current_user
 from app.utils.rate_limiter import rate_limiter
 
 

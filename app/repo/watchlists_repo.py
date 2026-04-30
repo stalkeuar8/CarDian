@@ -2,10 +2,9 @@ from datetime import datetime
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.orm import contains_eager
 
-from app.schemas.lookups_schemas import ManualLookupRequestSchema, ParsedLookupUpdatingSchema
 from app.models.watchlists import PriceAlerts, Watchlist
 from app.repo.base_repo import BaseRepo
 

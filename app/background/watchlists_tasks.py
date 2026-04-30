@@ -4,14 +4,11 @@ import random
 from celery.schedules import crontab
 from curl_cffi.requests import AsyncSession as CurlAsyncSession
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, status
 
 from app.background.celery_worker import celery_app
 from app.settings.config import database_settings
 from app.models.watchlists import Watchlist, PriceAlerts
-from app.repo.watchlists_repo import WatchlistsRepo, PriceAlertsRepo
-from app.schemas.watchlists_schemas import WatchlistResponseSchema
-from app.schemas.price_alerts_schemas import PriceAlertResponseSchema, PriceAlertRequestSchema
+from app.repo.watchlists_repo import WatchlistsRepo
 from app.utils.browsers import get_browser
 from app.services.parse_service import parse_service
 from app.background.bot_tasks import send_price_alert_to_bot

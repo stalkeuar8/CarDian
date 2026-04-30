@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.requests import Request
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 
 from app.schemas.users_schemas import UserCreateSchema
 from app.schemas.auth_schemas import TokenType, UserAuthResponseSchema, UserLoginRequestSchema, UserRegisterRequestSchema, UserLogoutResponseSchema, UserRefreshRequestSchema, UserRefreshResponseSchema
