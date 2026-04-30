@@ -58,7 +58,8 @@ async def register(request: Request, body: UserRegisterRequestSchema, session: A
         role=new_user.role,
         created_at=new_user.created_at,
         access_token=access_token,
-        refresh_token=refresh_token
+        refresh_token=refresh_token,
+        current_balance=new_user.current_balance
     )
 
     
