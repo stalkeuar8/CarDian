@@ -14,8 +14,8 @@ from app.auth.jwt_token import get_current_user
 from app.utils.rate_limiter import rate_limiter
 
 
-watchlists_router = APIRouter(prefix="/v1/watchlists", tags=['Watchlists'])
-price_alerts_router = APIRouter(prefix="/v1/alerts", tags=['Watchlists'])
+watchlists_router = APIRouter(prefix="/api/v1/watchlists", tags=['Watchlists'])
+price_alerts_router = APIRouter(prefix="/api/v1/alerts", tags=['Watchlists'])
 
 
 @watchlists_router.post("/", summary="Add url to watchlist", response_model=WatchlistResponseSchema)

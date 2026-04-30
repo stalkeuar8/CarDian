@@ -10,7 +10,7 @@ from app.settings.database import get_db
 from app.auth.jwt_token import get_current_admin_user
 from app.utils.rate_limiter import rate_limiter
 
-admin_stats_router = APIRouter(prefix="/v1/admin/lookups", tags=['Admin (Lookups)'])
+admin_stats_router = APIRouter(prefix="/api/v1/admin/lookups", tags=['Admin (Lookups)'])
  
 
 @admin_stats_router.get("/stats", summary="Get all platform stats", response_model=StatsResponseSchema)

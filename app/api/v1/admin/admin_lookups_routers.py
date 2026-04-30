@@ -13,7 +13,7 @@ from app.settings.database import get_db
 from app.auth.jwt_token import get_current_admin_user
 from app.utils.rate_limiter import rate_limiter
 
-admin_lookups_router = APIRouter(prefix="/v1/admin/lookups", tags=['Admin (Lookups)'])
+admin_lookups_router = APIRouter(prefix="/api/v1/admin/lookups", tags=['Admin (Lookups)'])
 
 
 @admin_lookups_router.get("/manual/{lookup_id}/verdict", summary="Admin - Get manual lookup verdict ", response_model=VerdictResponseSchema)

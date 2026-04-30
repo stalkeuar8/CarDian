@@ -20,7 +20,7 @@ from app.settings.redis import get_redis
 from app.background.lookups_processing_tasks import process_manual_lookup
 from app.utils.rate_limiter import rate_limiter
 
-manual_lookups_router = APIRouter(prefix="/v1/lookups/manual", tags=['Manual Lookups'])
+manual_lookups_router = APIRouter(prefix="/api/v1/lookups/manual", tags=['Manual Lookups'])
 
 
 @manual_lookups_router.post("/", summary="New manual lookup", response_model=ManualLookupAcceptedResponseSchema)

@@ -10,7 +10,7 @@ from app.settings.database import get_db
 from app.auth.jwt_token import get_current_admin_user
 from app.utils.rate_limiter import rate_limiter
 
-admin_users_router = APIRouter(prefix="/v1/admin/users", tags=['Admin (Users)'])
+admin_users_router = APIRouter(prefix="/api/v1/admin/users", tags=['Admin (Users)'])
 
 @admin_users_router.get("/{user_id}", summary="Get user by id (including deleted)", response_model=UserAdminResponseSchema)
 @rate_limiter.limit("100/15 seconds") 

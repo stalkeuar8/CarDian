@@ -7,7 +7,7 @@
 /* ─────────────────────────────────────────
    Auth — Constants
    ───────────────────────────────────────── */
-const API_BASE    = 'http://localhost:8008';
+const API_BASE    = '/api';
 const TOKEN_KEY   = 'cardian_token';
 const REFRESH_KEY = 'cardian_refresh_token';
 

@@ -60,28 +60,12 @@ services:
     volumes:
       - .:/app
       - /app/.venv
-  celery_worker:
-    build: .
-    command: celery -A app.background.celery_worker.celery_app worker --loglevel=info --pool=solo
-    env_file:
-      - .env
-    environment:
-      - PYTHONPATH=/app
+        - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    networks:
-      - cardian_network
-    volumes:
-      - .:/app
-      - /app/.venv
-    depends_on:
-      redis:
-        condition: service_started
-      postgres:
-        condition: service_healthy
 
   celery_beat:
     build: .
-    command: celery -A app.background.celery_worker.celery_app beat --loglevel=info
+    command: celery -A app.background.celery_worker beat -l info --schedule=/tmp/celerybeat-schedule
     restart: no
     env_file:
       - .env
@@ -97,6 +81,7 @@ services:
       redis:
         condition: service_started
 
+
   nginx:
     image: nginx:stable-alpine
     container_name: nginx_proxy
@@ -104,8 +89,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
     depends_on:
       - app
     networks:
@@ -118,6 +103,17 @@ networks:
 
 volumes:
   postgres_data:
+
+
+
+
+
+
+
+
+
+
+
 
 
 

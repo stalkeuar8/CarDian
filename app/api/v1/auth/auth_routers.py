@@ -19,7 +19,7 @@ from app.settings.redis import get_redis
 from app.settings.config import jwt_settings
 from app.utils.rate_limiter import rate_limiter
 
-auth_router = APIRouter(prefix='/v1/auth', tags=['Auth'])
+auth_router = APIRouter(prefix='/api/v1/auth', tags=['Auth'])
 
 @auth_router.post("/register", summary="Register as user", response_model=UserAuthResponseSchema)
 @rate_limiter.limit("3/15 seconds")

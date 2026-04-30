@@ -16,7 +16,7 @@ from app.schemas.auth_schemas import TokenType
 from app.repo.admin_repo.admin_users import AdminUsersRepo
 
 ALGORITHM = 'HS256'
-oauth2_scheme = OAuth2PasswordBearer("/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer("/api/v1/auth/login")
 REFRESH_EXPIRES = jwt_settings.REF_EXP_TIME
 ACCESS_EXPIRES = jwt_settings.ACC_EXP_TIME
 

@@ -19,7 +19,7 @@ from app.background.lookups_processing_tasks import process_parsed_lookup
 from app.utils.rate_limiter import rate_limiter
 
 
-parsed_lookups_router = APIRouter(prefix="/v1/lookups/parsed", tags=['Parsed Lookups'])
+parsed_lookups_router = APIRouter(prefix="/api/v1/lookups/parsed", tags=['Parsed Lookups'])
 
 
 @parsed_lookups_router.post("/", summary="New parsed lookups", response_model=ParsedLookupAcceptedSchema)
