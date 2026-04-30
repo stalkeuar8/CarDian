@@ -7,10 +7,10 @@ services:
     restart: no
     environment:
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}   
-      POSTGRES_DB: ${DB_NAME}    
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -41,21 +41,15 @@ services:
       - cardian_network
     environment:
       - DB_HOST=postgres
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_NAME=${DB_NAME}
 
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: fastapi
     restart: always
     env_file:
       - .env
-    ports:
-      - "8008:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,7 +82,7 @@ services:
   celery_beat:
     build: .
     command: celery -A app.background.celery_worker.celery_app beat --loglevel=info
-    restart: no 
+    restart: no
     env_file:
       - .env
     environment:
@@ -102,6 +96,22 @@ services:
     depends_on:
       redis:
         condition: service_started
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - app
+    networks:
+      - cardian_network
+    restart: always
+
 networks:
   cardian_network:
     driver: bridge
