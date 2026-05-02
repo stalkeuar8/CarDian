@@ -52,13 +52,13 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
             car_info = CarSchema.model_validate(lookup)
         logger.info("lookup found")
         
-        try:
-            logger.info("before predicting")
-            predicted_price = predict_service.predict(data_to_predict=car_info)
-            logger.info(f"result: {predicted_price}")
+        # try:
+        logger.info("before predicting")
+        predicted_price = predict_service.predict(data_to_predict=car_info)
+        logger.info(f"result: {predicted_price}")
         
-        except Exception as e:
-            logger.error(f"predicting error: {e}")
+        # except Exception as e:
+            # logger.error(f"predicting error: {e}")
 
         info_to_analyze = GroqAnalyzeRequestSchema(**car_info.model_dump(), predicted_price=predicted_price)
 
@@ -110,12 +110,12 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
         logger.error(f"ERROR: {e}")
         raise self.retry(exc=e, countdown=10)
 
-    except (Exception, ResourceExhausted) as e: 
-        logger.info(f"Error, manual lookup id: {lookup_id}:  {e}", exc_info=True)
+    # except (Exception, ResourceExhausted) as e: 
+    #     logger.info(f"Error, manual lookup id: {lookup_id}:  {e}", exc_info=True)
         
-        async with celery_async_session_factory.begin() as session:
-            lookup: ManualLookups = await session.get(ManualLookups, lookup_id)
-            lookup.status = ManualLookupsStatus.failed
+    #     async with celery_async_session_factory.begin() as session:
+    #         lookup: ManualLookups = await session.get(ManualLookups, lookup_id)
+    #         lookup.status = ManualLookupsStatus.failed
 
     finally:
         await celery_async_engine.dispose()
