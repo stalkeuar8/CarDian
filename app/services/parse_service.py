@@ -3,6 +3,7 @@ import asyncio
 import json
 from bs4 import BeautifulSoup
 from app.schemas.lookups_schemas import HttpsUrl
+from app.settings.config import proxy_settings
 
 class ParseService:
 
@@ -15,7 +16,7 @@ class ParseService:
         async with aiohttp.ClientSession(headers=headers) as session:
             
             try:
-                async with session.get(url=str(url_to_parse), timeout=aiohttp.ClientTimeout(10)) as response:
+                async with session.get(url=f"{proxy_settings.URL}?url={url_to_parse}", timeout=aiohttp.ClientTimeout(10)) as response:
 
                     if response.status != 200:
                         return response.status
@@ -80,8 +81,6 @@ class ParseService:
     async def process_url(cls, url: HttpsUrl) -> str | None:
         html = await ParseService.get_html(url)
 
-        return html
-    
         car_data = await ParseService.extract_car_data(parsed_html=html)
 
         desc = await ParseService.extract_description(parsed_html=html)

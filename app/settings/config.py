@@ -80,6 +80,12 @@ class BotSettings(Settings):
     def BOT_KEY(self) -> str:
         return self.TG_BOT_KEY
 
+class ProxySettings(Settings):
+    GOOGLE_PROXY_URL: str
+
+    @property
+    def URL(self) -> str:
+        return self.GOOGLE_PROXY_URL
 
 database_settings = DatabaseSettings()
 jwt_settings = JWTSettings()
@@ -87,3 +93,4 @@ redis_settings = RedisSettings()
 gemini_settings = GeminiSettings()
 bot_settings = BotSettings()
 groq_settings = GroqSettings()
+proxy_settings = ProxySettings()
