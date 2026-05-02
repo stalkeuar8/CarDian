@@ -6,7 +6,7 @@ from curl_cffi.requests import AsyncSession as CurlAsyncSession
 from datetime import datetime, timedelta, timezone
 
 from app.background.celery_worker import celery_app
-from app.settings.config import database_settings
+from app.settings.config import database_settings, proxy_settings
 from app.models.watchlists import Watchlist, PriceAlerts
 from app.repo.watchlists_repo import WatchlistsRepo
 from app.utils.browsers import get_browser
@@ -57,7 +57,7 @@ async def async_watchlist_parsing_processing(self) -> None:
     async with CurlAsyncSession() as session:
 
         response = await session.get(
-            url=url,
+            url=f"{proxy_settings.URL}?url={url}",
             impersonate=get_browser(),
             timeout=20
         )
