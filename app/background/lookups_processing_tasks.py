@@ -38,7 +38,7 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
     celery_async_session_factory = async_sessionmaker(celery_async_engine, expire_on_commit=False)
 
     lookup = None
-
+    logger.info("before try")
     try:
         
         async with celery_async_session_factory.begin() as session:
@@ -50,20 +50,24 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
             lookup = lookup_info
 
             car_info = CarSchema.model_validate(lookup)
+        logger.info("lookup found")
         
         predicted_price = predict_service.predict(data_to_predict=car_info)
 
         info_to_analyze = GroqAnalyzeRequestSchema(**car_info.model_dump(), predicted_price=predicted_price)
 
+        logger.info(f"price predicted: {predicted_price}")
 
         try:
 
             llm_result: GroqAnalyzeResponseSchema = await groq_service.analyze_existing(info_to_analyze)
+            logger.info(f"groq completed, : {llm_result}")
             
             llm_feedback = llm_result.response
             is_groq_completed = True
-            
+            logger.info(f"groq completed, feedback: {llm_feedback}")
         except Exception as e:
+            logger.error(f"groq error: {e}")
             is_groq_completed = False
             llm_feedback = None
 

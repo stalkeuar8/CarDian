@@ -21,7 +21,7 @@ class GroqService:
                 prompt += (f", PRICE LISTED IN ADD: {car_data.price_in_ad} EUR, COMPARE IT AND GIVE YOUR" \
                            "FEEDBACK INCLUDING PRICES REVIEW. BE GENTLE PREDICTED PRICE IS LESS THEN 5% BIGGER, " \
                            "OR GIVE SOME RECOMENDATIONS IF PREDICTED PRICE IS LESS THAN AD PRICE" \
-)
+                        )
 
             chat_completion = await self.client.chat.completions.create(
                 model=self.analyzing_model,
@@ -43,8 +43,8 @@ class GroqService:
 
             return GroqAnalyzeResponseSchema.model_validate_json(response)
         
-        except Exception:
-            return None
+        except Exception as e:
+            return (None, e)
     
 
 
