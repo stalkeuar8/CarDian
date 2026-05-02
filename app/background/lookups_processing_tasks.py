@@ -52,11 +52,15 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
             car_info = CarSchema.model_validate(lookup)
         logger.info("lookup found")
         
-        predicted_price = predict_service.predict(data_to_predict=car_info)
+        try:
+            predicted_price = predict_service.predict(data_to_predict=car_info)
+            logger.info(f"price predicted: {predicted_price}")
+        
+        except:
+            logger.error(f"predicting error: {e}")
 
         info_to_analyze = GroqAnalyzeRequestSchema(**car_info.model_dump(), predicted_price=predicted_price)
 
-        logger.info(f"price predicted: {predicted_price}")
 
         try:
 
