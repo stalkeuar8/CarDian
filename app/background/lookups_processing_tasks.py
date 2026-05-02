@@ -53,8 +53,9 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
         logger.info("lookup found")
         
         try:
+            logger.info("before predicting")
             predicted_price = predict_service.predict(data_to_predict=car_info)
-            logger.info(f"price predicted: {predicted_price}")
+            logger.info(f"result: {predicted_price}")
         
         except Exception as e:
             logger.error(f"predicting error: {e}")

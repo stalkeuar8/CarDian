@@ -15,15 +15,17 @@ class PredictService:
         }
 
     def predict(self, data_to_predict: BasePredictor) -> int | None:
-        df_input = pd.DataFrame([data_to_predict.model_dump()])
+        try:
+            df_input = pd.DataFrame([data_to_predict.model_dump()])
 
-        segment = self.router.predict(df_input)[0]
+            segment = self.router.predict(df_input)[0]
 
-        log_price = self.models[segment].predict(df_input)[0]
+            log_price = self.models[segment].predict(df_input)[0]
 
-        price = int(np.expm1(log_price))
+            price = int(np.expm1(log_price))
 
-        return price
-    
+            return price
+        except Exception as e:
+            return e
 
 predict_service = PredictService()
