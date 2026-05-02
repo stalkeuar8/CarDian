@@ -18,7 +18,7 @@ class ParseService:
                 async with session.get(url=str(url_to_parse), timeout=aiohttp.ClientTimeout(10)) as response:
 
                     if response.status != 200:
-                        return None
+                        return response.status
                     
                     return await response.text()
                 
@@ -80,6 +80,8 @@ class ParseService:
     async def process_url(cls, url: HttpsUrl) -> str | None:
         html = await ParseService.get_html(url)
 
+        return html
+    
         car_data = await ParseService.extract_car_data(parsed_html=html)
 
         desc = await ParseService.extract_description(parsed_html=html)
