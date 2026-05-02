@@ -110,12 +110,12 @@ async def async_process_manual_lookup(self, lookup_id: int) -> None:
         logger.error(f"ERROR: {e}")
         raise self.retry(exc=e, countdown=10)
 
-    # except (Exception, ResourceExhausted) as e: 
-    #     logger.info(f"Error, manual lookup id: {lookup_id}:  {e}", exc_info=True)
+    except (Exception, ResourceExhausted) as e: 
+        logger.info(f"Error, manual lookup id: {lookup_id}:  {e}", exc_info=True)
         
-    #     async with celery_async_session_factory.begin() as session:
-    #         lookup: ManualLookups = await session.get(ManualLookups, lookup_id)
-    #         lookup.status = ManualLookupsStatus.failed
+        async with celery_async_session_factory.begin() as session:
+            lookup: ManualLookups = await session.get(ManualLookups, lookup_id)
+            lookup.status = ManualLookupsStatus.failed
 
     finally:
         await celery_async_engine.dispose()
@@ -139,7 +139,7 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
     celery_async_session_factory = async_sessionmaker(celery_async_engine, expire_on_commit=False)
 
     parsed_lookup = None
-
+    logger.info("before try")
     try:
         async with celery_async_session_factory.begin() as session:
             lookup: ParsedLookups | None = await session.get(ParsedLookups, lookup_id)
@@ -148,19 +148,21 @@ async def async_process_parsed_lookup(self, lookup_id: int) -> None:
                 raise ValueError(f"Parsed Lookup with ID: {lookup_id} was not found")
 
             parsed_lookup = lookup
+        logger.info("lookups found")
 
         parsed_text = await parse_service.process_url(url=parsed_lookup.url)
-        
+        logger.info(f"text parsed: {parsed_text}")
         parsed_car_info: GroqExtractorResponseSchema | None = await groq_service.extract_from_text(parsed_data=GroqExtractorRequestSchema(parsed_text=parsed_text))
         logger.info(f"json: {parsed_car_info}")
 
         if parsed_car_info is None:    
             raise ValueError("Invalid data, unable to extract")
+        logger.info(f"before predicting")
 
         predicted_price: int = predict_service.predict(data_to_predict=parsed_car_info)
 
         logger.info(f"predicted price: {predicted_price}")
-
+        
         info_to_analyze = GroqAnalyzeRequestSchema(**parsed_car_info.model_dump(), predicted_price=predicted_price)
         
         try:
