@@ -38,11 +38,12 @@ async def async_watchlist_parsing_processing(self) -> None:
     minimal_time = current_time - timedelta(hours=24)
 
     watch_to_check = None 
-    logger.info("launched")
+    logger.info("starting task..")
     async with celery_async_session_factory.begin() as session:
         watch_in_db: Watchlist | None = await WatchlistsRepo.get_watch_to_check_by_time(earlier_than=current_time, session=session)
 
         if watch_in_db is None:
+            logger.info("No watches to check, ending task.")
             return
         
         logger.info(f"get watch: {watch_in_db}")
