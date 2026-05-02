@@ -63,13 +63,16 @@ services:
   celery_worker:
     build: .
     container_name: celery_worker
-    command: celery -A app.background.celery_worker worker -l info
+    command: celery -A app.background.celery_worker worker -l info -P solo
     restart: always
     env_file:
       - .env
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
+      - OMP_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
+      - OPENBLAS_NUM_THREADS=1
     depends_on:
       redis:
         condition: service_started
