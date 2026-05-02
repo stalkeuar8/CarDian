@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, None]:
 
 def create_app() -> FastAPI:
      
-    app = FastAPI(title="CarDian", lifespan=lifespan)
+    app = FastAPI(title="CarDian", lifespan=lifespan, docs_url=None, redoc_url=None)
     
     app.add_middleware(
         CORSMiddleware,
