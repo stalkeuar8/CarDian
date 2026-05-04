@@ -138,16 +138,28 @@ async function checkAuthState() {
   const guestNav = document.getElementById('auth-buttons-guest');
   const userNav  = document.getElementById('auth-buttons-user');
   
+  const guestNavMobile = document.getElementById('mobile-auth-guest');
+  const userNavMobile  = document.getElementById('mobile-auth-user');
+
   const heroGuest = document.getElementById('hero-cta-guest');
   const heroUser  = document.getElementById('hero-cta-user');
 
   if (!guestNav || !userNav) return;
 
   if (token) {
-    guestNav.classList.remove('md:flex');
+    guestNav.classList.remove('flex');
     guestNav.classList.add('hidden');
     userNav.classList.remove('hidden');
     userNav.classList.add('flex');
+
+    if (guestNavMobile) {
+      guestNavMobile.classList.remove('flex');
+      guestNavMobile.classList.add('hidden');
+    }
+    if (userNavMobile) {
+      userNavMobile.classList.remove('hidden');
+      userNavMobile.classList.add('flex');
+    }
 
     if (heroGuest && heroUser) {
       heroGuest.classList.add('hidden');
@@ -156,7 +168,6 @@ async function checkAuthState() {
       heroUser.classList.add('sm:flex', 'flex');
     }
 
-    // Fetch profile to get current_balance and role
     try {
       let userRole = getUserRoleFromToken();
 
@@ -164,18 +175,19 @@ async function checkAuthState() {
       if (res.ok) {
         const user = await res.json();
         updateHeaderBalance(user.current_balance ?? '—');
-        // Cache user_id for top-up
         window._cardianUserId = user.id;
         if (user.role) userRole = user.role;
       } else if (res.status === 401 || res.status === 403) {
-        // Token invalid — force logout
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(REFRESH_KEY);
         localStorage.removeItem('cardian_user_role');
         guestNav.classList.remove('hidden');
-        guestNav.classList.add('md:flex');
+        guestNav.classList.add('flex');
         userNav.classList.remove('flex');
         userNav.classList.add('hidden');
+        
+        if (guestNavMobile) { guestNavMobile.classList.remove('hidden'); guestNavMobile.classList.add('flex'); }
+        if (userNavMobile) { userNavMobile.classList.remove('flex'); userNavMobile.classList.add('hidden'); }
 
         if (heroGuest && heroUser) {
           heroUser.classList.add('hidden');
@@ -196,8 +208,7 @@ async function checkAuthState() {
           if (logoutBtn) {
             const btnHtml = `
               <a href="./admin_panel.html" id="btn-admin-panel" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gray-900 hover:bg-black hover:scale-105 transition-all duration-200 shadow-md flex items-center gap-1.5">
-                <i data-lucide="shield" class="w-4 h-4"></i>
-                Admin panel
+                <i data-lucide="shield" class="w-4 h-4"></i> Admin panel
               </a>
             `;
             logoutBtn.insertAdjacentHTML('beforebegin', btnHtml);
@@ -215,7 +226,10 @@ async function checkAuthState() {
     userNav.classList.remove('flex');
     userNav.classList.add('hidden');
     guestNav.classList.remove('hidden');
-    guestNav.classList.add('md:flex');
+    guestNav.classList.add('flex');
+
+    if (guestNavMobile) { guestNavMobile.classList.remove('hidden'); guestNavMobile.classList.add('flex'); }
+    if (userNavMobile) { userNavMobile.classList.remove('flex'); userNavMobile.classList.add('hidden'); }
 
     if (heroGuest && heroUser) {
       heroUser.classList.add('hidden');

@@ -3,6 +3,10 @@
    Custom animations, scrollbar, and component styles
    ═══════════════════════════════════════════════════ */
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
     width: 0.375rem; /* 6px */
