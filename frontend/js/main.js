@@ -137,28 +137,28 @@ async function checkAuthState() {
   const token    = localStorage.getItem(TOKEN_KEY);
   const guestNav = document.getElementById('auth-buttons-guest');
   const userNav  = document.getElementById('auth-buttons-user');
-  
-  const guestNavMobile = document.getElementById('mobile-auth-guest');
-  const userNavMobile  = document.getElementById('mobile-auth-user');
 
   const heroGuest = document.getElementById('hero-cta-guest');
   const heroUser  = document.getElementById('hero-cta-user');
 
-  if (!guestNav || !userNav) return;
+  if (!guestNav || !userNav) {
+    // Pages without the full desktop auth (e.g. minimal pages) — still set mobile state
+    if (typeof window.setMobileAuthState === 'function') {
+      window.setMobileAuthState(!!token, '—');
+    }
+    return;
+  }
 
   if (token) {
-    guestNav.classList.remove('flex');
+    // Desktop: show user nav
     guestNav.classList.add('hidden');
+    guestNav.classList.remove('flex');
     userNav.classList.remove('hidden');
     userNav.classList.add('flex');
 
-    if (guestNavMobile) {
-      guestNavMobile.classList.remove('flex');
-      guestNavMobile.classList.add('hidden');
-    }
-    if (userNavMobile) {
-      userNavMobile.classList.remove('hidden');
-      userNavMobile.classList.add('flex');
+    // Mobile: preliminary state (balance fetched below)
+    if (typeof window.setMobileAuthState === 'function') {
+      window.setMobileAuthState(true, '—');
     }
 
     if (heroGuest && heroUser) {
@@ -178,6 +178,7 @@ async function checkAuthState() {
         window._cardianUserId = user.id;
         if (user.role) userRole = user.role;
       } else if (res.status === 401 || res.status === 403) {
+        // Token invalid — reset to guest
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(REFRESH_KEY);
         localStorage.removeItem('cardian_user_role');
@@ -185,10 +186,9 @@ async function checkAuthState() {
         guestNav.classList.add('flex');
         userNav.classList.remove('flex');
         userNav.classList.add('hidden');
-        
-        if (guestNavMobile) { guestNavMobile.classList.remove('hidden'); guestNavMobile.classList.add('flex'); }
-        if (userNavMobile) { userNavMobile.classList.remove('flex'); userNavMobile.classList.add('hidden'); }
-
+        if (typeof window.setMobileAuthState === 'function') {
+          window.setMobileAuthState(false);
+        }
         if (heroGuest && heroUser) {
           heroUser.classList.add('hidden');
           heroUser.classList.remove('sm:flex', 'flex');
@@ -197,21 +197,17 @@ async function checkAuthState() {
         }
       }
 
-      if (userRole) {
-        localStorage.setItem('cardian_user_role', userRole);
-      }
+      if (userRole) localStorage.setItem('cardian_user_role', userRole);
 
       if (userRole === 'admin') {
         let adminBtn = document.getElementById('btn-admin-panel');
         if (!adminBtn) {
           const logoutBtn = document.getElementById('btn-logout');
           if (logoutBtn) {
-            const btnHtml = `
+            logoutBtn.insertAdjacentHTML('beforebegin', `
               <a href="./admin_panel.html" id="btn-admin-panel" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gray-900 hover:bg-black hover:scale-105 transition-all duration-200 shadow-md flex items-center gap-1.5">
-                <i data-lucide="shield" class="w-4 h-4"></i> Admin panel
-              </a>
-            `;
-            logoutBtn.insertAdjacentHTML('beforebegin', btnHtml);
+                <i data-lucide="shield" class="w-4 h-4"></i> Admin
+              </a>`);
             if (typeof lucide !== 'undefined') lucide.createIcons();
           }
         }
@@ -220,16 +216,19 @@ async function checkAuthState() {
         if (adminBtn) adminBtn.remove();
       }
 
-    } catch (_) { /* network error, leave balance as — */ }
+    } catch (_) { /* network error */ }
 
   } else {
+    // Desktop: show guest nav
     userNav.classList.remove('flex');
     userNav.classList.add('hidden');
     guestNav.classList.remove('hidden');
     guestNav.classList.add('flex');
 
-    if (guestNavMobile) { guestNavMobile.classList.remove('hidden'); guestNavMobile.classList.add('flex'); }
-    if (userNavMobile) { userNavMobile.classList.remove('flex'); userNavMobile.classList.add('hidden'); }
+    // Mobile: guest state
+    if (typeof window.setMobileAuthState === 'function') {
+      window.setMobileAuthState(false);
+    }
 
     if (heroGuest && heroUser) {
       heroUser.classList.add('hidden');
@@ -243,8 +242,13 @@ async function checkAuthState() {
 }
 
 function updateHeaderBalance(balance) {
+  // Desktop balance
   const el = document.getElementById('header-balance');
   if (el) el.textContent = `Tokens: ${balance}`;
+  // Mobile balance (via menu.js)
+  if (typeof window.setMobileAuthState === 'function') {
+    window.setMobileAuthState(true, balance);
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -629,40 +633,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* 1. Initialize Lucide Icons */
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  /* 2. Mobile Menu Toggle */
-  const menuBtn    = document.getElementById('menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-      const isOpen = !mobileMenu.classList.contains('hidden');
-      mobileMenu.classList.toggle('hidden', isOpen);
-      const icon = menuBtn.querySelector('i');
-      if (icon) { icon.setAttribute('data-lucide', isOpen ? 'menu' : 'x'); lucide.createIcons(); }
-      menuBtn.setAttribute('aria-expanded', String(!isOpen));
-    });
-    document.addEventListener('click', (e) => {
-      if (!menuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
-        mobileMenu.classList.add('hidden');
-        const icon = menuBtn.querySelector('i');
-        if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons(); }
-        menuBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 768) {
-        mobileMenu.classList.add('hidden');
-        const icon = menuBtn.querySelector('i');
-        if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons(); }
-        menuBtn.setAttribute('aria-expanded', 'false');
-      }
-    }, { passive: true });
-  }
+  /* 2. Mobile Menu Toggle — handled by menu.js */
 
-  /* 3. Navbar — shadow on scroll */
-  const navbar = document.getElementById('navbar');
-  if (navbar) {
-    window.addEventListener('scroll', () => navbar.classList.toggle('shadow-md', window.scrollY > 8), { passive: true });
-  }
+  /* 3. Navbar — shadow on scroll — handled by menu.js */
+
 
   /* 4. Floating Cards */
   document.querySelectorAll('[data-float]').forEach((card, index) => {

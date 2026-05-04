@@ -388,63 +388,142 @@
 }
 
 /* ══════════════════════════════════════════
-   RESPONSIVE BREAKPOINTS
+   RESPONSIVE — GLOBAL RULES
    ══════════════════════════════════════════ */
 
-/* Mobile (320px - 480px) */
-@media (min-width: 320px) and (max-width: 480px) {
-    /* Touch friendly minimums */
-    button, 
-    a.nav-link, 
-    a.footer-link,
-    input,
-    select {
-        min-height: 44px;
-        min-width: 44px;
-    }
-
-    /* Hide outer float cards on small screens */
-    .fc5, .fc6, .fc9, .fc10 {
-        display: none;
-    }
-
-    .float-card {
-        width: 3rem; /* 48px */
-        height: 3rem; /* 48px */
-        font-size: 1.2rem;
-        border-radius: 0.875rem; /* 14px */
-    }
-
-    .fc1 { left: 2%; }
-    .fc2 { left: 2%; }
-    .fc3 { right: 2%; }
-    .fc4 { right: 2%; }
-    .fc7 { left: 1%; }
-    .fc8 { right: 1%; }
+/* Prevent ALL horizontal overflow sitewide */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
-/* Tablet (481px - 1024px) */
-@media (min-width: 481px) and (max-width: 1024px) {
-    button, 
-    a.nav-link, 
-    a.footer-link,
-    input,
-    select {
-        min-height: 44px;
-    }
+/* Main content padding for fixed header */
+main { padding-top: 4rem; }
 
-    .float-card {
-        width: 3.5rem;
-        height: 3.5rem;
-        font-size: 1.4rem;
-    }
+/* ── Touch targets: all interactive elements ≥ 44×44px on mobile ── */
+@media (max-width: 1023px) {
+  a, button, [role="button"], input[type="submit"], input[type="button"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  /* exceptions for inline text links */
+  p a, li a { min-height: unset; display: inline; }
 }
 
-/* Desktop (1025px+) */
-@media (min-width: 1025px) {
-    .float-card {
-        width: 4rem;
-        height: 4rem;
-        font-size: 1.65rem;
-    }
+/* ══════════════════════════════════════════
+   RESPONSIVE — HERO & INDEX PAGE
+   ══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Float cards: hide outer ones, shrink inner ones */
+  .fc5, .fc6, .fc9, .fc10 { display: none; }
+
+  .float-card {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+  }
+
+  .fc1 { left: 1%; }
+  .fc2 { left: 1%; }
+  .fc3 { right: 1%; }
+  .fc4 { right: 1%; }
+  .fc7 { left: 0.5%; }
+  .fc8 { right: 0.5%; }
+
+  /* Hero section reduced vertical padding */
+  #hero { padding-top: 5rem; padding-bottom: 3rem; }
 }
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .float-card {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.35rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .float-card {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.65rem;
+  }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — PROFILE PAGE
+   ══════════════════════════════════════════ */
+/* Stack sidebar above content on mobile */
+@media (max-width: 767px) {
+  /* Profile sidebar becomes a horizontal tab row */
+  .profile-sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+    position: static !important;
+  }
+
+  .profile-sidebar-nav a {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    min-height: 38px;
+  }
+
+  /* Profile section cards: reduce padding */
+  .profile-card-body { padding: 1.25rem !important; }
+  .profile-card-header { padding: 1rem 1.25rem !important; }
+
+  /* Profile row: stack label + button vertically */
+  .profile-info-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+  }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — LOOKUP PAGES (card layout)
+   ══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Result metric grids: always single column on narrow screens */
+  .result-metrics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form grids: single column */
+  .form-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Make the lookup result sections scrollable if they overflow */
+  .lookup-result-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Pricing card full-width on small screens */
+  .pricing-card { width: 100%; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — WATCHLISTS PAGE
+   ══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Watchlist tab buttons: scrollable row */
+  .watchlist-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Watchlist item detail grid: single column */
+  .watchlist-detail-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}

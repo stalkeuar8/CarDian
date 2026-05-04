@@ -1,46 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cardian — Admin Dashboard</title>
-  
-  <script>
-    // Simple Security Guard
-    const userRole = localStorage.getItem('cardian_user_role');
-    if (userRole !== 'admin') {
-      window.location.href = './index.html';
-    }
-  </script>
+import os
+import re
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { brand: '#ff9900' },
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
-
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="./css/style.css" />
-  <link rel="stylesheet" href="./css/header.css" />
-</head>
-<body class="bg-gray-50 font-sans text-gray-900 antialiased overflow-x-hidden flex flex-col min-h-screen">
-  
-    <!-- ══════════════════════════════════════════
+# ─── Canonical header for pages linked from root (index, etc.) ──────────────
+CANONICAL_HEADER = '''  <!-- ══════════════════════════════════════════
      NAVIGATION BAR — Sticky, backdrop blur
      ══════════════════════════════════════════ -->
   <header id="navbar">
@@ -135,74 +97,66 @@
       </div>
 
     </div>
-  </header>
+  </header>'''
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 w-full pt-32 pb-16 flex items-center justify-center">
-    <div class="text-center px-6">
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4">Admin Dashboard</h1>
-      <p class="text-lg text-gray-500 max-w-md mx-auto bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-        <i data-lucide="settings" class="w-8 h-8 mx-auto text-[#ff9900] mb-3"></i>
-        Admin functionality coming soon...
-      </p>
-    </div>
-  </main>
+# ─── CSS links to inject in <head> ──────────────────────────────────────────
+CSS_LINKS_TO_ADD = '  <link rel="stylesheet" href="./css/header.css" />'
+JS_LINKS_TO_ADD  = '  <script src="./js/menu.js"></script>'
 
-  <!-- FOOTER -->
-  <footer class="bg-gray-900 text-gray-400 py-16 px-6 mt-auto">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-      <!-- Column 1: Brand -->
-      <div>
-        <p class="text-2xl font-extrabold text-white mb-3">
-          Cardian<span class="text-[#ff9900]">.</span>
-        </p>
-        <p class="text-sm leading-relaxed text-gray-500">
-          AI-powered used car valuation. Get accurate, instant price analysis for any vehicle in seconds.
-        </p>
-        <p class="mt-6 text-xs text-gray-600">© 2026 Cardian. All rights reserved.</p>
-      </div>
+BASE_DIR = r'\\wsl.localhost\Ubuntu\home\artem\projects\cardian\frontend'
 
-      <!-- Column 2: Legal -->
-      <div>
-        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Legal</p>
-        <ul class="space-y-3 text-sm">
-          <li><a href="./terms.html" class="footer-link">Terms of Service</a></li>
-          <li><a href="./privacy.html" class="footer-link">Privacy Policy</a></li>
-        </ul>
-      </div>
+# regex to match the entire old header block
+HEADER_PATTERN = re.compile(
+    r'<!--\s*[═\s]*NAVIGATION BAR.*?</header>',
+    re.DOTALL | re.IGNORECASE
+)
 
-      <!-- Column 3: Company -->
-      <div>
-        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Company</p>
-        <ul class="space-y-3 text-sm">
-          <li><a href="./about.html" class="footer-link">About Us</a></li>
-          <li><a href="./docs.html" class="footer-link">Documentation</a></li>
-        </ul>
-      </div>
+# Also catch headers that start directly with <header id="navbar"
+HEADER_PATTERN2 = re.compile(
+    r'<header id="navbar".*?</header>',
+    re.DOTALL
+)
 
-      <!-- Column 4: Contact -->
-      <div>
-        <p class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Contact</p>
-        <a href="mailto:cardian@gmail.com" class="footer-link text-sm block mb-4 hover:text-[#ff9900] transition-colors">
-          cardian@gmail.com
-        </a>
-        <div class="flex items-center justify-start gap-4">
-          <div class="tip-wrap">
-            <a href="#" class="social-icon" aria-label="Instagram">
-              <i data-lucide="instagram" class="w-5 h-5"></i>
-            </a>
-          </div>
-          <div class="tip-wrap">
-            <a href="#" class="social-icon" aria-label="Telegram">
-              <i data-lucide="send" class="w-5 h-5"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+SKIP_FILES = {'fix_headers.py', 'rewrite_headers.py'}
 
-  <!-- Main JS -->
-  <script src="./js/main.js"></script>
-</body>
-</html>
+for root, dirs, files in os.walk(BASE_DIR):
+    # don't recurse into subdirs other than root
+    dirs.clear()
+    for f in files:
+        if not f.endswith('.html'):
+            continue
+        if f in SKIP_FILES:
+            continue
+
+        path = os.path.join(root, f)
+        with open(path, 'r', encoding='utf-8') as fh:
+            content = fh.read()
+
+        orig = content
+
+        # 1. Insert header.css if not present
+        if 'header.css' not in content:
+            content = content.replace(
+                '<link rel="stylesheet" href="./css/style.css" />',
+                '<link rel="stylesheet" href="./css/style.css" />\n' + CSS_LINKS_TO_ADD
+            )
+
+        # 2. Replace old header HTML
+        new_content, n1 = HEADER_PATTERN.subn(CANONICAL_HEADER, content)
+        if n1 == 0:
+            new_content, n2 = HEADER_PATTERN2.subn(CANONICAL_HEADER, content)
+        else:
+            n2 = 0
+
+        content = new_content
+
+        # 3. Insert menu.js before </body> if not present
+        if 'menu.js' not in content:
+            content = content.replace('</body>', JS_LINKS_TO_ADD + '\n</body>')
+
+        if content != orig:
+            with open(path, 'w', encoding='utf-8') as fh:
+                fh.write(content)
+            print(f'  Updated: {f}  (header replaced: {n1+n2})')
+        else:
+            print(f'  Skipped: {f}  (no changes needed)')
