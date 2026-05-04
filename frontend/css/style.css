@@ -5,7 +5,7 @@
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
-    width: 6px
+    width: 0.375rem; /* 6px */
 }
 
 ::-webkit-scrollbar-track {
@@ -67,8 +67,8 @@
     top: 10%;
     left: 50%;
     transform: translateX(-50%);
-    width: min(700px, 90vw);
-    height: 400px;
+    width: min(43.75rem, 90vw); /* 700px */
+    height: 25rem; /* 400px */
     background: radial-gradient(ellipse at center, rgba(255, 153, 0, 0.08) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
@@ -164,13 +164,13 @@
 
 .float-card {
     position: absolute;
-    width: 64px;
-    height: 64px;
+    width: 4rem; /* 64px */
+    height: 4rem; /* 64px */
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 153, 0, 0.15);
-    border-radius: 18px;
+    border-radius: 1.125rem; /* 18px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,7 +274,7 @@
 .hero-img-wrap {
     position: relative;
     width: 100%;
-    max-width: 1100px;
+    max-width: 68.75rem; /* 1100px */
     margin-left: auto;
     margin-right: auto;
 }
@@ -386,46 +386,61 @@
 /* ══════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════ */
-@media (max-width: 900px) {}
 
-@media (max-width: 640px) {
+/* Mobile (320px - 480px) */
+@media (min-width: 320px) and (max-width: 480px) {
+    /* Touch friendly minimums */
+    button, 
+    a.nav-link, 
+    a.footer-link,
+    input,
+    select {
+        min-height: 44px;
+        min-width: 44px;
+    }
 
     /* Hide outer float cards on small screens */
-    .fc5,
-    .fc6,
-    .fc9,
-    .fc10 {
-        display: none
+    .fc5, .fc6, .fc9, .fc10 {
+        display: none;
     }
 
     .float-card {
-        width: 48px;
-        height: 48px;
+        width: 3rem; /* 48px */
+        height: 3rem; /* 48px */
         font-size: 1.2rem;
-        border-radius: 14px
+        border-radius: 0.875rem; /* 14px */
     }
 
-    .fc1 {
-        left: 2%
+    .fc1 { left: 2%; }
+    .fc2 { left: 2%; }
+    .fc3 { right: 2%; }
+    .fc4 { right: 2%; }
+    .fc7 { left: 1%; }
+    .fc8 { right: 1%; }
+}
+
+/* Tablet (481px - 1024px) */
+@media (min-width: 481px) and (max-width: 1024px) {
+    button, 
+    a.nav-link, 
+    a.footer-link,
+    input,
+    select {
+        min-height: 44px;
     }
 
-    .fc2 {
-        left: 2%
+    .float-card {
+        width: 3.5rem;
+        height: 3.5rem;
+        font-size: 1.4rem;
     }
+}
 
-    .fc3 {
-        right: 2%
-    }
-
-    .fc4 {
-        right: 2%
-    }
-
-    .fc7 {
-        left: 1%
-    }
-
-    .fc8 {
-        right: 1%
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+    .float-card {
+        width: 4rem;
+        height: 4rem;
+        font-size: 1.65rem;
     }
 }
