@@ -1,0 +1,239 @@
+/* ═══════════════════════════════════════════════════════
+   Cardian — responsive.css
+   Single source of truth for ALL mobile/responsive styles.
+   Loaded on every page. Desktop styles are NOT touched here.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 1. GLOBAL RESET ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* ── 2. FIXED HEADER CLEARANCE ──
+   Every page's <main> must clear the 64px fixed navbar.
+   Pages that set their own pt-24 / pt-28 / pt-32 via Tailwind
+   are fine; this provides the fallback minimum.
+*/
+main {
+  padding-top: 4rem; /* 64px = navbar height */
+}
+
+/* ─────────────────────────────────────────────────────
+   3. UNIVERSAL HEADER (matches header.css structure)
+   These rules ensure the header NEVER breaks regardless
+   of which CSS loads first.
+───────────────────────────────────────────────────── */
+#navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+/* ─────────────────────────────────────────────────────
+   4. MOBILE TOUCH TARGETS (< 1024px)
+   All interactive elements must be ≥ 44px tall.
+───────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  /* Buttons and anchor-buttons */
+  button,
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"] {
+    min-height: 44px;
+  }
+
+  /* Block-level links (nav links, mobile menu items) */
+  .mobile-nav-link,
+  .mobile-menu-btn,
+  #mobile-auth-guest a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   5. HERO — reduce whitespace on mobile
+───────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  #hero {
+    padding-top: 5.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* Float cards: hide outer ones, shrink inner */
+  .fc5, .fc6, .fc9, .fc10 { display: none; }
+
+  .float-card {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.05rem;
+    border-radius: 0.75rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .float-card {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.3rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   6. PRICING CARDS — full width on narrow mobile
+───────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .pricing-card {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   7. LOOKUP PAGES — card-based layout on mobile
+   (parsed_lookups.html and manual_lookups.html)
+───────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+
+  /* Result metric grids → single column */
+  [class*="grid-cols-2"],
+  [class*="grid-cols-3"],
+  [class*="grid-cols-4"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Preserve 2-col for very small grids explicitly marked as 2 */
+  .sm\:grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Form section headings — smaller on mobile */
+  .lookup-section-title {
+    font-size: 0.875rem !important;
+  }
+
+  /* Input rows — full width */
+  .lookup-input-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Result area: wrap and scroll if needed */
+  .lookup-result-area {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Manual lookup form grid */
+  .manual-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   8. PROFILE PAGE — sidebar → tabs on mobile
+───────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Sidebar stacks on top (Tailwind flex-col handles this)
+     but make the inner nav horizontal-scrollable */
+  .profile-sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem !important;
+    position: static !important;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .profile-sidebar-nav::-webkit-scrollbar { display: none; }
+
+  .profile-sidebar-nav a {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.5rem 1rem !important;
+    min-height: 40px;
+    font-size: 0.8125rem;
+    border-radius: 0.625rem !important;
+  }
+
+  /* Cards: reduce horizontal padding */
+  .profile-card-header,
+  .profile-card-body {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Profile info rows: stack label + button vertically */
+  .profile-info-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Edit buttons take full width */
+  .profile-info-row > button,
+  .profile-info-row > a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   9. WATCHLISTS — tab strip scrollable on mobile
+───────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Tab strip: horizontal scroll instead of wrapping */
+  .watchlist-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+  .watchlist-tabs::-webkit-scrollbar { display: none; }
+
+  /* Detail grid: 2 cols on mobile (instead of 4) */
+  .watchlist-detail-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Watchlist cards list — full width */
+  .watchlist-card { width: 100% !important; }
+}
+
+/* ─────────────────────────────────────────────────────
+   10. ADMIN PANEL — center content safely
+───────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .admin-dashboard-title {
+    font-size: 2rem !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   11. FOOTER — prevent text overflow on narrow screens
+───────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+  footer .footer-link,
+  footer p {
+    word-break: break-word;
+  }
+}
+
+/* ─────────────────────────────────────────────────────
+   12. MODALS — ensure modals fit small screens
+───────────────────────────────────────────────────── */
+@media (max-width: 479px) {
+  [role="dialog"] > div:last-child,
+  .modal-panel {
+    padding: 1.5rem !important;
+    margin: 0.75rem !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
