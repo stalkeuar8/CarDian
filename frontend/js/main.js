@@ -272,7 +272,7 @@ function openModal(id) {
   modal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   const first = modal.querySelector('input, button:not([aria-label="Close"])');
-  if (first) setTimeout(() => first.focus(), 80);
+  if (first) setTimeout(() => first.focus({ preventScroll: true }), 80);
 }
 
 function closeModal(id) {
@@ -400,7 +400,8 @@ async function handleSignUp(e) {
    Auth — Log out
    POST /v1/auth/logout (Bearer token)
    ───────────────────────────────────────── */
-async function handleLogout() {
+async function handleLogout(e) {
+  if (e && e.preventDefault) e.preventDefault();
   const token = localStorage.getItem(TOKEN_KEY);
   try {
     await fetch(`${API_BASE}/v1/auth/logout`, {
@@ -719,7 +720,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
       const targetId = anchor.getAttribute('href');
-      if (targetId === '#') return;
+      if (targetId === '#') {
+        e.preventDefault();
+        return;
+      }
       const target = document.querySelector(targetId);
       if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     });
@@ -749,20 +753,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Close modals
-  document.getElementById('modal-signin-close')?.addEventListener('click', () => closeModal('modal-signin'));
-  document.getElementById('modal-signup-close')?.addEventListener('click', () => closeModal('modal-signup'));
-  document.getElementById('modal-signin-backdrop')?.addEventListener('click', () => closeModal('modal-signin'));
-  document.getElementById('modal-signup-backdrop')?.addEventListener('click', () => closeModal('modal-signup'));
+  document.getElementById('modal-signin-close')?.addEventListener('click', (e) => { e.preventDefault(); closeModal('modal-signin'); });
+  document.getElementById('modal-signup-close')?.addEventListener('click', (e) => { e.preventDefault(); closeModal('modal-signup'); });
+  document.getElementById('modal-signin-backdrop')?.addEventListener('click', (e) => { e.preventDefault(); closeModal('modal-signin'); });
+  document.getElementById('modal-signup-backdrop')?.addEventListener('click', (e) => { e.preventDefault(); closeModal('modal-signup'); });
 
   // ESC
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
 
   // Switch Sign In ↔ Sign Up
-  document.getElementById('switch-to-signup')?.addEventListener('click', () => {
-    closeModal('modal-signin'); clearError('signup-error'); openModal('modal-signup');
+  document.getElementById('switch-to-signup')?.addEventListener('click', (e) => {
+    e.preventDefault(); closeModal('modal-signin'); clearError('signup-error'); openModal('modal-signup');
   });
-  document.getElementById('switch-to-signin')?.addEventListener('click', () => {
-    closeModal('modal-signup'); clearError('signin-error'); openModal('modal-signin');
+  document.getElementById('switch-to-signin')?.addEventListener('click', (e) => {
+    e.preventDefault(); closeModal('modal-signup'); clearError('signin-error'); openModal('modal-signin');
   });
 
   // Log out
