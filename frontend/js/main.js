@@ -137,6 +137,7 @@ async function checkAuthState() {
   const token    = localStorage.getItem(TOKEN_KEY);
   const guestNav = document.getElementById('auth-buttons-guest');
   const userNav  = document.getElementById('auth-buttons-user');
+  const mobileUserElements = document.getElementById('mobile-user-elements');
   
   const heroGuest = document.getElementById('hero-cta-guest');
   const heroUser  = document.getElementById('hero-cta-user');
@@ -144,10 +145,14 @@ async function checkAuthState() {
   if (!guestNav || !userNav) return;
 
   if (token) {
-    guestNav.classList.remove('md:flex');
     guestNav.classList.add('hidden');
+    guestNav.classList.remove('flex');
     userNav.classList.remove('hidden');
     userNav.classList.add('flex');
+    if (mobileUserElements) {
+      mobileUserElements.classList.remove('hidden');
+      mobileUserElements.classList.add('flex');
+    }
 
     if (heroGuest && heroUser) {
       heroGuest.classList.add('hidden');
@@ -173,9 +178,13 @@ async function checkAuthState() {
         localStorage.removeItem(REFRESH_KEY);
         localStorage.removeItem('cardian_user_role');
         guestNav.classList.remove('hidden');
-        guestNav.classList.add('md:flex');
+        guestNav.classList.add('flex');
         userNav.classList.remove('flex');
         userNav.classList.add('hidden');
+        if (mobileUserElements) {
+          mobileUserElements.classList.remove('flex');
+          mobileUserElements.classList.add('hidden');
+        }
 
         if (heroGuest && heroUser) {
           heroUser.classList.add('hidden');
@@ -195,18 +204,33 @@ async function checkAuthState() {
           const logoutBtn = document.getElementById('btn-logout');
           if (logoutBtn) {
             const btnHtml = `
-              <a href="./admin_panel.html" id="btn-admin-panel" class="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gray-900 hover:bg-black hover:scale-105 transition-all duration-200 shadow-md flex items-center gap-1.5">
+              <a href="./admin_panel.html" id="btn-admin-panel" class="hidden md:flex px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gray-900 hover:bg-black hover:scale-105 transition-all duration-200 shadow-md items-center gap-1.5 shrink-0">
                 <i data-lucide="shield" class="w-4 h-4"></i>
                 Admin panel
               </a>
             `;
             logoutBtn.insertAdjacentHTML('beforebegin', btnHtml);
-            if (typeof lucide !== 'undefined') lucide.createIcons();
           }
         }
+        let adminBtnMobile = document.getElementById('btn-admin-panel-mobile');
+        if (!adminBtnMobile) {
+          const logoutBtnMobile = document.getElementById('btn-logout-mobile');
+          if (logoutBtnMobile) {
+            const btnHtmlMobile = `
+              <a href="./admin_panel.html" id="btn-admin-panel-mobile" class="flex w-full items-center gap-3 text-base font-medium text-gray-900 hover:bg-gray-100 py-3 rounded-lg transition-colors px-2">
+                <i data-lucide="shield" class="w-5 h-5"></i>
+                Admin panel
+              </a>
+            `;
+            logoutBtnMobile.insertAdjacentHTML('beforebegin', btnHtmlMobile);
+          }
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
       } else {
         const adminBtn = document.getElementById('btn-admin-panel');
         if (adminBtn) adminBtn.remove();
+        const adminBtnMobile = document.getElementById('btn-admin-panel-mobile');
+        if (adminBtnMobile) adminBtnMobile.remove();
       }
 
     } catch (_) { /* network error, leave balance as — */ }
@@ -215,7 +239,11 @@ async function checkAuthState() {
     userNav.classList.remove('flex');
     userNav.classList.add('hidden');
     guestNav.classList.remove('hidden');
-    guestNav.classList.add('md:flex');
+    guestNav.classList.add('flex');
+    if (mobileUserElements) {
+      mobileUserElements.classList.remove('flex');
+      mobileUserElements.classList.add('hidden');
+    }
 
     if (heroGuest && heroUser) {
       heroUser.classList.add('hidden');
@@ -231,6 +259,8 @@ async function checkAuthState() {
 function updateHeaderBalance(balance) {
   const el = document.getElementById('header-balance');
   if (el) el.textContent = `Tokens: ${balance}`;
+  const mobileEl = document.getElementById('mobile-balance');
+  if (mobileEl) mobileEl.textContent = `Tokens: ${balance}`;
 }
 
 /* ─────────────────────────────────────────
@@ -737,10 +767,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Log out
   document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
+  document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
 
   /* Global checkout click delegation for index/profile modal contexts */
   document.addEventListener('click', (e) => {
-    const topupBtn = e.target.closest('#btn-topup');
+    const topupBtn = e.target.closest('#btn-topup, #btn-topup-mobile');
     if (topupBtn) {
       e.preventDefault();
       document.getElementById('topup-error')?.classList.add('hidden');
